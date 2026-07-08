@@ -171,9 +171,9 @@
       <div class="mb-lg">
         <label class="form-label">Ingresar como</label>
         <div class="role-selector">
-          <button class="role-btn active" onclick="selectRole(this)">Empresa</button>
-          <button class="role-btn" onclick="selectRole(this)">Administrador</button>
-          <button class="role-btn" onclick="selectRole(this)">Cliente</button>
+          <button type="button" class="role-btn active" data-role="empresa" onclick="selectRole(this)">Empresa</button>
+          <button type="button" class="role-btn" data-role="admin" onclick="selectRole(this)">Administrador</button>
+          <button type="button" class="role-btn" data-role="cliente" onclick="selectRole(this)">Cliente</button>
         </div>
       </div>
 
@@ -209,7 +209,7 @@
           </div>
         </div>
 
-        <a href="/recuperar" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        <a href="./pages/recuperar/" class="forgot-link">¿Olvidaste tu contraseña?</a>
 
         <button type="submit" class="btn btn-dark btn-full btn-lg">
           Entrar
@@ -217,7 +217,7 @@
       </form>
 
       <div class="auth-footer">
-        ¿Primera vez? <a href="/registro">Registra tu empresa</a>
+        ¿Primera vez? <a href="./pages/registro/">Registra tu empresa</a>
       </div>
     </div>
   </div>
@@ -249,10 +249,18 @@
     }
   }
 
+  const roleRedirects = {
+    empresa: './pages/dashboard/',
+    admin: './pages/admin/',
+    cliente: './pages/clientes/',
+  };
+
   function handleLogin(e) {
     e.preventDefault();
     // TODO: conectar con API
-    window.location.href = '/pages/dashboard/';
+    const activeBtn = document.querySelector('.role-btn.active');
+    const role = activeBtn ? activeBtn.getAttribute('data-role') : 'empresa';
+    window.location.href = roleRedirects[role] || roleRedirects.empresa;
   }
 </script>
 </body>
