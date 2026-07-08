@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — [NOMBRE DE PANTALLA]</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/components.css">
+<link rel="stylesheet" href="/assets/css/layout.css">
+<!-- CSS específico de esta pantalla: -->
+<!-- <link rel="stylesheet" href="./[pantalla].css"> -->
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">PD</div>
+        <span class="logo-name">PayDesk</span>
+      </div>
+      <div class="sidebar-company">
+        <div class="company-avatar">TC</div>
+        <div>
+          <div class="company-name">Todo Cerámicas</div>
+          <div class="company-sede">Sede Centro</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-new-btn">
+        <i class="ti ti-plus"></i> Nueva venta
+      </button>
+
+      <span class="nav-label">Principal</span>
+      <a href="/dashboard" class="nav-item"><i class="ti ti-home"></i> Inicio</a>
+      <a href="/venta" class="nav-item"><i class="ti ti-shopping-cart"></i> Punto de venta</a>
+      <a href="/ventas" class="nav-item"><i class="ti ti-receipt"></i> Ventas</a>
+      <a href="/cfdi" class="nav-item"><i class="ti ti-file-invoice"></i> CFDI</a>
+
+      <span class="nav-label">Catálogo</span>
+      <a href="/catalogo" class="nav-item"><i class="ti ti-package"></i> Productos</a>
+      <a href="/catalogo/categorias" class="nav-item"><i class="ti ti-category"></i> Categorías</a>
+      <a href="/descuentos" class="nav-item"><i class="ti ti-tag"></i> Descuentos</a>
+      <a href="/precios" class="nav-item"><i class="ti ti-currency-dollar"></i> Listas de precios</a>
+
+      <span class="nav-label">Inventario</span>
+      <a href="/inventario" class="nav-item"><i class="ti ti-building-warehouse"></i> Inventario</a>
+      <a href="/proveedores" class="nav-item"><i class="ti ti-truck"></i> Proveedores</a>
+      <a href="/compras" class="nav-item"><i class="ti ti-shopping-bag"></i> Compras</a>
+
+      <span class="nav-label">Clientes</span>
+      <a href="/clientes" class="nav-item"><i class="ti ti-users"></i> Clientes</a>
+      <a href="/cuentas-cobrar" class="nav-item"><i class="ti ti-credit-card"></i> Cuentas por cobrar</a>
+
+      <span class="nav-label">Finanzas</span>
+      <a href="/caja" class="nav-item"><i class="ti ti-cash"></i> Caja</a>
+      <a href="/reportes" class="nav-item"><i class="ti ti-chart-bar"></i> Reportes</a>
+
+      <span class="nav-label">Configuración</span>
+      <a href="/sedes" class="nav-item"><i class="ti ti-building"></i> Sedes</a>
+      <a href="/usuarios" class="nav-item"><i class="ti ti-users-group"></i> Usuarios</a>
+      <a href="/configuracion" class="nav-item"><i class="ti ti-settings"></i> Configuración</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar-sm">SR</div>
+        <div>
+          <div class="user-name-sm">Sofía Reyes</div>
+          <div class="user-role-sm">Administradora</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">[NOMBRE DE PANTALLA]</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- PAGE CONTENT GOES HERE -->
+
+    </main>
+
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="/assets/js/utils.js"></script>
+<!-- JS específico de esta pantalla: -->
+<!-- <script src="./[pantalla].js"></script> -->
+</body>
+</html>

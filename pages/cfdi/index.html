@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — CFDI</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">CFDI</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar por folio fiscal, RFC o cliente..." oninput="filterCFDI(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="date" class="form-input" id="fecha-desde" style="height:36px;width:140px;"/>
+          <span style="color:var(--text-muted);font-size:var(--font-sm);">a</span>
+          <input type="date" class="form-input" id="fecha-hasta" style="height:36px;width:140px;"/>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Exportando...')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Métricas -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">CFDIs del mes</div>
+          <div class="metric-value">287</div>
+          <div class="metric-delta">↑ 12% vs mes anterior</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Timbrados</div>
+          <div class="metric-value">262</div>
+          <div class="metric-delta">91.6% del total</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Pendientes</div>
+          <div class="metric-value">25</div>
+          <div class="metric-delta neg">Por timbrar</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Timbres disponibles</div>
+          <div class="metric-value">1,713</div>
+          <div class="metric-delta">De 2,000 comprados</div>
+        </div>
+      </div>
+
+      <!-- Alerta de timbres bajos -->
+      <div style="background:var(--warning-bg);border:1px solid var(--warning);border-radius:var(--radius-lg);padding:var(--space-lg);display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-page);">
+        <i class="ti ti-alert-triangle" style="font-size:20px;color:var(--warning);flex-shrink:0;"></i>
+        <div style="flex:1;">
+          <div style="font-size:var(--font-md);font-weight:500;color:var(--text-primary);">Timbres por agotarse</div>
+          <div style="font-size:var(--font-sm);color:var(--text-secondary);">Te quedan 1,713 timbres. Considera comprar más para no interrumpir la facturación.</div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="border-color:var(--warning);color:var(--warning);" onclick="showToast('Redirigiendo a compra de timbres...')">
+          Comprar timbres
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todos')">Todos</div>
+        <div class="tab-item" onclick="selectTab(this, 'timbrado')">Timbrados</div>
+        <div class="tab-item" onclick="selectTab(this, 'pendiente')">Pendientes</div>
+        <div class="tab-item" onclick="selectTab(this, 'cancelado')">Cancelados</div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio fiscal (UUID)</th>
+              <th>Cliente / RFC</th>
+              <th>Venta</th>
+              <th>Fecha timbrado</th>
+              <th>Total</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cfdi-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const cfdis = [
+    { uuid:'A1B2C3D4-E5F6-7890-ABCD-EF1234567890', cliente:'Mario Rodríguez',    rfc:'ROMAR880512AB1', venta:'VTA-2026-0312', fecha:'30 jun 2026 · 10:15', total:2340.00, estatus:'timbrado'  },
+    { uuid:'',                                      cliente:'Laura González',     rfc:'GOLA920304CD2', venta:'VTA-2026-0311', fecha:'—',                   total:890.00,  estatus:'pendiente' },
+    { uuid:'B2C3D4E5-F6A7-8901-BCDE-F12345678901', cliente:'Público general',    rfc:'XAXX010101000', venta:'VTA-2026-0310', fecha:'30 jun 2026 · 09:03', total:450.00,  estatus:'timbrado'  },
+    { uuid:'C3D4E5F6-A7B8-9012-CDEF-123456789012', cliente:'Construrama Tepito', rfc:'CSA010101XYZ',  venta:'VTA-2026-0309', fecha:'29 jun 2026 · 16:46', total:3200.00, estatus:'timbrado'  },
+    { uuid:'D4E5F6A7-B8C9-0123-DEFA-234567890123', cliente:'Arq. Pérez Romero',  rfc:'PERA750610EF3', venta:'VTA-2026-0308', fecha:'29 jun 2026 · 14:21', total:1890.00, estatus:'timbrado'  },
+    { uuid:'F6A7B8C9-D0E1-2345-FABC-456789012345', cliente:'Mario Rodríguez',    rfc:'ROMAR880512AB1', venta:'VTA-2026-0306', fecha:'28 jun 2026 · 09:16', total:760.00,  estatus:'cancelado' },
+  ];
+
+  let tabActual = 'todos';
+  let filtroTexto = '';
+
+  function renderCFDI() {
+    let lista = cfdis.filter(c => {
+      const matchText = !filtroTexto ||
+        c.uuid.toLowerCase().includes(filtroTexto) ||
+        c.cliente.toLowerCase().includes(filtroTexto) ||
+        c.rfc.toLowerCase().includes(filtroTexto) ||
+        c.venta.toLowerCase().includes(filtroTexto);
+      const matchTab = tabActual === 'todos' ? true : c.estatus === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('cfdi-body');
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-file-invoice" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin CFDIs encontrados
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(c => {
+      const badge = c.estatus === 'timbrado'
+        ? `<span class="badge badge-success">Timbrado</span>`
+        : c.estatus === 'pendiente'
+          ? `<span class="badge badge-warning">Pendiente</span>`
+          : `<span class="badge badge-danger">Cancelado</span>`;
+
+      const uuidDisplay = c.uuid
+        ? `<span style="font-size:11px;font-family:monospace;color:var(--text-secondary);">${c.uuid.substring(0,18)}...</span>`
+        : `<span style="color:var(--text-muted);font-size:var(--font-sm);">Sin UUID</span>`;
+
+      return `
+        <tr>
+          <td>${uuidDisplay}</td>
+          <td>
+            <div style="font-weight:500;color:var(--text-primary);">${c.cliente}</div>
+            <div style="font-size:var(--font-xs);color:var(--text-muted);font-family:monospace;">${c.rfc}</div>
+          </td>
+          <td style="color:var(--accent);font-weight:500;font-size:var(--font-md);">${c.venta}</td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${c.fecha}</td>
+          <td style="font-weight:500;">$${c.total.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+          <td>${badge}</td>
+          <td>
+            <div style="display:flex;gap:4px;justify-content:flex-end;">
+              ${c.estatus === 'timbrado' ? `
+                <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando PDF...')" data-tooltip="PDF">
+                  <i class="ti ti-file-type-pdf" style="font-size:15px;color:var(--danger);"></i>
+                </button>
+                <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando XML...')" data-tooltip="XML">
+                  <i class="ti ti-code" style="font-size:15px;"></i>
+                </button>
+              ` : ''}
+              ${c.estatus === 'pendiente' ? `
+                <button class="btn btn-primary btn-sm" onclick="timbrarCFDI(this)">
+                  <i class="ti ti-bolt"></i> Timbrar
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function filterCFDI(q) { filtroTexto = q.toLowerCase(); renderCFDI(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderCFDI();
+  }
+
+  function timbrarCFDI(btn) {
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Timbrando...';
+    btn.disabled = true;
+    setTimeout(() => {
+      showToast('CFDI timbrado correctamente');
+      renderCFDI();
+    }, 1500);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById('fecha-desde').value = hace30;
+    document.getElementById('fecha-hasta').value = hoy;
+    renderCFDI();
+  });
+</script>
+</body>
+</html>

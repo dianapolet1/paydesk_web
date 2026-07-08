@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Tablero Kanban</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  /* ── Board layout ── */
+  .kb-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--topbar-height));
+    overflow: hidden;
+  }
+
+  .kb-statsbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 10px var(--space-page);
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+
+  .kb-statsbar::-webkit-scrollbar { height: 0; }
+
+  .kb-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color var(--transition);
+    white-space: nowrap;
+    min-width: 72px;
+  }
+
+  .kb-stat:hover { border-color: var(--accent); }
+  .kb-stat.total { border-color: var(--dark); background: var(--dark); }
+  .kb-stat.total .kb-stat-num { color: #fff; }
+  .kb-stat.total .kb-stat-lbl { color: #888; }
+  .kb-stat-num { font-size: var(--font-xl); font-weight: 500; color: var(--text-primary); line-height: 1; }
+  .kb-stat-lbl { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── Board ── */
+  .kb-board {
+    display: flex;
+    gap: var(--space-lg);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--space-xl) var(--space-page);
+    flex: 1;
+    align-items: flex-start;
+  }
+
+  .kb-board::-webkit-scrollbar { height: 6px; }
+  .kb-board::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Columna ── */
+  .kb-col {
+    min-width: 280px;
+    max-width: 280px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    border: 1px solid var(--border);
+  }
+
+  .kb-col.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .kb-col-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 12px var(--space-md);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .kb-col-dot {
+    width: 8px; height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+
+  .kb-col-name {
+    flex: 1;
+    font-size: var(--font-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: default;
+  }
+
+  .kb-col-badge {
+    min-width: 22px; height: 22px;
+    border-radius: var(--radius-full);
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 6px;
+  }
+
+  .kb-col-badge.has-cards {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .kb-col-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); padding: 2px 5px;
+    border-radius: var(--radius-xs);
+    font-size: 14px;
+    transition: color var(--transition), background var(--transition);
+  }
+
+  .kb-col-btn:hover { color: var(--text-primary); background: var(--border); }
+  .kb-col-btn.danger:hover { color: var(--danger); background: var(--danger-bg); }
+
+  .kb-col-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-height: 60px;
+  }
+
+  .kb-col-body::-webkit-scrollbar { width: 3px; }
+  .kb-col-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .kb-col-footer {
+    padding: var(--space-sm);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .kb-add-card {
+    width: 100%; background: none; border: 1px dashed var(--border);
+    border-radius: var(--radius-sm); padding: 7px;
+    font-size: var(--font-sm); color: var(--text-muted);
+    cursor: pointer; transition: all var(--transition);
+    font-family: var(--font-family);
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+
+  .kb-add-card:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  /* ── Botón agregar columna ── */
+  .kb-add-col {
+    min-width: 60px; max-width: 60px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+    background: none; cursor: pointer;
+    color: var(--text-muted); font-size: var(--font-xl);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 0;
+    height: 100px; align-self: flex-start;
+    transition: all var(--transition);
+    font-family: var(--font-family);
+  }
+
+  .kb-add-col:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  /* ── Cards ── */
+  .kb-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    cursor: grab;
+    transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+    position: relative;
+  }
+
+  .kb-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+  .kb-card:active { cursor: grabbing; }
+  .kb-card.dragging { opacity: 0.4; transform: rotate(1deg); }
+  .kb-card.drag-placeholder { border: 2px dashed var(--accent); background: var(--accent-light); min-height: 60px; }
+
+  /* Card content */
+  .card-folio {
+    font-size: var(--font-sm); font-weight: 600;
+    color: var(--accent); margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .card-cliente {
+    font-size: var(--font-md); font-weight: 500;
+    color: var(--text-primary); margin-bottom: 6px;
+  }
+
+  .card-monto {
+    font-size: var(--font-xl); font-weight: 500;
+    color: var(--text-primary); margin-bottom: 8px;
+  }
+
+  .card-tags {
+    display: flex; gap: 5px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .card-meta {
+    font-size: var(--font-xs); color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  /* SLA indicator */
+  .sla-dot {
+    width: 8px; height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+
+  .sla-verde   { background: var(--success); }
+  .sla-amarillo{ background: #F59E0B; }
+  .sla-naranja { background: #F97316; }
+  .sla-rojo    { background: var(--danger); }
+
+  /* Responsable select */
+  .card-responsable {
+    width: 100%;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 0 8px;
+    font-family: var(--font-family);
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .card-responsable:focus { border-color: var(--accent); }
+
+  /* Historial toggle */
+  .card-hist-toggle {
+    font-size: 11px; color: var(--text-muted);
+    cursor: pointer; margin-bottom: 4px;
+    transition: color var(--transition);
+  }
+
+  .card-hist-toggle:hover { color: var(--accent); }
+
+  .card-hist-body {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+
+  .hist-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hist-row:last-child { border-bottom: none; }
+  .hist-col { font-weight: 500; color: var(--text-primary); }
+  .hist-dur { color: var(--accent); font-weight: 500; }
+  .hist-resp { color: var(--text-secondary); }
+  .hist-fecha { color: var(--text-muted); }
+
+  /* Card footer */
+  .card-footer {
+    display: flex; gap: var(--space-sm);
+    padding-top: 8px;
+    border-top: 1px solid var(--divider);
+  }
+
+  /* Búsqueda en topbar */
+  .kb-search-box {
+    display: flex; align-items: center; gap: var(--space-sm);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 7px 12px;
+    width: 240px; transition: border-color var(--transition);
+  }
+
+  .kb-search-box:focus-within { border-color: var(--accent); }
+  .kb-search-box input { border: none; background: transparent; font-size: var(--font-md); outline: none; font-family: var(--font-family); width: 100%; color: var(--text-primary); }
+  .kb-search-box input::placeholder { color: var(--text-muted); }
+</style>
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Tablero</span>
+        <div class="kb-search-box">
+          <i class="ti ti-search" style="font-size:15px;color:var(--text-muted);"></i>
+          <input type="text" placeholder="Buscar por cliente o folio..." oninput="filtrarCards(this.value)" id="kb-search"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-columna')">
+          <i class="ti ti-plus"></i> Columna
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="openCardModal()">
+          <i class="ti ti-plus"></i> Nueva tarjeta
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Exportando a XLSX...')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="kb-wrap">
+
+      <!-- Stats bar -->
+      <div class="kb-statsbar" id="kb-statsbar"></div>
+
+      <!-- Board -->
+      <div class="kb-board" id="kb-board"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Crear / Editar tarjeta ── -->
+<div class="modal-overlay" id="modal-card">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title" id="card-modal-title">Nueva tarjeta</span>
+      <button class="modal-close" onclick="closeModal('modal-card')"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Folio / Referencia *</label>
+        <input type="text" class="form-input" id="c-folio" placeholder="Ej. VTA-2026-0312"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Columna *</label>
+        <select class="form-select" id="c-columna"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Cliente *</label>
+      <input type="text" class="form-input" id="c-cliente" placeholder="Nombre del cliente o empresa"/>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Monto</label>
+        <input type="number" class="form-input" id="c-monto" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Responsable</label>
+        <select class="form-select" id="c-responsable">
+          <option value="">— Sin asignar —</option>
+          <option>Sofía Reyes</option>
+          <option>Juan Méndez</option>
+          <option>Ana López</option>
+          <option>Carlos Ruiz</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="c-tipo">
+          <option value="venta">Venta</option>
+          <option value="cfdi">CFDI pendiente</option>
+          <option value="credito">Crédito / Cobro</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prioridad</label>
+        <select class="form-select" id="c-prioridad">
+          <option value="normal">Normal</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Descripción / Notas</label>
+      <textarea class="form-textarea" id="c-notas" placeholder="Detalles adicionales..." style="min-height:80px;"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-card')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarCard()">
+        <i class="ti ti-check"></i> Guardar tarjeta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Nueva columna ── -->
+<div class="modal-overlay" id="modal-columna">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">Nueva columna</span>
+      <button class="modal-close" onclick="closeModal('modal-columna')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la columna *</label>
+      <input type="text" class="form-input" id="col-nombre" placeholder="Ej. En revisión, Aprobado..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div style="display:flex;gap:var(--space-sm);" id="col-colores">
+        <button type="button" class="col-color-btn active" data-color="#48CAE4" style="width:28px;height:28px;border-radius:var(--radius-full);background:#48CAE4;border:2px solid #48CAE4;cursor:pointer;"></button>
+        <button type="button" class="col-color-btn" data-color="#2DBD7E" style="width:28px;height:28px;border-radius:var(--radius-full);background:#2DBD7E;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="col-color-btn" data-color="#BA7517" style="width:28px;height:28px;border-radius:var(--radius-full);background:#BA7517;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="col-color-btn" data-color="#E24B4A" style="width:28px;height:28px;border-radius:var(--radius-full);background:#E24B4A;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="col-color-btn" data-color="#1565C0" style="width:28px;height:28px;border-radius:var(--radius-full);background:#1565C0;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="col-color-btn" data-color="#888888" style="width:28px;height:28px;border-radius:var(--radius-full);background:#888888;border:2px solid transparent;cursor:pointer;"></button>
+      </div>
+      <input type="hidden" id="col-color" value="#48CAE4"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-columna')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarColumna()">
+        <i class="ti ti-check"></i> Crear columna
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Confirmar eliminar columna ── -->
+<div class="modal-overlay" id="modal-del-col">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="width:52px;height:52px;background:var(--danger-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-trash" style="font-size:24px;color:var(--danger);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¿Eliminar columna?</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);" id="del-col-msg">—</p>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-del-col')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarDelCol()"><i class="ti ti-trash"></i> Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+// ── Estado global ─────────────────────────────────────────────────────────
+let columnas = [
+  { id:1, nombre:'Recibido',    color:'#888888', protegida:true  },
+  { id:2, nombre:'En revisión', color:'#BA7517', protegida:false },
+  { id:3, nombre:'Validado',    color:'#2DBD7E', protegida:false },
+  { id:4, nombre:'Timbrado',    color:'#48CAE4', protegida:false },
+  { id:5, nombre:'Declarado',   color:'#1565C0', protegida:true  },
+];
+
+let cards = [
+  { id:1, folio:'VTA-2026-0312', cliente:'Mario Rodríguez',    monto:2340, tipo:'venta',   prioridad:'normal', responsable:'Sofía Reyes', notas:'Pago en efectivo, CFDI enviado.',   colId:4, fecha:'30 jun 2026', hist:[ {col:'Recibido','dur':'2h','resp':'Sofía Reyes'}, {col:'En revisión','dur':'1h','resp':'Juan Méndez'}, {col:'Validado','dur':'30m','resp':'Sofía Reyes'} ] },
+  { id:2, folio:'VTA-2026-0311', cliente:'Laura González',     monto:890,  tipo:'cfdi',    prioridad:'alta',   responsable:'Juan Méndez', notas:'CFDI pendiente de timbrar.',        colId:2, fecha:'30 jun 2026', hist:[ {col:'Recibido','dur':'4h','resp':'Juan Méndez'} ] },
+  { id:3, folio:'VTA-2026-0310', cliente:'Público general',    monto:450,  tipo:'venta',   prioridad:'normal', responsable:'',            notas:'',                                  colId:4, fecha:'30 jun 2026', hist:[ {col:'Recibido','dur':'1h','resp':'Ana López'}, {col:'En revisión','dur':'20m','resp':'Ana López'}, {col:'Validado','dur':'15m','resp':'Ana López'} ] },
+  { id:4, folio:'VTA-2026-0309', cliente:'Construrama Tepito', monto:3200, tipo:'credito', prioridad:'urgente',responsable:'Ana López',  notas:'Crédito a 30 días, pendiente abono.',colId:2, fecha:'29 jun 2026', hist:[ {col:'Recibido','dur':'6h','resp':'Sofía Reyes'} ] },
+  { id:5, folio:'VTA-2026-0308', cliente:'Arq. Pérez Romero',  monto:1890, tipo:'venta',   prioridad:'normal', responsable:'Sofía Reyes', notas:'',                                  colId:3, fecha:'29 jun 2026', hist:[ {col:'Recibido','dur':'3h','resp':'Sofía Reyes'}, {col:'En revisión','dur':'1h','resp':'Sofía Reyes'} ] },
+  { id:6, folio:'VTA-2026-0307', cliente:'Ferrehogar SA',      monto:4500, tipo:'cfdi',    prioridad:'alta',   responsable:'Carlos Ruiz', notas:'Factura grande, revisar datos RFC.', colId:1, fecha:'28 jun 2026', hist:[] },
+  { id:7, folio:'VTA-2026-0298', cliente:'Construrama Tepito', monto:6800, tipo:'credito', prioridad:'urgente',responsable:'Ana López',  notas:'Cuenta vencida.',                    colId:5, fecha:'15 may 2026', hist:[ {col:'Recibido','dur':'2h','resp':'Ana López'}, {col:'En revisión','dur':'3h','resp':'Ana López'}, {col:'Validado','dur':'1h','resp':'Ana López'}, {col:'Timbrado','dur':'2d','resp':'Sofía Reyes'} ] },
+];
+
+let nextId = 10;
+let filtroTexto = '';
+let editandoCardId = null;
+let deletingColId = null;
+let dragCardId = null;
+let dragSourceColId = null;
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  renderStatsbar();
+  renderBoard();
+}
+
+function renderStatsbar() {
+  const total = cards.filter(c => matchFiltro(c)).length;
+  let html = `<div class="kb-stat total" onclick="document.getElementById('kb-search').value='';filtrarCards('')">
+    <span class="kb-stat-num">${total}</span>
+    <span class="kb-stat-lbl">Total</span>
+  </div>`;
+
+  columnas.forEach(col => {
+    const count = cards.filter(c => c.colId === col.id && matchFiltro(c)).length;
+    html += `<div class="kb-stat" onclick="scrollToCol(${col.id})" style="border-color:${col.color}22;">
+      <span class="kb-stat-num" style="color:${col.color};">${count}</span>
+      <span class="kb-stat-lbl">${col.nombre}</span>
+    </div>`;
+  });
+
+  document.getElementById('kb-statsbar').innerHTML = html;
+}
+
+function renderBoard() {
+  const board = document.getElementById('kb-board');
+  const colsHTML = columnas.map(col => {
+    const colCards = cards.filter(c => c.colId === col.id && matchFiltro(c));
+    return `
+      <div class="kb-col" id="col_${col.id}" data-col-id="${col.id}"
+        ondragover="onDragOver(event, ${col.id})"
+        ondragleave="onDragLeave(event, ${col.id})"
+        ondrop="onDrop(event, ${col.id})">
+        <div class="kb-col-head">
+          <div class="kb-col-dot" style="background:${col.color};"></div>
+          <span class="kb-col-name">${col.nombre}</span>
+          <span class="kb-col-badge ${colCards.length > 0 ? 'has-cards' : ''}">${colCards.length}</span>
+          ${!col.protegida ? `
+            <button class="kb-col-btn danger" onclick="delCol(${col.id}, '${col.nombre}')" data-tooltip="Eliminar columna">
+              <i class="ti ti-x" style="font-size:13px;"></i>
+            </button>` : ''}
+        </div>
+        <div class="kb-col-body" id="body_${col.id}">
+          ${colCards.length === 0
+            ? `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:var(--font-sm);">Sin tarjetas</div>`
+            : colCards.map(c => renderCard(c)).join('')}
+        </div>
+        <div class="kb-col-footer">
+          <button class="kb-add-card" onclick="openCardModal(null, ${col.id})">
+            <i class="ti ti-plus" style="font-size:13px;"></i> Agregar tarjeta
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+
+  board.innerHTML = colsHTML + `
+    <button class="kb-add-col" onclick="openModal('modal-columna')" data-tooltip="Nueva columna">
+      <i class="ti ti-plus" style="font-size:20px;"></i>
+    </button>`;
+}
+
+function renderCard(c) {
+  const tipoBadge = {
+    venta:   '<span class="badge badge-success">Venta</span>',
+    cfdi:    '<span class="badge badge-warning">CFDI</span>',
+    credito: '<span class="badge badge-danger">Crédito</span>',
+    otro:    '<span class="badge badge-neutral">Otro</span>',
+  }[c.tipo] || '';
+
+  const prioColor = { normal:'var(--success)', alta:'var(--warning)', urgente:'var(--danger)' }[c.prioridad];
+
+  const histHTML = c.hist.length > 0
+    ? c.hist.map(h => `
+        <div class="hist-row">
+          <span class="hist-col">${h.col}</span>
+          <span class="hist-dur">${h.dur}</span>
+          <span class="hist-resp">${h.resp}</span>
+        </div>`).join('')
+    : '<div style="color:var(--text-muted);font-size:11px;">Sin historial aún</div>';
+
+  return `
+    <div class="kb-card" id="card_${c.id}" data-card-id="${c.id}"
+      draggable="true"
+      ondragstart="onDragStart(event, ${c.id})"
+      ondragend="onDragEnd(event)">
+      <div class="card-folio">
+        <span>${c.folio}</span>
+        <div style="width:8px;height:8px;border-radius:999px;background:${prioColor};" data-tooltip="${c.prioridad}"></div>
+      </div>
+      <div class="card-cliente">${c.cliente}</div>
+      ${c.monto > 0 ? `<div class="card-monto">$${c.monto.toLocaleString('es-MX', {minimumFractionDigits:2})}</div>` : ''}
+      <div class="card-tags">
+        ${tipoBadge}
+        ${c.responsable ? `<span class="badge badge-neutral" style="font-size:10px;">${c.responsable.split(' ')[0]}</span>` : ''}
+      </div>
+      ${c.notas ? `<div class="card-meta">${c.notas}</div>` : ''}
+      <div class="card-meta">${c.fecha}</div>
+
+      <select class="card-responsable" onchange="updateResponsable(${c.id}, this.value)">
+        <option value="">— Sin asignar —</option>
+        ${['Sofía Reyes','Juan Méndez','Ana López','Carlos Ruiz'].map(r =>
+          `<option ${c.responsable === r ? 'selected' : ''}>${r}</option>`
+        ).join('')}
+      </select>
+
+      <div class="card-hist-toggle" onclick="toggleHist(this)">▸ Ver historial (${c.hist.length})</div>
+      <div class="card-hist-body" style="display:none;">${histHTML}</div>
+
+      <div class="card-footer">
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="openCardModal(${c.id})">
+          <i class="ti ti-pencil"></i> Editar
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="moverCard(${c.id}, 'prev')" data-tooltip="Mover atrás">
+          <i class="ti ti-chevron-left"></i>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="moverCard(${c.id}, 'next')" data-tooltip="Mover adelante">
+          <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </div>`;
+}
+
+// ── Filtro ────────────────────────────────────────────────────────────────
+function matchFiltro(c) {
+  if (!filtroTexto) return true;
+  return c.folio.toLowerCase().includes(filtroTexto) ||
+         c.cliente.toLowerCase().includes(filtroTexto);
+}
+
+function filtrarCards(q) {
+  filtroTexto = q.toLowerCase();
+  render();
+}
+
+// ── Scroll to col ─────────────────────────────────────────────────────────
+function scrollToCol(colId) {
+  const el = document.getElementById('col_' + colId);
+  if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────
+function onDragStart(e, cardId) {
+  dragCardId = cardId;
+  const card = cards.find(c => c.id === cardId);
+  dragSourceColId = card?.colId;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const el = document.getElementById('card_' + cardId);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('.kb-card.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.kb-col.drag-over').forEach(el => el.classList.remove('drag-over'));
+  dragCardId = null;
+  dragSourceColId = null;
+}
+
+function onDragOver(e, colId) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const col = document.getElementById('col_' + colId);
+  if (col) col.classList.add('drag-over');
+}
+
+function onDragLeave(e, colId) {
+  const col = document.getElementById('col_' + colId);
+  if (col) col.classList.remove('drag-over');
+}
+
+function onDrop(e, colId) {
+  e.preventDefault();
+  if (dragCardId === null) return;
+  const card = cards.find(c => c.id === dragCardId);
+  if (card && card.colId !== colId) {
+    const colAnterior = columnas.find(c => c.id === card.colId)?.nombre || '—';
+    const colNueva    = columnas.find(c => c.id === colId)?.nombre || '—';
+    card.hist.push({ col: colAnterior, dur: 'movido', resp: 'Sofía Reyes' });
+    card.colId = colId;
+    showToast(`Tarjeta movida a "${colNueva}"`);
+    render();
+  }
+}
+
+// ── Mover con flechas ─────────────────────────────────────────────────────
+function moverCard(cardId, dir) {
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+  const idx = columnas.findIndex(c => c.id === card.colId);
+  const newIdx = dir === 'next' ? idx + 1 : idx - 1;
+  if (newIdx < 0 || newIdx >= columnas.length) return;
+  const colAnterior = columnas[idx].nombre;
+  card.hist.push({ col: colAnterior, dur: 'movido', resp: 'Sofía Reyes' });
+  card.colId = columnas[newIdx].id;
+  showToast(`Movido a "${columnas[newIdx].nombre}"`);
+  render();
+}
+
+// ── Responsable inline ────────────────────────────────────────────────────
+function updateResponsable(cardId, valor) {
+  const card = cards.find(c => c.id === cardId);
+  if (card) { card.responsable = valor; showToast('Responsable actualizado'); }
+}
+
+// ── Toggle historial ──────────────────────────────────────────────────────
+function toggleHist(btn) {
+  const body = btn.nextElementSibling;
+  const abierto = body.style.display !== 'none';
+  body.style.display = abierto ? 'none' : 'block';
+  btn.textContent = (abierto ? '▸' : '▾') + btn.textContent.slice(1);
+}
+
+// ── Modal card ────────────────────────────────────────────────────────────
+function openCardModal(cardId = null, colId = null) {
+  editandoCardId = cardId;
+  document.getElementById('card-modal-title').textContent = cardId ? 'Editar tarjeta' : 'Nueva tarjeta';
+
+  // Poblar select de columnas
+  const sel = document.getElementById('c-columna');
+  sel.innerHTML = columnas.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  if (cardId) {
+    const c = cards.find(x => x.id === cardId);
+    document.getElementById('c-folio').value      = c.folio;
+    document.getElementById('c-cliente').value    = c.cliente;
+    document.getElementById('c-monto').value      = c.monto || '';
+    document.getElementById('c-responsable').value= c.responsable;
+    document.getElementById('c-tipo').value       = c.tipo;
+    document.getElementById('c-prioridad').value  = c.prioridad;
+    document.getElementById('c-notas').value      = c.notas;
+    sel.value = c.colId;
+  } else {
+    document.getElementById('c-folio').value      = '';
+    document.getElementById('c-cliente').value    = '';
+    document.getElementById('c-monto').value      = '';
+    document.getElementById('c-responsable').value= '';
+    document.getElementById('c-tipo').value       = 'venta';
+    document.getElementById('c-prioridad').value  = 'normal';
+    document.getElementById('c-notas').value      = '';
+    if (colId) sel.value = colId;
+  }
+
+  openModal('modal-card');
+}
+
+function guardarCard() {
+  const folio   = document.getElementById('c-folio').value.trim();
+  const cliente = document.getElementById('c-cliente').value.trim();
+  if (!folio || !cliente) { showToast('Folio y cliente son obligatorios', 'error'); return; }
+
+  if (editandoCardId) {
+    const c = cards.find(x => x.id === editandoCardId);
+    c.folio       = folio;
+    c.cliente     = cliente;
+    c.monto       = parseFloat(document.getElementById('c-monto').value) || 0;
+    c.responsable = document.getElementById('c-responsable').value;
+    c.tipo        = document.getElementById('c-tipo').value;
+    c.prioridad   = document.getElementById('c-prioridad').value;
+    c.notas       = document.getElementById('c-notas').value.trim();
+    c.colId       = parseInt(document.getElementById('c-columna').value);
+    showToast('Tarjeta actualizada');
+  } else {
+    cards.push({
+      id: nextId++,
+      folio, cliente,
+      monto:       parseFloat(document.getElementById('c-monto').value) || 0,
+      responsable: document.getElementById('c-responsable').value,
+      tipo:        document.getElementById('c-tipo').value,
+      prioridad:   document.getElementById('c-prioridad').value,
+      notas:       document.getElementById('c-notas').value.trim(),
+      colId:       parseInt(document.getElementById('c-columna').value),
+      fecha:       new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }),
+      hist:        [],
+    });
+    showToast('Tarjeta creada');
+  }
+
+  closeModal('modal-card');
+  render();
+}
+
+// ── Columnas ──────────────────────────────────────────────────────────────
+function guardarColumna() {
+  const nombre = document.getElementById('col-nombre').value.trim();
+  const color  = document.getElementById('col-color').value;
+  if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+  columnas.push({ id: nextId++, nombre, color, protegida: false });
+  document.getElementById('col-nombre').value = '';
+  closeModal('modal-columna');
+  showToast(`Columna "${nombre}" creada`);
+  render();
+}
+
+function delCol(colId, nombre) {
+  deletingColId = colId;
+  const count = cards.filter(c => c.colId === colId).length;
+  document.getElementById('del-col-msg').textContent =
+    `La columna "${nombre}" ${count > 0 ? `tiene ${count} tarjeta${count > 1 ? 's' : ''}. Se moverán a la primera columna.` : 'está vacía.'} Esta acción no se puede deshacer.`;
+  openModal('modal-del-col');
+}
+
+function confirmarDelCol() {
+  if (!deletingColId) return;
+  const firstColId = columnas.find(c => c.id !== deletingColId)?.id;
+  cards.forEach(c => { if (c.colId === deletingColId) c.colId = firstColId; });
+  columnas = columnas.filter(c => c.id !== deletingColId);
+  deletingColId = null;
+  closeModal('modal-del-col');
+  showToast('Columna eliminada');
+  render();
+}
+
+// ── Selector de color para nueva columna ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.col-color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.col-color-btn').forEach(b => b.style.border = '2px solid transparent');
+      btn.style.border = '2px solid var(--dark)';
+      document.getElementById('col-color').value = btn.dataset.color;
+    });
+  });
+  render();
+});
+</script>
+</body>
+</html>

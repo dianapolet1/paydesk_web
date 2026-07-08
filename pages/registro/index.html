@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Registrar empresa</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-page);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-full);
+    transition: width 0.4s ease;
+  }
+
+  .step-indicator {
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--space-xl);
+  }
+
+  .step-indicator span { color: var(--accent); font-weight: 500; }
+
+  .plan-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    cursor: pointer;
+    transition: border-color var(--transition);
+    margin-bottom: var(--space-md);
+  }
+
+  .plan-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .plan-card:hover:not(.selected) { border-color: var(--text-muted); }
+  .plan-name { font-size: var(--font-lg); font-weight: 500; color: var(--text-primary); }
+  .plan-price { font-size: 26px; font-weight: 500; color: var(--text-primary); margin: 6px 0; }
+  .plan-price span { font-size: var(--font-md); color: var(--text-secondary); font-weight: 400; }
+  .plan-features { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="auth-layout">
+
+  <!-- Panel izquierdo -->
+  <div class="auth-panel-left">
+    <div class="logo">
+      <div class="logo-mark">PD</div>
+      <span class="logo-name">PayDesk</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:var(--space-xl);">
+      <h1 style="color:#fff;font-size:28px;font-weight:500;letter-spacing:-0.5px;line-height:1.2;">
+        Tu negocio listo<br>en <span style="color:var(--accent);">minutos.</span>
+      </h1>
+      <p style="color:#555;font-size:14px;line-height:1.7;">
+        Configura tu empresa, carga tu CSD y empieza a vender con timbrado CFDI desde el primer día.
+      </p>
+      <!-- Indicadores de pasos -->
+      <div style="display:flex;flex-direction:column;gap:12px;" id="steps-sidebar">
+        <div class="step-item" data-step="1">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="step-dot" style="width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;">1</div>
+            <span style="font-size:13px;color:var(--accent);">Cuenta de acceso</span>
+          </div>
+        </div>
+        <div class="step-item" data-step="2" style="opacity:0.4;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#666;flex-shrink:0;">2</div>
+            <span style="font-size:13px;color:#555;">Datos de la empresa</span>
+          </div>
+        </div>
+        <div class="step-item" data-step="3" style="opacity:0.4;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#666;flex-shrink:0;">3</div>
+            <span style="font-size:13px;color:#555;">Plan de servicio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a href="../../index.html" style="color:#444;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px;">
+      ← Volver al login
+    </a>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="auth-panel-right">
+    <div class="auth-form-card" style="max-width:420px;">
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress" style="width:33%;"></div>
+      </div>
+
+      <!-- Paso 1: Cuenta -->
+      <div class="step active" id="step-1">
+        <div class="step-indicator">Paso <span>1</span> de 3</div>
+        <h2 style="font-size:24px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Crea tu cuenta</h2>
+        <p class="auth-subtitle">Datos del administrador principal.</p>
+
+        <div class="form-group">
+          <label class="form-label">Nombre completo *</label>
+          <input type="text" class="form-input" placeholder="Tu nombre"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico *</label>
+          <input type="email" class="form-input" placeholder="nombre@empresa.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña *</label>
+          <input type="password" class="form-input" placeholder="Mínimo 8 caracteres"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña *</label>
+          <input type="password" class="form-input" placeholder="Repite la contraseña"/>
+        </div>
+        <button class="btn btn-dark btn-full btn-lg" onclick="irPaso(2)">Continuar</button>
+        <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:var(--space-lg);">
+          Al continuar aceptas los <a href="#" style="color:var(--accent);">Términos de servicio</a> y la <a href="#" style="color:var(--accent);">Política de privacidad</a>.
+        </p>
+      </div>
+
+      <!-- Paso 2: Empresa -->
+      <div class="step" id="step-2">
+        <div class="step-indicator">Paso <span>2</span> de 3</div>
+        <h2 style="font-size:24px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Tu empresa</h2>
+        <p class="auth-subtitle">Información básica de tu negocio.</p>
+
+        <div class="form-group">
+          <label class="form-label">Nombre comercial *</label>
+          <input type="text" class="form-input" placeholder="Nombre de tu negocio"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Giro / Industria *</label>
+          <select class="form-select">
+            <option value="">Seleccionar giro</option>
+            <option>Tlapalería / Materiales de construcción</option>
+            <option>Ferretería</option>
+            <option>Restaurante / Alimentos</option>
+            <option>Consultorio médico / Clínica</option>
+            <option>Boutique / Ropa y accesorios</option>
+            <option>Farmacia</option>
+            <option>Servicios profesionales</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono de la empresa</label>
+          <input type="tel" class="form-input" placeholder="55 1234 5678"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ciudad *</label>
+          <input type="text" class="form-input" placeholder="Ciudad donde opera tu negocio"/>
+        </div>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="btn btn-outline btn-lg" style="flex:1;" onclick="irPaso(1)">Atrás</button>
+          <button class="btn btn-dark btn-lg" style="flex:2;" onclick="irPaso(3)">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Paso 3: Plan -->
+      <div class="step" id="step-3">
+        <div class="step-indicator">Paso <span>3</span> de 3</div>
+        <h2 style="font-size:24px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Elige tu plan</h2>
+        <p class="auth-subtitle">Los primeros 30 días son gratis en cualquier plan.</p>
+
+        <div class="plan-card selected" onclick="selPlan(this)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div class="plan-name">Básico</div>
+            <span class="badge badge-accent">Recomendado</span>
+          </div>
+          <div class="plan-price">$890 <span>/ mes</span></div>
+          <div class="plan-features">1 sede · 3 usuarios · Timbrado CFDI · Inventario · Reportes básicos</div>
+        </div>
+
+        <div class="plan-card" onclick="selPlan(this)">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$1,490 <span>/ mes</span></div>
+          <div class="plan-features">3 sedes · 10 usuarios · Todo lo de Básico + Kanban + Reportes avanzados + Cuentas por cobrar</div>
+        </div>
+
+        <div class="plan-card" onclick="selPlan(this)">
+          <div class="plan-name">Empresarial</div>
+          <div class="plan-price">$2,490 <span>/ mes</span></div>
+          <div class="plan-features">Sedes ilimitadas · Usuarios ilimitados · API · Soporte prioritario + Todo lo de Pro</div>
+        </div>
+
+        <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-md);">
+          <button class="btn btn-outline btn-lg" style="flex:1;" onclick="irPaso(2)">Atrás</button>
+          <button class="btn btn-dark btn-lg" style="flex:2;" onclick="finalizar()">Crear cuenta gratis →</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:var(--space-md);">
+          Sin tarjeta de crédito requerida para el periodo de prueba.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const progresos = { 1: '33%', 2: '66%', 3: '100%' };
+
+  function irPaso(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    document.getElementById('progress').style.width = progresos[n];
+
+    // Actualizar sidebar
+    document.querySelectorAll('.step-item').forEach(item => {
+      const paso = parseInt(item.dataset.step);
+      item.style.opacity = paso <= n ? '1' : '0.4';
+      const dot = item.querySelector('div > div');
+      dot.style.background = paso < n ? 'var(--success)' : paso === n ? 'var(--accent)' : '#333';
+      dot.style.color = paso <= n ? '#fff' : '#666';
+      item.querySelector('span').style.color = paso === n ? 'var(--accent)' : paso < n ? 'var(--success)' : '#555';
+    });
+  }
+
+  function selPlan(el) {
+    document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function finalizar() {
+    window.location.href = '../../pages/onboarding-empresa/index.html';
+  }
+</script>
+</body>
+</html>

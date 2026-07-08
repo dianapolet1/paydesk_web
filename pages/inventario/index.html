@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Inventario</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Inventario</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar producto o SKU..." oninput="filterInventario(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-compra')">
+          <i class="ti ti-shopping-bag"></i> Registrar compra
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="openModal('modal-ajuste')">
+          <i class="ti ti-adjustments"></i> Ajuste de stock
+        </button>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Métricas -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total productos</div>
+          <div class="metric-value">124</div>
+          <div class="metric-delta">Con control de stock</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Valor del inventario</div>
+          <div class="metric-value">$284,500</div>
+          <div class="metric-delta">↑ 8% vs mes anterior</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Stock bajo</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta neg">Requieren reposición</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Agotados</div>
+          <div class="metric-value">2</div>
+          <div class="metric-delta neg">Sin existencias</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todos')">Todos</div>
+        <div class="tab-item" onclick="selectTab(this, 'bajo')">Stock bajo</div>
+        <div class="tab-item" onclick="selectTab(this, 'agotado')">Agotados</div>
+        <div class="tab-item" onclick="selectTab(this, 'ok')">En buen nivel</div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Stock actual</th>
+              <th>Stock mínimo</th>
+              <th>Valor en stock</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="inventario-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal: Registrar compra a proveedor ── -->
+<div class="modal-overlay" id="modal-compra">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title">Registrar compra a proveedor</span>
+      <button class="modal-close" onclick="closeModal('modal-compra')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Proveedor *</label>
+        <select class="form-select" id="compra-proveedor">
+          <option value="">Seleccionar proveedor</option>
+          <option value="1">Cerámicas del Norte SA</option>
+          <option value="2">Distribuidora Adhesivos MX</option>
+          <option value="3">Herramientas Pro</option>
+          <option value="4">Importadora Talavera</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha de compra *</label>
+        <input type="date" class="form-input" id="compra-fecha"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Número de factura / Referencia</label>
+      <input type="text" class="form-input" id="compra-factura" placeholder="Ej. FAC-2026-001"/>
+    </div>
+
+    <!-- Productos de la compra -->
+    <div style="margin-bottom:var(--space-lg);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);">
+        <label class="form-label" style="margin:0;">Productos *</label>
+        <button class="btn btn-outline btn-sm" onclick="agregarRenglon()">
+          <i class="ti ti-plus"></i> Agregar producto
+        </button>
+      </div>
+      <div id="renglones-compra">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+      <div class="total-row"><span>Subtotal</span><span id="compra-subtotal">$0.00</span></div>
+      <div class="total-row"><span>IVA (16%)</span><span id="compra-iva">$0.00</span></div>
+      <div class="total-row main"><span>Total</span><span id="compra-total">$0.00</span></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="compra-notas" placeholder="Notas opcionales..." style="min-height:60px;"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-compra')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarCompra()">
+        <i class="ti ti-check"></i> Registrar compra
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Ajuste de stock ── -->
+<div class="modal-overlay" id="modal-ajuste">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Ajuste de stock</span>
+      <button class="modal-close" onclick="closeModal('modal-ajuste')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Producto *</label>
+      <select class="form-select" id="ajuste-producto">
+        <option value="">Seleccionar producto</option>
+        <option value="1">Azulejo blanco 30×30 (Stock: 142)</option>
+        <option value="2">Porcelanato gris 60×60 (Stock: 68)</option>
+        <option value="3">Mosaico terracota 20×20 (Stock: 35)</option>
+        <option value="4">Pegamento cerámico 25kg (Stock: 12)</option>
+        <option value="5">Fragua gris 5kg (Stock: 2)</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Tipo de ajuste</label>
+        <select class="form-select" id="ajuste-tipo">
+          <option value="entrada">Entrada (+)</option>
+          <option value="salida">Salida (−)</option>
+          <option value="correccion">Corrección (=)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cantidad *</label>
+        <input type="number" class="form-input" id="ajuste-cantidad" placeholder="0" min="0"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Motivo *</label>
+      <select class="form-select" id="ajuste-motivo">
+        <option value="">Seleccionar motivo</option>
+        <option value="conteo">Conteo físico</option>
+        <option value="merma">Merma / Daño</option>
+        <option value="devolucion">Devolución de cliente</option>
+        <option value="muestra">Muestra / Uso interno</option>
+        <option value="error">Corrección de error</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="ajuste-notas" placeholder="Descripción del ajuste..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-ajuste')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarAjuste()">
+        <i class="ti ti-check"></i> Aplicar ajuste
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  // ── Datos de ejemplo ──────────────────────────────────────────────────────
+  const inventario = [
+    { id:1, nombre:'Azulejo blanco 30×30',    sku:'AZ-001', categoria:'Pisos y Muros', precio:48.00,   stock:142, stockMin:20  },
+    { id:2, nombre:'Porcelanato gris 60×60',  sku:'PO-001', categoria:'Pisos y Muros', precio:120.00,  stock:68,  stockMin:15  },
+    { id:3, nombre:'Mosaico terracota 20×20', sku:'MO-001', categoria:'Pisos y Muros', precio:65.00,   stock:35,  stockMin:20  },
+    { id:4, nombre:'Pegamento cerámico 25kg', sku:'AD-001', categoria:'Adhesivos',     precio:185.00,  stock:12,  stockMin:10  },
+    { id:5, nombre:'Fragua gris 5kg',         sku:'AD-002', categoria:'Adhesivos',     precio:95.00,   stock:2,   stockMin:10  },
+    { id:6, nombre:'Cortadora manual 60cm',   sku:'HE-001', categoria:'Herramientas',  precio:1250.00, stock:0,   stockMin:2   },
+    { id:7, nombre:'Llana dentada inox',      sku:'HE-002', categoria:'Herramientas',  precio:220.00,  stock:9,   stockMin:5   },
+    { id:8, nombre:'Impermeabilizante 5L',    sku:'AC-001', categoria:'Acabados',      precio:320.00,  stock:22,  stockMin:8   },
+    { id:9, nombre:'Talavera floral 15×15',   sku:'AZ-002', categoria:'Pisos y Muros', precio:38.00,   stock:210, stockMin:30  },
+    { id:10,nombre:'Llana de esponja',        sku:'HE-003', categoria:'Herramientas',  precio:85.00,   stock:6,   stockMin:5   },
+  ];
+
+  let tabActual = 'todos';
+  let filtroTexto = '';
+  let renglones = [{ producto: '', cantidad: 1, costo: 0 }];
+
+  function getEstatus(item) {
+    if (item.stock === 0) return 'agotado';
+    if (item.stock <= item.stockMin) return 'bajo';
+    return 'ok';
+  }
+
+  // ── Render tabla ──────────────────────────────────────────────────────────
+  function renderInventario() {
+    let lista = inventario.filter(p => {
+      const matchText = !filtroTexto ||
+        p.nombre.toLowerCase().includes(filtroTexto) ||
+        p.sku.toLowerCase().includes(filtroTexto);
+      const estatus = getEstatus(p);
+      const matchTab = tabActual === 'todos' ? true : estatus === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('inventario-body');
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-building-warehouse" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin productos en esta categoría
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(p => {
+      const estatus = getEstatus(p);
+      const stockColor = estatus === 'agotado' ? 'var(--danger)' : estatus === 'bajo' ? 'var(--warning)' : 'var(--text-primary)';
+      const badge = estatus === 'agotado'
+        ? `<span class="badge badge-danger">Agotado</span>`
+        : estatus === 'bajo'
+          ? `<span class="badge badge-warning">Stock bajo</span>`
+          : `<span class="badge badge-success">En stock</span>`;
+
+      const valor = (p.stock * p.precio).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+
+      // Barra de stock
+      const pct = Math.min((p.stock / (p.stockMin * 3)) * 100, 100);
+      const barColor = estatus === 'agotado' ? 'var(--danger)' : estatus === 'bajo' ? 'var(--warning)' : 'var(--accent)';
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:500;color:var(--text-primary);">${p.nombre}</div>
+            <div style="font-size:var(--font-xs);color:var(--text-muted);">${p.sku}</div>
+          </td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${p.categoria}</td>
+          <td>
+            <div style="font-weight:500;color:${stockColor};margin-bottom:4px;">${p.stock} unidades</div>
+            <div style="background:var(--surface);border-radius:var(--radius-full);height:4px;width:80px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:${barColor};border-radius:var(--radius-full);"></div>
+            </div>
+          </td>
+          <td style="color:var(--text-secondary);">${p.stockMin} unidades</td>
+          <td style="font-weight:500;">${valor}</td>
+          <td>${badge}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="openAjusteRapido(${p.id})" data-tooltip="Ajuste de stock">
+                <i class="ti ti-adjustments" style="font-size:15px;"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  function filterInventario(q) { filtroTexto = q.toLowerCase(); renderInventario(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderInventario();
+  }
+
+  // ── Ajuste rápido ─────────────────────────────────────────────────────────
+  function openAjusteRapido(id) {
+    document.getElementById('ajuste-producto').value = id;
+    openModal('modal-ajuste');
+  }
+
+  function guardarAjuste() {
+    const prod = document.getElementById('ajuste-producto').value;
+    const cant = document.getElementById('ajuste-cantidad').value;
+    const motivo = document.getElementById('ajuste-motivo').value;
+    if (!prod || !cant || !motivo) { showToast('Completa todos los campos requeridos', 'error'); return; }
+    closeModal('modal-ajuste');
+    showToast('Ajuste de stock aplicado');
+  }
+
+  // ── Compra a proveedor ────────────────────────────────────────────────────
+  function renderRenglones() {
+    const productos = [
+      { id:1, nombre:'Azulejo blanco 30×30' },
+      { id:2, nombre:'Porcelanato gris 60×60' },
+      { id:3, nombre:'Mosaico terracota 20×20' },
+      { id:4, nombre:'Pegamento cerámico 25kg' },
+      { id:5, nombre:'Fragua gris 5kg' },
+    ];
+
+    const optsHTML = productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+
+    document.getElementById('renglones-compra').innerHTML = renglones.map((r, i) => `
+      <div style="display:grid;grid-template-columns:1fr 100px 120px 32px;gap:var(--space-sm);align-items:center;margin-bottom:var(--space-sm);">
+        <select class="form-select" onchange="updateRenglon(${i}, 'producto', this.value)" style="height:38px;">
+          <option value="">Seleccionar producto</option>
+          ${optsHTML}
+        </select>
+        <input type="number" class="form-input" placeholder="Cant." min="1" value="${r.cantidad}"
+          onchange="updateRenglon(${i}, 'cantidad', this.value)" style="height:38px;"/>
+        <input type="number" class="form-input" placeholder="Costo u." min="0" step="0.01" value="${r.costo || ''}"
+          onchange="updateRenglon(${i}, 'costo', this.value)" style="height:38px;"/>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="quitarRenglon(${i})" style="color:var(--danger);">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+    `).join('');
+
+    calcularTotalCompra();
+  }
+
+  function updateRenglon(i, campo, valor) {
+    renglones[i][campo] = campo === 'producto' ? valor : parseFloat(valor) || 0;
+    calcularTotalCompra();
+  }
+
+  function agregarRenglon() {
+    renglones.push({ producto: '', cantidad: 1, costo: 0 });
+    renderRenglones();
+  }
+
+  function quitarRenglon(i) {
+    if (renglones.length === 1) return;
+    renglones.splice(i, 1);
+    renderRenglones();
+  }
+
+  function calcularTotalCompra() {
+    const subtotal = renglones.reduce((sum, r) => sum + (r.cantidad * r.costo), 0);
+    const iva = subtotal * 0.16;
+    const total = subtotal + iva;
+    document.getElementById('compra-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('compra-iva').textContent = `$${iva.toFixed(2)}`;
+    document.getElementById('compra-total').textContent = `$${total.toFixed(2)}`;
+  }
+
+  function guardarCompra() {
+    const proveedor = document.getElementById('compra-proveedor').value;
+    const fecha = document.getElementById('compra-fecha').value;
+    if (!proveedor || !fecha) { showToast('Selecciona proveedor y fecha', 'error'); return; }
+    closeModal('modal-compra');
+    showToast('Compra registrada — inventario actualizado');
+    renderInventario();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    renderInventario();
+    renderRenglones();
+    document.getElementById('compra-fecha').valueAsDate = new Date();
+  });
+</script>
+</body>
+</html>

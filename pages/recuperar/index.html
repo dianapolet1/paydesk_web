@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Recuperar contraseña</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .code-inputs {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+    margin: var(--space-xl) 0;
+  }
+
+  .code-input {
+    width: 52px; height: 60px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-primary);
+    outline: none;
+    font-family: var(--font-family);
+    transition: border-color var(--transition);
+  }
+
+  .code-input:focus { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="auth-layout">
+
+  <!-- Panel izquierdo -->
+  <div class="auth-panel-left">
+    <div class="logo">
+      <div class="logo-mark">PD</div>
+      <span class="logo-name">PayDesk</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <h1 style="color:#fff;font-size:28px;font-weight:500;letter-spacing:-0.5px;margin-bottom:16px;line-height:1.2;">
+        Sin contraseña,<br>sin problema.
+      </h1>
+      <p style="color:#555;font-size:14px;line-height:1.65;">
+        Te enviamos un código de verificación a tu correo. En menos de un minuto puedes acceder de nuevo a tu cuenta.
+      </p>
+    </div>
+    <a href="../../index.html" style="color:#444;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.15s;" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#444'">
+      ← Volver al login
+    </a>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="auth-panel-right">
+    <div class="auth-form-card">
+
+      <!-- Paso 1: Ingresar correo -->
+      <div class="step active" id="step-1">
+        <h2 style="font-size:26px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Recuperar acceso</h2>
+        <p class="auth-subtitle">Ingresa el correo de tu cuenta y te enviamos un código.</p>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" id="correo-input" placeholder="nombre@empresa.com"/>
+        </div>
+        <button class="btn btn-dark btn-full btn-lg" onclick="enviarCodigo()">
+          Enviar código de verificación
+        </button>
+        <div style="text-align:center;margin-top:var(--space-lg);font-size:13px;color:var(--text-muted);">
+          ¿Recuerdas tu contraseña? <a href="../../index.html" style="color:var(--accent);">Iniciar sesión</a>
+        </div>
+      </div>
+
+      <!-- Paso 2: Código de verificación -->
+      <div class="step" id="step-2">
+        <h2 style="font-size:26px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Código enviado</h2>
+        <p class="auth-subtitle" id="subtitle-codigo">Ingresa el código de 6 dígitos que enviamos a tu correo.</p>
+        <div class="code-inputs">
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 1)"/>
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 2)"/>
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 3)"/>
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 4)"/>
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 5)"/>
+          <input type="text" class="code-input" maxlength="1" oninput="moveNext(this, 6)"/>
+        </div>
+        <button class="btn btn-dark btn-full btn-lg" onclick="verificarCodigo()">Verificar código</button>
+        <div style="text-align:center;margin-top:var(--space-lg);font-size:13px;color:var(--text-muted);">
+          ¿No llegó? <span style="color:var(--accent);cursor:pointer;" onclick="reenviar()">Reenviar código</span>
+        </div>
+      </div>
+
+      <!-- Paso 3: Nueva contraseña -->
+      <div class="step" id="step-3">
+        <h2 style="font-size:26px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Nueva contraseña</h2>
+        <p class="auth-subtitle">Elige una contraseña segura para tu cuenta.</p>
+        <div class="form-group">
+          <label class="form-label">Nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" class="form-input" id="pass-nueva" placeholder="Mínimo 8 caracteres" style="padding-right:42px;"/>
+            <button type="button" onclick="togglePass('pass-nueva','eye-1')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="eye-1" style="font-size:16px;"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <div style="position:relative;">
+            <input type="password" class="form-input" id="pass-confirm" placeholder="Repite la contraseña" style="padding-right:42px;"/>
+            <button type="button" onclick="togglePass('pass-confirm','eye-2')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="eye-2" style="font-size:16px;"></i>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-dark btn-full btn-lg" onclick="guardarPassword()">Guardar contraseña</button>
+      </div>
+
+      <!-- Paso 4: Éxito -->
+      <div class="step" id="step-4" style="text-align:center;padding:20px 0;">
+        <div style="width:64px;height:64px;background:var(--success-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+          <i class="ti ti-check" style="font-size:32px;color:var(--success);"></i>
+        </div>
+        <h2 style="font-size:24px;font-weight:500;margin-bottom:8px;">¡Contraseña actualizada!</h2>
+        <p style="color:var(--text-secondary);margin-bottom:32px;">Tu contraseña fue cambiada exitosamente. Ya puedes iniciar sesión.</p>
+        <a href="../../index.html" class="btn btn-dark btn-full btn-lg" style="display:flex;align-items:center;justify-content:center;">
+          Ir al login
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let stepActual = 1;
+
+  function irAStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    stepActual = n;
+  }
+
+  function enviarCodigo() {
+    const correo = document.getElementById('correo-input').value.trim();
+    if (!correo) return;
+    document.getElementById('subtitle-codigo').textContent = `Ingresa el código de 6 dígitos que enviamos a ${correo}.`;
+    irAStep(2);
+    setTimeout(() => document.querySelector('.code-input').focus(), 100);
+  }
+
+  function moveNext(input, pos) {
+    if (input.value.length === 1 && pos < 6) {
+      document.querySelectorAll('.code-input')[pos].focus();
+    }
+    if (pos === 6) verificarCodigo();
+  }
+
+  function verificarCodigo() {
+    const codigo = [...document.querySelectorAll('.code-input')].map(i => i.value).join('');
+    if (codigo.length === 6) irAStep(3);
+  }
+
+  function reenviar() {
+    document.querySelectorAll('.code-input').forEach(i => i.value = '');
+    document.querySelector('.code-input').focus();
+  }
+
+  function guardarPassword() {
+    const p1 = document.getElementById('pass-nueva').value;
+    const p2 = document.getElementById('pass-confirm').value;
+    if (!p1 || p1 !== p2 || p1.length < 8) return;
+    irAStep(4);
+  }
+
+  function togglePass(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    input.type  = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'password' ? 'ti ti-eye' : 'ti ti-eye-off';
+  }
+</script>
+</body>
+</html>

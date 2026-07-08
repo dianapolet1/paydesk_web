@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Usuarios</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Usuarios</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar usuario o correo..." oninput="filterUsuarios(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nuevo usuario
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total usuarios</div>
+          <div class="metric-value">12</div>
+          <div class="metric-delta">En todas las sedes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Activos hoy</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta">Con sesión activa</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Administradores</div>
+          <div class="metric-value">2</div>
+          <div class="metric-delta">Acceso total</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Vendedores</div>
+          <div class="metric-value">8</div>
+          <div class="metric-delta">Acceso al POS</div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todos')">Todos</div>
+        <div class="tab-item" onclick="selectTab(this, 'administrador')">Administradores</div>
+        <div class="tab-item" onclick="selectTab(this, 'vendedor')">Vendedores</div>
+        <div class="tab-item" onclick="selectTab(this, 'cajero')">Cajeros</div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Sede</th>
+              <th>Último acceso</th>
+              <th>Ventas este mes</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="usuarios-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Crear / Editar usuario -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-user-title">Nuevo usuario</span>
+      <button class="modal-close" onclick="closeModal('modal-usuario')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Nombre completo *</label>
+        <input type="text" class="form-input" id="user-nombre" placeholder="Nombre del usuario"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico *</label>
+        <input type="email" class="form-input" id="user-email" placeholder="correo@empresa.com"/>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Rol *</label>
+        <select class="form-select" id="user-rol" onchange="togglePermisos()">
+          <option value="administrador">Administrador</option>
+          <option value="vendedor">Vendedor</option>
+          <option value="cajero">Cajero</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sede *</label>
+        <select class="form-select" id="user-sede">
+          <option value="1">Sede Centro</option>
+          <option value="2">Sede Norte</option>
+          <option value="3">Sede Poniente</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Permisos adicionales -->
+    <div class="form-group" id="permisos-section">
+      <label class="form-label">Permisos adicionales</label>
+      <div style="display:flex;flex-direction:column;gap:var(--space-sm);">
+        <label style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-md);cursor:pointer;">
+          <input type="checkbox" id="p-descuentos" style="accent-color:var(--accent);"> Puede aplicar descuentos
+        </label>
+        <label style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-md);cursor:pointer;">
+          <input type="checkbox" id="p-corte" style="accent-color:var(--accent);"> Puede hacer corte de caja
+        </label>
+        <label style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-md);cursor:pointer;">
+          <input type="checkbox" id="p-reportes" style="accent-color:var(--accent);"> Puede ver reportes
+        </label>
+        <label style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-md);cursor:pointer;">
+          <input type="checkbox" id="p-credito" style="accent-color:var(--accent);"> Puede vender a crédito
+        </label>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Contraseña temporal</label>
+        <input type="password" class="form-input" id="user-pass" placeholder="Mínimo 8 caracteres"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estatus</label>
+        <select class="form-select" id="user-estatus">
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarUsuario()">
+        <i class="ti ti-check"></i> Guardar usuario
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar desactivar -->
+<div class="modal-overlay" id="modal-desactivar">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="width:52px;height:52px;background:var(--warning-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-user-off" style="font-size:24px;color:var(--warning);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¿Desactivar usuario?</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);">El usuario perderá acceso al sistema hasta que sea reactivado.</p>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-desactivar')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarDesactivar()">
+        <i class="ti ti-user-off"></i> Desactivar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  let usuarios = [
+    { id:1,  nombre:'Sofía Reyes',    email:'sreyes@empresa.mx',    rol:'administrador', sede:'Sede Centro', acceso:'Hace 5 min',  ventas:'$54,200', estatus:'activo'   },
+    { id:2,  nombre:'Juan Méndez',    email:'jmendez@empresa.mx',   rol:'vendedor',      sede:'Sede Centro', acceso:'Hace 2h',     ventas:'$18,400', estatus:'activo'   },
+    { id:3,  nombre:'Ana López',      email:'alopez@empresa.mx',    rol:'administrador', sede:'Sede Norte',  acceso:'Hace 1h',     ventas:'$35,220', estatus:'activo'   },
+    { id:4,  nombre:'Carlos Ruiz',    email:'cruiz@empresa.mx',     rol:'cajero',        sede:'Sede Norte',  acceso:'Ayer 18:30',  ventas:'$12,800', estatus:'activo'   },
+    { id:5,  nombre:'María Torres',   email:'mtorres@empresa.mx',   rol:'vendedor',      sede:'Sede Norte',  acceso:'Hoy 08:00',   ventas:'$8,940',  estatus:'activo'   },
+    { id:6,  nombre:'Pedro Jiménez',  email:'pjimenez@empresa.mx',  rol:'cajero',        sede:'Sede Centro', acceso:'Hace 3 días', ventas:'$0',      estatus:'inactivo' },
+  ];
+
+  let tabActual = 'todos';
+  let filtroTexto = '';
+  let desactivandoId = null;
+
+  const rolBadge = {
+    administrador: 'badge-accent',
+    vendedor: 'badge-info',
+    cajero: 'badge-neutral',
+  };
+
+  const rolLabel = {
+    administrador: 'Administrador',
+    vendedor: 'Vendedor',
+    cajero: 'Cajero',
+  };
+
+  function renderUsuarios() {
+    let lista = usuarios.filter(u => {
+      const matchText = !filtroTexto ||
+        u.nombre.toLowerCase().includes(filtroTexto) ||
+        u.email.toLowerCase().includes(filtroTexto);
+      const matchTab = tabActual === 'todos' ? true : u.rol === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('usuarios-body');
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-users-group" style="font-size:32px;display:block;margin-bottom:8px;"></i>Sin usuarios</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(u => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="avatar avatar-md ${u.estatus === 'activo' ? 'avatar-accent' : 'avatar-neutral'}">${u.nombre.slice(0,2).toUpperCase()}</div>
+            <div>
+              <div style="font-weight:500;">${u.nombre}</div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge ${rolBadge[u.rol]}">${rolLabel[u.rol]}</span></td>
+        <td style="color:var(--text-secondary);">${u.sede}</td>
+        <td style="color:var(--text-secondary);font-size:var(--font-md);">${u.acceso}</td>
+        <td style="font-weight:500;">${u.ventas}</td>
+        <td><span class="badge ${u.estatus === 'activo' ? 'badge-success' : 'badge-neutral'}">${u.estatus === 'activo' ? 'Activo' : 'Inactivo'}</span></td>
+        <td>
+          <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="editarUsuario(${u.id})" data-tooltip="Editar">
+              <i class="ti ti-pencil" style="font-size:15px;"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="desactivarUsuario(${u.id})" data-tooltip="${u.estatus === 'activo' ? 'Desactivar' : 'Activar'}" style="color:var(--warning);">
+              <i class="ti ti-user-${u.estatus === 'activo' ? 'off' : 'check'}" style="font-size:15px;"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function filterUsuarios(q) { filtroTexto = q.toLowerCase(); renderUsuarios(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderUsuarios();
+  }
+
+  function openForm() {
+    document.getElementById('modal-user-title').textContent = 'Nuevo usuario';
+    document.getElementById('modal-usuario').querySelectorAll('input').forEach(el => el.value = '');
+    document.getElementById('user-rol').value = 'vendedor';
+    document.getElementById('user-estatus').value = 'activo';
+    togglePermisos();
+    openModal('modal-usuario');
+  }
+
+  function editarUsuario(id) {
+    const u = usuarios.find(x => x.id === id);
+    document.getElementById('modal-user-title').textContent = 'Editar usuario';
+    document.getElementById('user-nombre').value = u.nombre;
+    document.getElementById('user-email').value = u.email;
+    document.getElementById('user-rol').value = u.rol;
+    document.getElementById('user-estatus').value = u.estatus;
+    togglePermisos();
+    openModal('modal-usuario');
+  }
+
+  function togglePermisos() {
+    const rol = document.getElementById('user-rol').value;
+    const seccion = document.getElementById('permisos-section');
+    seccion.style.display = rol === 'administrador' ? 'none' : '';
+  }
+
+  function guardarUsuario() {
+    const nombre = document.getElementById('user-nombre').value.trim();
+    const email = document.getElementById('user-email').value.trim();
+    if (!nombre || !email) { showToast('Nombre y correo son obligatorios', 'error'); return; }
+    showToast('Usuario guardado');
+    closeModal('modal-usuario');
+    renderUsuarios();
+  }
+
+  function desactivarUsuario(id) { desactivandoId = id; openModal('modal-desactivar'); }
+
+  function confirmarDesactivar() {
+    const u = usuarios.find(x => x.id === desactivandoId);
+    if (u) { u.estatus = u.estatus === 'activo' ? 'inactivo' : 'activo'; }
+    closeModal('modal-desactivar');
+    renderUsuarios();
+    showToast('Estatus del usuario actualizado');
+  }
+
+  document.addEventListener('DOMContentLoaded', renderUsuarios);
+</script>
+</body>
+</html>

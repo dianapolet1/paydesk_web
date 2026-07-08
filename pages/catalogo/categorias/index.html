@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Categorías</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../../assets/css/components.css">
+<link rel="stylesheet" href="../../../assets/css/layout.css">
+<style>
+  .cat-tree-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .cat-tree-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px var(--space-lg);
+    cursor: pointer;
+    transition: background var(--transition);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .cat-tree-header:hover { background: var(--surface); }
+
+  .cat-tree-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .cat-icon {
+    width: 38px; height: 38px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .cat-name {
+    font-size: var(--font-base);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .cat-count {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .cat-chevron {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: transform var(--transition);
+  }
+
+  .cat-chevron.open { transform: rotate(90deg); }
+
+  /* Nivel 2 */
+  .subcat-list {
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    background: var(--surface);
+  }
+
+  .subcat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+
+  .subcat-item:hover { border-color: var(--accent); }
+
+  .subcat-item-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .subcat-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .subcat-name {
+    font-size: var(--font-md);
+    color: var(--text-primary);
+  }
+
+  .subcat-count {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+  }
+
+  /* Nivel 3 */
+  .subsubcat-list {
+    padding: var(--space-xs) var(--space-md) var(--space-xs) 28px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    background: var(--surface);
+  }
+
+  .subsubcat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+  }
+
+  .add-subcat-btn {
+    width: 100%;
+    padding: 8px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    font-family: var(--font-family);
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: var(--space-xs);
+  }
+
+  .add-subcat-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  .nivel-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body data-base="../../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="window.location.href='../../../pages/catalogo/'" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Productos
+        </button>
+        <span class="topbar-title">Categorías</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nueva categoría
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Categorías raíz</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta">Nivel 1</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Subcategorías</div>
+          <div class="metric-value">14</div>
+          <div class="metric-delta">Nivel 2</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Sub-subcategorías</div>
+          <div class="metric-value">6</div>
+          <div class="metric-delta">Nivel 3</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Productos categorizados</div>
+          <div class="metric-value">118</div>
+          <div class="metric-delta">de 124 totales</div>
+        </div>
+      </div>
+
+      <!-- Árbol de categorías -->
+      <div style="display:flex;flex-direction:column;gap:var(--space-md);" id="cat-tree"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal: Crear / Editar categoría ── -->
+<div class="modal-overlay" id="modal-categoria">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-cat-title">Nueva categoría</span>
+      <button class="modal-close" onclick="closeModal('modal-categoria')"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre *</label>
+      <input type="text" class="form-input" id="cat-nombre" placeholder="Ej. Pisos y Muros, Bebidas..."/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nivel de jerarquía *</label>
+      <select class="form-select" id="cat-nivel" onchange="toggleParent()">
+        <option value="1">Nivel 1 — Categoría raíz</option>
+        <option value="2">Nivel 2 — Subcategoría</option>
+        <option value="3">Nivel 3 — Sub-subcategoría</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="parent-group" style="display:none;">
+      <label class="form-label" id="parent-label">Categoría padre *</label>
+      <select class="form-select" id="cat-padre"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="cat-desc" placeholder="Descripción opcional..." style="min-height:70px;"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Color identificador</label>
+      <div style="display:flex;gap:var(--space-sm);" id="cat-colores">
+        <button type="button" class="cat-color-btn active" data-color="#48CAE4" style="width:28px;height:28px;border-radius:50%;background:#48CAE4;border:2px solid #48CAE4;cursor:pointer;"></button>
+        <button type="button" class="cat-color-btn" data-color="#2DBD7E" style="width:28px;height:28px;border-radius:50%;background:#2DBD7E;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="cat-color-btn" data-color="#BA7517" style="width:28px;height:28px;border-radius:50%;background:#BA7517;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="cat-color-btn" data-color="#E24B4A" style="width:28px;height:28px;border-radius:50%;background:#E24B4A;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="cat-color-btn" data-color="#1565C0" style="width:28px;height:28px;border-radius:50%;background:#1565C0;border:2px solid transparent;cursor:pointer;"></button>
+        <button type="button" class="cat-color-btn" data-color="#888888" style="width:28px;height:28px;border-radius:50%;background:#888888;border:2px solid transparent;cursor:pointer;"></button>
+      </div>
+      <input type="hidden" id="cat-color" value="#48CAE4"/>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-categoria')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarCategoria()">
+        <i class="ti ti-check"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar eliminar -->
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="width:52px;height:52px;background:var(--danger-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-trash" style="font-size:24px;color:var(--danger);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¿Eliminar categoría?</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);" id="del-cat-msg">—</p>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-eliminar')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarEliminar()"><i class="ti ti-trash"></i> Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../../assets/js/sidebar.js"></script>
+<script src="../../../assets/js/utils.js"></script>
+<script>
+  // ── Datos ──────────────────────────────────────────────────────────────────
+  let categorias = [
+    {
+      id:1, nombre:'Pisos y Muros', color:'#48CAE4', productos:62,
+      hijos: [
+        { id:11, nombre:'Cerámica',    color:'#48CAE4', productos:28, hijos:[
+          { id:111, nombre:'Nacional',    productos:18 },
+          { id:112, nombre:'Importada',   productos:10 },
+        ]},
+        { id:12, nombre:'Porcelanato', color:'#48CAE4', productos:15, hijos:[] },
+        { id:13, nombre:'Mosaico',     color:'#48CAE4', productos:12, hijos:[] },
+        { id:14, nombre:'Talavera',    color:'#48CAE4', productos:7,  hijos:[] },
+      ]
+    },
+    {
+      id:2, nombre:'Adhesivos', color:'#2DBD7E', productos:18,
+      hijos: [
+        { id:21, nombre:'Pegamentos',         color:'#2DBD7E', productos:8,  hijos:[] },
+        { id:22, nombre:'Fraguas',             color:'#2DBD7E', productos:6,  hijos:[] },
+        { id:23, nombre:'Impermeabilizantes', color:'#2DBD7E', productos:4,  hijos:[] },
+      ]
+    },
+    {
+      id:3, nombre:'Herramientas', color:'#BA7517', productos:22,
+      hijos: [
+        { id:31, nombre:'Corte',      color:'#BA7517', productos:8,  hijos:[] },
+        { id:32, nombre:'Aplicación', color:'#BA7517', productos:9,  hijos:[] },
+        { id:33, nombre:'Medición',   color:'#BA7517', productos:5,  hijos:[] },
+      ]
+    },
+    {
+      id:4, nombre:'Acabados', color:'#E24B4A', productos:14,
+      hijos: [
+        { id:41, nombre:'Pinturas',   color:'#E24B4A', productos:6,  hijos:[] },
+        { id:42, nombre:'Barnices',   color:'#E24B4A', productos:4,  hijos:[] },
+        { id:43, nombre:'Selladores', color:'#E24B4A', productos:4,  hijos:[] },
+      ]
+    },
+    {
+      id:5, nombre:'Servicios', color:'#1565C0', productos:2,
+      hijos: [
+        { id:51, nombre:'Instalación', color:'#1565C0', productos:1, hijos:[] },
+        { id:52, nombre:'Asesoría',    color:'#1565C0', productos:1, hijos:[] },
+      ]
+    },
+  ];
+
+  let eliminandoId = null;
+  let abiertos = new Set([1]); // IDs de categorías expandidas
+
+  // ── Render árbol ───────────────────────────────────────────────────────────
+  function renderTree() {
+    const container = document.getElementById('cat-tree');
+    container.innerHTML = categorias.map(cat => renderCat1(cat)).join('');
+  }
+
+  function renderCat1(cat) {
+    const abierto = abiertos.has(cat.id);
+    const tieneHijos = cat.hijos && cat.hijos.length > 0;
+
+    const hijosHTML = tieneHijos && abierto ? `
+      <div class="subcat-list">
+        ${cat.hijos.map(sub => renderCat2(sub, cat)).join('')}
+        <button class="add-subcat-btn" onclick="openFormSub(${cat.id}, 2)">
+          <i class="ti ti-plus" style="font-size:13px;"></i> Agregar subcategoría
+        </button>
+      </div>` : '';
+
+    return `
+      <div class="cat-tree-card">
+        <div class="cat-tree-header" onclick="toggleCat(${cat.id})">
+          <div class="cat-tree-header-left">
+            <div class="cat-icon" style="background:${cat.color}22;">
+              <i class="ti ti-category" style="color:${cat.color};"></i>
+            </div>
+            <div>
+              <div class="cat-name">${cat.nombre}</div>
+              <div class="cat-count">${cat.productos} productos · ${cat.hijos.length} subcategorías</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-md);">
+            <span class="nivel-badge" style="background:${cat.color}22;color:${cat.color};">Nivel 1</span>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();editarCat(${cat.id})" data-tooltip="Editar">
+              <i class="ti ti-pencil" style="font-size:14px;"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();pedirEliminar(${cat.id}, '${cat.nombre}', ${cat.productos})" data-tooltip="Eliminar" style="color:var(--danger);">
+              <i class="ti ti-trash" style="font-size:14px;"></i>
+            </button>
+            <i class="ti ti-chevron-right cat-chevron ${abierto ? 'open' : ''}"></i>
+          </div>
+        </div>
+        ${hijosHTML}
+      </div>`;
+  }
+
+  function renderCat2(sub, padre) {
+    const tieneHijos = sub.hijos && sub.hijos.length > 0;
+    const abierto = abiertos.has(sub.id);
+
+    const hijosHTML = tieneHijos && abierto ? `
+      <div class="subsubcat-list">
+        ${sub.hijos.map(s3 => renderCat3(s3)).join('')}
+        <button class="add-subcat-btn" onclick="openFormSub(${sub.id}, 3)" style="margin-left:0;">
+          <i class="ti ti-plus" style="font-size:12px;"></i> Agregar sub-subcategoría
+        </button>
+      </div>` : '';
+
+    return `
+      <div>
+        <div class="subcat-item" onclick="toggleCat(${sub.id})">
+          <div class="subcat-item-left">
+            <div class="subcat-dot" style="background:${padre.color};"></div>
+            <span class="subcat-name">${sub.nombre}</span>
+            <span class="subcat-count">(${sub.productos} productos)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-sm);">
+            <span class="nivel-badge badge-neutral">Nivel 2</span>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();editarCat(${sub.id})" data-tooltip="Editar">
+              <i class="ti ti-pencil" style="font-size:13px;"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();pedirEliminar(${sub.id}, '${sub.nombre}', ${sub.productos})" data-tooltip="Eliminar" style="color:var(--danger);">
+              <i class="ti ti-trash" style="font-size:13px;"></i>
+            </button>
+            ${tieneHijos ? `<i class="ti ti-chevron-right cat-chevron ${abierto ? 'open' : ''}" style="font-size:13px;"></i>` : ''}
+          </div>
+        </div>
+        ${hijosHTML}
+      </div>`;
+  }
+
+  function renderCat3(s3) {
+    return `
+      <div class="subsubcat-item">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <i class="ti ti-point" style="font-size:10px;color:var(--text-muted);"></i>
+          <span>${s3.nombre}</span>
+          <span style="font-size:var(--font-xs);color:var(--text-muted);">(${s3.productos} productos)</span>
+        </div>
+        <div style="display:flex;gap:4px;">
+          <span class="nivel-badge badge-neutral">Nivel 3</span>
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="pedirEliminar(${s3.id}, '${s3.nombre}', ${s3.productos})" style="color:var(--danger);">
+            <i class="ti ti-trash" style="font-size:12px;"></i>
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function toggleCat(id) {
+    if (abiertos.has(id)) abiertos.delete(id);
+    else abiertos.add(id);
+    renderTree();
+  }
+
+  // ── Formulario ─────────────────────────────────────────────────────────────
+  function openForm() {
+    document.getElementById('modal-cat-title').textContent = 'Nueva categoría';
+    document.getElementById('cat-nombre').value = '';
+    document.getElementById('cat-desc').value = '';
+    document.getElementById('cat-nivel').value = '1';
+    document.getElementById('cat-color').value = '#48CAE4';
+    toggleParent();
+    openModal('modal-categoria');
+  }
+
+  function openFormSub(padreId, nivel) {
+    document.getElementById('modal-cat-title').textContent = nivel === 2 ? 'Nueva subcategoría' : 'Nueva sub-subcategoría';
+    document.getElementById('cat-nombre').value = '';
+    document.getElementById('cat-desc').value = '';
+    document.getElementById('cat-nivel').value = String(nivel);
+    toggleParent(padreId);
+    openModal('modal-categoria');
+  }
+
+  function editarCat(id) {
+    document.getElementById('modal-cat-title').textContent = 'Editar categoría';
+    document.getElementById('cat-nivel').value = '1';
+    toggleParent();
+    openModal('modal-categoria');
+  }
+
+  function toggleParent(preselect = null) {
+    const nivel = parseInt(document.getElementById('cat-nivel').value);
+    const grp   = document.getElementById('parent-group');
+    const lbl   = document.getElementById('parent-label');
+    const sel   = document.getElementById('cat-padre');
+
+    if (nivel === 1) { grp.style.display = 'none'; return; }
+    grp.style.display = '';
+    lbl.textContent = nivel === 2 ? 'Categoría padre (Nivel 1) *' : 'Subcategoría padre (Nivel 2) *';
+
+    if (nivel === 2) {
+      sel.innerHTML = categorias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    } else {
+      const opts = categorias.flatMap(c => c.hijos.map(h => `<option value="${h.id}">${c.nombre} → ${h.nombre}</option>`));
+      sel.innerHTML = opts.join('');
+    }
+
+    if (preselect) sel.value = preselect;
+  }
+
+  function guardarCategoria() {
+    const nombre = document.getElementById('cat-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+    showToast('Categoría guardada');
+    closeModal('modal-categoria');
+    renderTree();
+  }
+
+  // ── Eliminar ────────────────────────────────────────────────────────────────
+  function pedirEliminar(id, nombre, productos) {
+    eliminandoId = id;
+    document.getElementById('del-cat-msg').textContent =
+      productos > 0
+        ? `"${nombre}" tiene ${productos} producto(s) asignados. Deberás reasignarlos antes de eliminar.`
+        : `¿Seguro que quieres eliminar "${nombre}"? Esta acción no se puede deshacer.`;
+    openModal('modal-eliminar');
+  }
+
+  function confirmarEliminar() {
+    closeModal('modal-eliminar');
+    showToast('Categoría eliminada');
+    renderTree();
+  }
+
+  // ── Color picker ────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.cat-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-color-btn').forEach(b => b.style.border = '2px solid transparent');
+        btn.style.border = '2px solid var(--dark)';
+        document.getElementById('cat-color').value = btn.dataset.color;
+      });
+    });
+    renderTree();
+  });
+</script>
+</body>
+</html>

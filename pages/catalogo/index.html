@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Productos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Productos</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar producto o código..." oninput="filterTable(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="window.location.href='../../pages/catalogo/categorias/'">
+          <i class="ti ti-category"></i> Categorías
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nuevo producto
+        </button>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ── Filtros de categoría ── -->
+      <div class="cat-filters mb-lg">
+        <button class="cat-btn active" onclick="selectCat(this, '')">Todos</button>
+        <button class="cat-btn" onclick="selectCat(this, 'Pisos y Muros')">Pisos y Muros</button>
+        <button class="cat-btn" onclick="selectCat(this, 'Adhesivos')">Adhesivos</button>
+        <button class="cat-btn" onclick="selectCat(this, 'Herramientas')">Herramientas</button>
+        <button class="cat-btn" onclick="selectCat(this, 'Acabados')">Acabados</button>
+        <button class="cat-btn" onclick="selectCat(this, 'Servicios')">Servicios</button>
+      </div>
+
+      <!-- ── Stats rápidas ── -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total productos</div>
+          <div class="metric-value">124</div>
+          <div class="metric-delta">8 agregados este mes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Activos</div>
+          <div class="metric-value">118</div>
+          <div class="metric-delta">6 inactivos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Stock bajo</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta neg">Requieren reposición</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Agotados</div>
+          <div class="metric-value">2</div>
+          <div class="metric-delta neg">Sin existencias</div>
+        </div>
+      </div>
+
+      <!-- ── Tabla de productos ── -->
+      <div class="table-wrapper">
+        <table id="productos-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Tipo</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body">
+            <!-- Generado por JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal: Crear / Editar producto ── -->
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-producto-title">Nuevo producto</span>
+      <button class="modal-close" onclick="closeModal('modal-producto')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre del producto *</label>
+      <input type="text" class="form-input" id="prod-nombre" placeholder="Ej. Azulejo blanco 30×30"/>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Código / SKU</label>
+        <input type="text" class="form-input" id="prod-sku" placeholder="Ej. AZ-001"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo *</label>
+        <select class="form-select" id="prod-tipo" onchange="toggleInventario()">
+          <option value="producto">Producto (con inventario)</option>
+          <option value="servicio">Servicio (sin inventario)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Categoría *</label>
+        <select class="form-select" id="prod-categoria" onchange="loadSubcats()">
+          <option value="">Seleccionar categoría</option>
+          <option value="Pisos y Muros">Pisos y Muros</option>
+          <option value="Adhesivos">Adhesivos</option>
+          <option value="Herramientas">Herramientas</option>
+          <option value="Acabados">Acabados</option>
+          <option value="Servicios">Servicios</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subcategoría</label>
+        <select class="form-select" id="prod-subcategoria">
+          <option value="">Seleccionar subcategoría</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Precio base *</label>
+        <input type="number" class="form-input" id="prod-precio" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unidad de medida</label>
+        <select class="form-select" id="prod-unidad">
+          <option value="pza">Pieza (pza)</option>
+          <option value="kg">Kilogramo (kg)</option>
+          <option value="lt">Litro (lt)</option>
+          <option value="mt">Metro (mt)</option>
+          <option value="caja">Caja</option>
+          <option value="costal">Costal</option>
+          <option value="servicio">Servicio</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Solo para productos con inventario -->
+    <div id="inventario-fields">
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Stock inicial</label>
+          <input type="number" class="form-input" id="prod-stock" placeholder="0" min="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock mínimo (alerta)</label>
+          <input type="number" class="form-input" id="prod-stock-min" placeholder="5" min="0"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="prod-descripcion" placeholder="Descripción opcional del producto..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Estatus</label>
+      <select class="form-select" id="prod-estatus">
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-producto')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarProducto()">
+        <i class="ti ti-check"></i> Guardar producto
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Confirmar eliminación ── -->
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal" style="max-width:400px;text-align:center;">
+    <div style="width:52px;height:52px;background:var(--danger-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-trash" style="font-size:24px;color:var(--danger);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¿Eliminar producto?</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);">Esta acción no se puede deshacer. El producto será eliminado del catálogo.</p>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-eliminar')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarEliminar()">
+        <i class="ti ti-trash"></i> Sí, eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  // ── Datos de ejemplo ──────────────────────────────────────────────────────
+  let productos = [
+    { id:1, nombre:'Azulejo blanco 30×30',   sku:'AZ-001', categoria:'Pisos y Muros', subcategoria:'Cerámica',    precio:48.00,   stock:142, stockMin:20, tipo:'producto', estatus:'activo' },
+    { id:2, nombre:'Porcelanato gris 60×60', sku:'PO-001', categoria:'Pisos y Muros', subcategoria:'Porcelanato', precio:120.00,  stock:68,  stockMin:15, tipo:'producto', estatus:'activo' },
+    { id:3, nombre:'Mosaico terracota 20×20',sku:'MO-001', categoria:'Pisos y Muros', subcategoria:'Mosaico',     precio:65.00,   stock:35,  stockMin:20, tipo:'producto', estatus:'activo' },
+    { id:4, nombre:'Pegamento cerámico 25kg',sku:'AD-001', categoria:'Adhesivos',     subcategoria:'',            precio:185.00,  stock:12,  stockMin:10, tipo:'producto', estatus:'activo' },
+    { id:5, nombre:'Fragua gris 5kg',        sku:'AD-002', categoria:'Adhesivos',     subcategoria:'',            precio:95.00,   stock:2,   stockMin:10, tipo:'producto', estatus:'activo' },
+    { id:6, nombre:'Cortadora manual 60cm',  sku:'HE-001', categoria:'Herramientas',  subcategoria:'',            precio:1250.00, stock:0,   stockMin:2,  tipo:'producto', estatus:'activo' },
+    { id:7, nombre:'Llana dentada inox',     sku:'HE-002', categoria:'Herramientas',  subcategoria:'',            precio:220.00,  stock:9,   stockMin:5,  tipo:'producto', estatus:'activo' },
+    { id:8, nombre:'Impermeabilizante 5L',   sku:'AC-001', categoria:'Acabados',      subcategoria:'',            precio:320.00,  stock:22,  stockMin:8,  tipo:'producto', estatus:'activo' },
+    { id:9, nombre:'Instalación de piso',    sku:'SV-001', categoria:'Servicios',     subcategoria:'',            precio:450.00,  stock:null,stockMin:null,tipo:'servicio', estatus:'activo' },
+    { id:10,nombre:'Talavera floral 15×15',  sku:'AZ-002', categoria:'Pisos y Muros', subcategoria:'Talavera',    precio:38.00,   stock:210, stockMin:30, tipo:'producto', estatus:'activo' },
+  ];
+
+  let filtroCategoria = '';
+  let filtroTexto = '';
+  let editandoId = null;
+  let eliminandoId = null;
+
+  const subcats = {
+    'Pisos y Muros': ['Cerámica', 'Porcelanato', 'Mosaico', 'Talavera'],
+    'Adhesivos': ['Pegamentos', 'Fraguas', 'Impermeabilizantes'],
+    'Herramientas': ['Corte', 'Aplicación', 'Medición'],
+    'Acabados': ['Pinturas', 'Barnices', 'Selladores'],
+    'Servicios': ['Instalación', 'Asesoría', 'Mantenimiento'],
+  };
+
+  // ── Render tabla ──────────────────────────────────────────────────────────
+  function renderTabla() {
+    const filtered = productos.filter(p => {
+      const matchCat = !filtroCategoria || p.categoria === filtroCategoria;
+      const matchText = !filtroTexto || p.nombre.toLowerCase().includes(filtroTexto) || p.sku.toLowerCase().includes(filtroTexto);
+      return matchCat && matchText;
+    });
+
+    const tbody = document.getElementById('tabla-body');
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-package" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin productos en esta categoría
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(p => {
+      const stockBadge = p.tipo === 'servicio'
+        ? `<span class="badge badge-info">Servicio</span>`
+        : p.stock === 0
+          ? `<span class="badge badge-danger">Agotado</span>`
+          : p.stock <= p.stockMin
+            ? `<span class="badge badge-warning">${p.stock} — Bajo</span>`
+            : `<span style="font-size:var(--font-md);color:var(--text-primary);">${p.stock}</span>`;
+
+      const estatusBadge = p.estatus === 'activo'
+        ? `<span class="badge badge-success">Activo</span>`
+        : `<span class="badge badge-neutral">Inactivo</span>`;
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:500;color:var(--text-primary);">${p.nombre}</div>
+            <div style="font-size:var(--font-xs);color:var(--text-muted);">${p.sku}</div>
+          </td>
+          <td>
+            <div style="font-size:var(--font-md);color:var(--text-primary);">${p.categoria}</div>
+            ${p.subcategoria ? `<div style="font-size:var(--font-xs);color:var(--text-muted);">${p.subcategoria}</div>` : ''}
+          </td>
+          <td style="font-weight:500;">$${p.precio.toFixed(2)}</td>
+          <td>${stockBadge}</td>
+          <td><span class="badge badge-neutral">${p.tipo === 'servicio' ? 'Servicio' : 'Producto'}</span></td>
+          <td>${estatusBadge}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="editarProducto(${p.id})" data-tooltip="Editar">
+                <i class="ti ti-pencil" style="font-size:15px;"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="eliminarProducto(${p.id})" data-tooltip="Eliminar" style="color:var(--danger);">
+                <i class="ti ti-trash" style="font-size:15px;"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  function selectCat(btn, cat) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filtroCategoria = cat;
+    renderTabla();
+  }
+
+  function filterTable(q) {
+    filtroTexto = q.toLowerCase();
+    renderTabla();
+  }
+
+  // ── Abrir formulario ──────────────────────────────────────────────────────
+  function openForm(id = null) {
+    editandoId = id;
+    document.getElementById('modal-producto-title').textContent = id ? 'Editar producto' : 'Nuevo producto';
+
+    if (id) {
+      const p = productos.find(x => x.id === id);
+      document.getElementById('prod-nombre').value = p.nombre;
+      document.getElementById('prod-sku').value = p.sku;
+      document.getElementById('prod-tipo').value = p.tipo;
+      document.getElementById('prod-categoria').value = p.categoria;
+      loadSubcats();
+      document.getElementById('prod-subcategoria').value = p.subcategoria;
+      document.getElementById('prod-precio').value = p.precio;
+      document.getElementById('prod-stock').value = p.stock || '';
+      document.getElementById('prod-stock-min').value = p.stockMin || '';
+      document.getElementById('prod-estatus').value = p.estatus;
+    } else {
+      document.getElementById('modal-producto').querySelectorAll('input, textarea').forEach(el => el.value = '');
+      document.getElementById('prod-tipo').value = 'producto';
+      document.getElementById('prod-categoria').value = '';
+      document.getElementById('prod-estatus').value = 'activo';
+    }
+
+    toggleInventario();
+    openModal('modal-producto');
+  }
+
+  function editarProducto(id) { openForm(id); }
+
+  // ── Subcategorías dinámicas ───────────────────────────────────────────────
+  function loadSubcats() {
+    const cat = document.getElementById('prod-categoria').value;
+    const sel = document.getElementById('prod-subcategoria');
+    const opts = subcats[cat] || [];
+    sel.innerHTML = `<option value="">Sin subcategoría</option>` +
+      opts.map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+
+  // ── Toggle inventario ─────────────────────────────────────────────────────
+  function toggleInventario() {
+    const tipo = document.getElementById('prod-tipo').value;
+    document.getElementById('inventario-fields').style.display = tipo === 'servicio' ? 'none' : '';
+  }
+
+  // ── Guardar producto ──────────────────────────────────────────────────────
+  function guardarProducto() {
+    const nombre = document.getElementById('prod-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+
+    const prod = {
+      id: editandoId || Date.now(),
+      nombre,
+      sku: document.getElementById('prod-sku').value.trim(),
+      tipo: document.getElementById('prod-tipo').value,
+      categoria: document.getElementById('prod-categoria').value,
+      subcategoria: document.getElementById('prod-subcategoria').value,
+      precio: parseFloat(document.getElementById('prod-precio').value) || 0,
+      stock: parseInt(document.getElementById('prod-stock').value) || 0,
+      stockMin: parseInt(document.getElementById('prod-stock-min').value) || 0,
+      estatus: document.getElementById('prod-estatus').value,
+    };
+
+    if (editandoId) {
+      const i = productos.findIndex(p => p.id === editandoId);
+      productos[i] = prod;
+      showToast('Producto actualizado');
+    } else {
+      productos.push(prod);
+      showToast('Producto creado');
+    }
+
+    closeModal('modal-producto');
+    renderTabla();
+  }
+
+  // ── Eliminar ──────────────────────────────────────────────────────────────
+  function eliminarProducto(id) {
+    eliminandoId = id;
+    openModal('modal-eliminar');
+  }
+
+  function confirmarEliminar() {
+    productos = productos.filter(p => p.id !== eliminandoId);
+    closeModal('modal-eliminar');
+    renderTabla();
+    showToast('Producto eliminado');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', renderTabla);
+</script>
+</body>
+</html>

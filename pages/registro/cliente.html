@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Activar cuenta</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .step { display: none; }
+  .step.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="auth-layout">
+
+  <!-- Panel izquierdo -->
+  <div class="auth-panel-left">
+    <div class="logo">
+      <div class="logo-mark">PD</div>
+      <span class="logo-name">PayDesk</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:var(--space-xl);">
+      <h1 style="color:#fff;font-size:26px;font-weight:500;letter-spacing:-0.5px;line-height:1.3;">
+        Activa tu cuenta<br>de <span style="color:var(--accent);">cliente</span>
+      </h1>
+      <p style="color:#555;font-size:14px;line-height:1.65;">
+        Tu proveedor te invitó a usar PayDesk para consultar tus compras, descargarte facturas y gestionar tu crédito.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:10px;padding:12px 14px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>
+          <span style="font-size:13px;color:#aaa;">Consulta tu historial de compras</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:10px;padding:12px 14px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>
+          <span style="font-size:13px;color:#aaa;">Descarga tus facturas PDF y XML</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:10px;padding:12px 14px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></div>
+          <span style="font-size:13px;color:#aaa;">Revisa tu saldo y crédito disponible</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="auth-panel-right">
+    <div class="auth-form-card">
+
+      <!-- Paso 1: Verificar invitación -->
+      <div class="step active" id="step-1">
+        <h2 style="font-size:24px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Verificar invitación</h2>
+        <p class="auth-subtitle">Ingresa el código de invitación que te envió tu proveedor.</p>
+
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" placeholder="Tu correo registrado con el proveedor"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Código de invitación</label>
+          <input type="text" class="form-input" placeholder="Ej. INV-2026-XXXX" style="text-transform:uppercase;letter-spacing:2px;"/>
+        </div>
+
+        <button class="btn btn-dark btn-full btn-lg" onclick="verificarInvitacion()">
+          Verificar invitación
+        </button>
+        <div style="text-align:center;margin-top:var(--space-lg);font-size:13px;color:var(--text-muted);">
+          ¿Ya tienes cuenta? <a href="../../index.html" style="color:var(--accent);">Iniciar sesión</a>
+        </div>
+      </div>
+
+      <!-- Paso 2: Completar perfil -->
+      <div class="step" id="step-2">
+        <div style="background:var(--success-bg);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-xl);display:flex;align-items:center;gap:var(--space-md);">
+          <i class="ti ti-circle-check" style="font-size:22px;color:var(--success);flex-shrink:0;"></i>
+          <div>
+            <div style="font-weight:500;font-size:var(--font-md);">Invitación verificada</div>
+            <div style="font-size:var(--font-sm);color:var(--text-secondary);">Empresa: <strong>Todo Cerámicas</strong></div>
+          </div>
+        </div>
+
+        <h2 style="font-size:24px;font-weight:500;letter-spacing:-0.4px;margin-bottom:6px;">Completa tu perfil</h2>
+        <p class="auth-subtitle">Configura tu cuenta para acceder al portal.</p>
+
+        <div class="form-group">
+          <label class="form-label">Nombre completo *</label>
+          <input type="text" class="form-input" placeholder="Tu nombre completo"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-input" placeholder="55 1234 5678"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nueva contraseña *</label>
+          <input type="password" class="form-input" placeholder="Mínimo 8 caracteres"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña *</label>
+          <input type="password" class="form-input" placeholder="Repite la contraseña"/>
+        </div>
+
+        <button class="btn btn-dark btn-full btn-lg" onclick="activarCuenta()">
+          Activar mi cuenta
+        </button>
+      </div>
+
+      <!-- Paso 3: Éxito -->
+      <div class="step" id="step-3" style="text-align:center;padding:20px 0;">
+        <div style="width:72px;height:72px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+          <i class="ti ti-check" style="font-size:36px;color:var(--accent);"></i>
+        </div>
+        <h2 style="font-size:24px;font-weight:500;margin-bottom:8px;">¡Cuenta activada!</h2>
+        <p style="color:var(--text-secondary);margin-bottom:32px;">Ya puedes acceder al portal de <strong>Todo Cerámicas</strong> para ver tus compras y facturas.</p>
+        <a href="../../pages/cliente/index.html" class="btn btn-dark btn-full btn-lg" style="display:flex;align-items:center;justify-content:center;">
+          Ir a mi portal →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function irPaso(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+  }
+
+  function verificarInvitacion() { irPaso(2); }
+  function activarCuenta() { irPaso(3); }
+</script>
+</body>
+</html>

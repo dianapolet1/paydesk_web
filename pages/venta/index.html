@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Punto de venta</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+
+</head>
+<body data-base="../..">
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside id="sidebar"></aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Nueva venta</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar producto o código..." id="search-input" oninput="filterProducts(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Selector de cliente -->
+        <div class="client-chip" onclick="openModal('modal-cliente')">
+          <div class="avatar avatar-accent" style="width:22px;height:22px;font-size:9px;border-radius:999px;">MR</div>
+          <span>Mario Rodríguez</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- POS layout -->
+    <div class="pos-layout">
+
+      <!-- Catálogo -->
+      <div class="pos-catalog">
+
+        <!-- Categorías -->
+        <div class="cat-filters mb-md">
+          <button class="cat-btn active" onclick="selectCat(this)">Todos</button>
+          <button class="cat-btn" onclick="selectCat(this)">Pisos y Muros</button>
+          <button class="cat-btn" onclick="selectCat(this)">Adhesivos</button>
+          <button class="cat-btn" onclick="selectCat(this)">Herramientas</button>
+          <button class="cat-btn" onclick="selectCat(this)">Acabados</button>
+          <button class="cat-btn" onclick="selectCat(this)">Servicios</button>
+        </div>
+
+        <!-- Subcategorías -->
+        <div class="cat-filters mb-lg">
+          <button class="subcat-btn active" onclick="selectSubcat(this)">Todos</button>
+          <button class="subcat-btn" onclick="selectSubcat(this)">Cerámica</button>
+          <button class="subcat-btn" onclick="selectSubcat(this)">Porcelanato</button>
+          <button class="subcat-btn" onclick="selectSubcat(this)">Mosaico</button>
+          <button class="subcat-btn" onclick="selectSubcat(this)">Talavera</button>
+        </div>
+
+        <!-- Productos -->
+        <div class="products-grid" id="products-grid">
+          <div class="prod-card" onclick="addToCart('Azulejo blanco 30×30', 45.60, 'pza')">
+            <div class="prod-img"><i class="ti ti-layout-grid"></i></div>
+            <div class="prod-name">Azulejo blanco 30×30</div>
+            <div class="prod-price">$45.60</div>
+            <div class="prod-stock">142 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Porcelanato gris 60×60', 108.00, 'pza')">
+            <div class="prod-img"><i class="ti ti-layout-grid"></i></div>
+            <div class="prod-name">Porcelanato gris 60×60</div>
+            <div class="prod-price">$108.00</div>
+            <div class="prod-stock">68 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Mosaico terracota 20×20', 58.50, 'pza')">
+            <div class="prod-img"><i class="ti ti-layout-grid"></i></div>
+            <div class="prod-name">Mosaico terracota 20×20</div>
+            <div class="prod-price">$58.50</div>
+            <div class="prod-stock">35 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Pegamento cerámico 25kg', 175.75, 'costal')">
+            <div class="prod-img"><i class="ti ti-droplet"></i></div>
+            <div class="prod-name">Pegamento cerámico 25kg</div>
+            <div class="prod-price">$175.75</div>
+            <div class="prod-stock">12 costales</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Fragua gris 5kg', 85.00, 'kg')">
+            <div class="prod-img"><i class="ti ti-droplet"></i></div>
+            <div class="prod-name">Fragua gris 5kg</div>
+            <div class="prod-price">$85.00</div>
+            <div class="prod-stock low">Quedan 2</div>
+          </div>
+          <div class="prod-card out-of-stock">
+            <div class="prod-img"><i class="ti ti-tool"></i></div>
+            <div class="prod-name">Cortadora manual 60cm</div>
+            <div class="prod-price">$1,250.00</div>
+            <div class="prod-stock low">Sin stock</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Talavera floral 15×15', 34.20, 'pza')">
+            <div class="prod-img"><i class="ti ti-layout-grid"></i></div>
+            <div class="prod-name">Talavera floral 15×15</div>
+            <div class="prod-price">$34.20</div>
+            <div class="prod-stock">210 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Llana dentada inox', 209.00, 'pza')">
+            <div class="prod-img"><i class="ti ti-tool"></i></div>
+            <div class="prod-name">Llana dentada inox</div>
+            <div class="prod-price">$209.00</div>
+            <div class="prod-stock">9 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Impermeabilizante 5L', 320.00, 'pza')">
+            <div class="prod-img"><i class="ti ti-droplet-filled"></i></div>
+            <div class="prod-name">Impermeabilizante 5L</div>
+            <div class="prod-price">$320.00</div>
+            <div class="prod-stock">22 pzas</div>
+          </div>
+          <div class="prod-card" onclick="addToCart('Instalación de piso', 450.00, 'servicio')">
+            <div class="prod-img"><i class="ti ti-briefcase"></i></div>
+            <div class="prod-name">Instalación de piso</div>
+            <div class="prod-price">$450.00</div>
+            <div class="prod-stock">Servicio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrito -->
+      <div class="pos-cart">
+        <div class="cart-header">
+          <div class="cart-title">Carrito</div>
+          <div class="cart-sub" id="cart-sub">Mario Rodríguez · Precio mayorista</div>
+        </div>
+
+        <div class="cart-items" id="cart-items">
+          <!-- Items se generan con JS -->
+          <div class="empty-state" id="cart-empty">
+            <i class="ti ti-shopping-cart" style="font-size:32px;"></i>
+            <p style="margin:0;">Agrega productos para comenzar</p>
+          </div>
+        </div>
+
+        <div class="cart-footer">
+          <!-- Descuento -->
+          <div class="discount-row" onclick="openModal('modal-descuento')">
+            <span><i class="ti ti-tag" style="margin-right:5px;font-size:13px;"></i>Agregar descuento</span>
+            <span class="discount-val" id="discount-label">—</span>
+          </div>
+
+          <!-- Totales -->
+          <div class="totals">
+            <div class="total-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+            <div class="total-row"><span>Descuento</span><span id="discount-amount" style="color:var(--success);">—</span></div>
+            <div class="total-row"><span>IVA (16%)</span><span id="iva">$0.00</span></div>
+            <div class="total-row main"><span>Total</span><span id="total">$0.00</span></div>
+          </div>
+
+          <!-- CFDI -->
+          <div class="cfdi-check">
+            <input type="checkbox" id="cfdi-check" checked/>
+            <label for="cfdi-check">Timbrar CFDI 4.0 al cerrar</label>
+          </div>
+
+          <!-- Método de pago -->
+          <div class="pay-methods">
+            <button class="pay-btn active" onclick="selectPay(this)">Efectivo</button>
+            <button class="pay-btn" onclick="selectPay(this)">Transferencia</button>
+            <button class="pay-btn" onclick="selectPay(this)">Crédito</button>
+          </div>
+
+          <!-- Cobrar -->
+          <button class="cobrar-btn" onclick="cobrar()" id="cobrar-btn" disabled style="opacity:0.4;">
+            <i class="ti ti-check"></i>
+            Cobrar <span id="cobrar-total">$0.00</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Seleccionar cliente ── -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Seleccionar cliente</span>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="search-box mb-lg">
+      <i class="ti ti-search"></i>
+      <input type="text" placeholder="Buscar cliente..."/>
+    </div>
+    <div>
+      <div class="list-item" onclick="selectCliente('Mario Rodríguez', 'MR', 'Precio mayorista')" style="cursor:pointer;border-radius:var(--radius-sm);">
+        <div class="list-item-left">
+          <div class="avatar avatar-md avatar-accent">MR</div>
+          <div>
+            <div class="list-item-name">Mario Rodríguez</div>
+            <div class="list-item-sub">Precio mayorista</div>
+          </div>
+        </div>
+        <i class="ti ti-check" style="color:var(--accent);"></i>
+      </div>
+      <div class="list-item" onclick="selectCliente('Laura González', 'LG', 'Precio minorista')" style="cursor:pointer;border-radius:var(--radius-sm);">
+        <div class="list-item-left">
+          <div class="avatar avatar-md avatar-accent">LG</div>
+          <div>
+            <div class="list-item-name">Laura González</div>
+            <div class="list-item-sub">Precio minorista</div>
+          </div>
+        </div>
+      </div>
+      <div class="list-item" onclick="selectCliente('Construrama Tepito', 'CT', 'Precio distribuidor')" style="cursor:pointer;border-radius:var(--radius-sm);">
+        <div class="list-item-left">
+          <div class="avatar avatar-md avatar-info">CT</div>
+          <div>
+            <div class="list-item-name">Construrama Tepito</div>
+            <div class="list-item-sub">Precio distribuidor</div>
+          </div>
+        </div>
+      </div>
+      <div class="list-item" onclick="selectCliente('Público general', 'PG', 'Precio estándar')" style="cursor:pointer;border-radius:var(--radius-sm);">
+        <div class="list-item-left">
+          <div class="avatar avatar-md avatar-neutral">PG</div>
+          <div>
+            <div class="list-item-name">Público general</div>
+            <div class="list-item-sub">Precio estándar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-cliente')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Descuento ── -->
+<div class="modal-overlay" id="modal-descuento">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Aplicar descuento</span>
+      <button class="modal-close" onclick="closeModal('modal-descuento')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de descuento</label>
+      <select class="form-select" id="discount-type" onchange="toggleDiscountInput()">
+        <option value="percent">Porcentaje (%)</option>
+        <option value="amount">Monto fijo ($)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="discount-input-label">Porcentaje de descuento</label>
+      <input type="number" class="form-input" id="discount-input" placeholder="0" min="0" max="100"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-descuento')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="applyDiscount()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Cobro exitoso ── -->
+<div class="modal-overlay" id="modal-exito">
+  <div class="modal" style="max-width:360px;text-align:center;">
+    <div style="width:56px;height:56px;background:var(--success-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-check" style="font-size:28px;color:var(--success);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¡Venta registrada!</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);">El CFDI ha sido timbrado correctamente y el inventario fue actualizado.</p>
+    <div style="display:flex;gap:var(--space-sm);">
+      <button class="btn btn-outline btn-sm flex-1" onclick="closeModal('modal-exito')">
+        <i class="ti ti-printer"></i> Imprimir
+      </button>
+      <button class="btn btn-primary btn-sm flex-1" onclick="nuevaVenta()">
+        <i class="ti ti-plus"></i> Nueva venta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  // ── Estado del carrito ────────────────────────────────────────────────────
+  let cart = [];
+  let discountType = 'percent';
+  let discountValue = 0;
+
+  // ── Agregar al carrito ────────────────────────────────────────────────────
+  function addToCart(name, price, unit) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({ name, price, unit, qty: 1 });
+    }
+    renderCart();
+  }
+
+  // ── Renderizar carrito ────────────────────────────────────────────────────
+  function renderCart() {
+    const container = document.getElementById('cart-items');
+    const empty = document.getElementById('cart-empty');
+    const cobrarBtn = document.getElementById('cobrar-btn');
+
+    if (cart.length === 0) {
+      empty.style.display = 'flex';
+      cobrarBtn.disabled = true;
+      cobrarBtn.style.opacity = '0.4';
+      updateTotals(0);
+      return;
+    }
+
+    empty.style.display = 'none';
+    cobrarBtn.disabled = false;
+    cobrarBtn.style.opacity = '1';
+
+    const items = cart.map((item, i) => `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">$${item.price.toFixed(2)} c/u · ${item.unit}</div>
+        </div>
+        <div class="cart-item-right">
+          <button class="del-btn" onclick="removeItem(${i})"><i class="ti ti-x"></i></button>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty(${i}, -1)">−</button>
+            <span class="qty-val">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
+          </div>
+          <div class="cart-item-total">$${(item.price * item.qty).toFixed(2)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = items;
+
+    const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+    updateTotals(subtotal);
+  }
+
+  // ── Totales ───────────────────────────────────────────────────────────────
+  function updateTotals(subtotal) {
+    let discount = 0;
+    if (discountValue > 0) {
+      discount = discountType === 'percent'
+        ? subtotal * (discountValue / 100)
+        : Math.min(discountValue, subtotal);
+    }
+
+    const afterDiscount = subtotal - discount;
+    const iva = afterDiscount * 0.16;
+    const total = afterDiscount + iva;
+
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('iva').textContent = `$${iva.toFixed(2)}`;
+    document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('cobrar-total').textContent = `$${total.toFixed(2)}`;
+
+    if (discount > 0) {
+      document.getElementById('discount-amount').textContent = `−$${discount.toFixed(2)}`;
+    } else {
+      document.getElementById('discount-amount').textContent = '—';
+    }
+  }
+
+  // ── Cantidad ──────────────────────────────────────────────────────────────
+  function changeQty(i, delta) {
+    cart[i].qty += delta;
+    if (cart[i].qty <= 0) cart.splice(i, 1);
+    renderCart();
+  }
+
+  function removeItem(i) {
+    cart.splice(i, 1);
+    renderCart();
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  function selectCat(btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function selectSubcat(btn) {
+    document.querySelectorAll('.subcat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function filterProducts(query) {
+    const cards = document.querySelectorAll('.prod-card:not(.out-of-stock)');
+    cards.forEach(card => {
+      const name = card.querySelector('.prod-name').textContent.toLowerCase();
+      card.style.display = name.includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  // ── Cliente ───────────────────────────────────────────────────────────────
+  function selectCliente(name, initials, price) {
+    document.querySelector('.client-chip span').textContent = name;
+    document.querySelector('.client-chip .avatar').textContent = initials;
+    document.getElementById('cart-sub').textContent = `${name} · ${price}`;
+    closeModal('modal-cliente');
+  }
+
+  // ── Descuento ─────────────────────────────────────────────────────────────
+  function toggleDiscountInput() {
+    discountType = document.getElementById('discount-type').value;
+    const label = document.getElementById('discount-input-label');
+    const input = document.getElementById('discount-input');
+    if (discountType === 'percent') {
+      label.textContent = 'Porcentaje de descuento';
+      input.placeholder = '0';
+      input.max = '100';
+    } else {
+      label.textContent = 'Monto fijo ($)';
+      input.placeholder = '0.00';
+      input.removeAttribute('max');
+    }
+  }
+
+  function applyDiscount() {
+    discountValue = parseFloat(document.getElementById('discount-input').value) || 0;
+    const label = discountType === 'percent' ? `${discountValue}%` : `$${discountValue.toFixed(2)}`;
+    document.getElementById('discount-label').textContent = discountValue > 0 ? label : '—';
+    const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+    updateTotals(subtotal);
+    closeModal('modal-descuento');
+  }
+
+  // ── Método de pago ────────────────────────────────────────────────────────
+  function selectPay(btn) {
+    document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ── Cobrar ────────────────────────────────────────────────────────────────
+  function cobrar() {
+    if (cart.length === 0) return;
+    openModal('modal-exito');
+  }
+
+  function nuevaVenta() {
+    cart = [];
+    discountValue = 0;
+    document.getElementById('discount-label').textContent = '—';
+    document.getElementById('discount-input').value = '';
+    closeModal('modal-exito');
+    renderCart();
+    showToast('Nueva venta iniciada');
+  }
+</script>
+</body>
+</html>

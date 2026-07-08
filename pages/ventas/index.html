@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Ventas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar lista -->
+    <header class="topbar" id="topbar-lista">
+      <div class="topbar-left">
+        <span class="topbar-title">Ventas</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar por cliente, folio o monto..." oninput="filterVentas(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="date" class="form-input" id="fecha-desde" style="height:36px;width:140px;" onchange="filterVentas('')"/>
+          <span style="color:var(--text-muted);font-size:var(--font-sm);">a</span>
+          <input type="date" class="form-input" id="fecha-hasta" style="height:36px;width:140px;" onchange="filterVentas('')"/>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="exportar()">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar detalle -->
+    <header class="topbar" id="topbar-detalle" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Ventas
+        </button>
+        <span class="topbar-title" id="detalle-folio">—</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Descargando PDF...')">
+          <i class="ti ti-file-download"></i> Descargar PDF
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Descargando XML...')">
+          <i class="ti ti-code"></i> Descargar XML
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="showToast('CFDI cancelado', 'error')" id="btn-cancelar">
+          <i class="ti ti-x"></i> Cancelar CFDI
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista ── -->
+    <main class="content" id="vista-lista">
+
+      <!-- Métricas -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Ventas del mes</div>
+          <div class="metric-value">$89,420</div>
+          <div class="metric-delta">↑ 14% vs mes anterior</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Transacciones</div>
+          <div class="metric-value">312</div>
+          <div class="metric-delta">↑ 28 más que el mes pasado</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CFDIs timbrados</div>
+          <div class="metric-value">287</div>
+          <div class="metric-delta">25 pendientes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ticket promedio</div>
+          <div class="metric-value">$2,865</div>
+          <div class="metric-delta">↑ $120 vs mes anterior</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todas')">Todas</div>
+        <div class="tab-item" onclick="selectTab(this, 'timbrado')">Timbradas</div>
+        <div class="tab-item" onclick="selectTab(this, 'pendiente')">Pendientes</div>
+        <div class="tab-item" onclick="selectTab(this, 'credito')">A crédito</div>
+        <div class="tab-item" onclick="selectTab(this, 'cancelado')">Canceladas</div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Productos</th>
+              <th>Método de pago</th>
+              <th>Total</th>
+              <th>CFDI</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ventas-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <!-- ── Vista: Detalle de venta ── -->
+    <main class="content" id="vista-detalle" style="display:none;">
+      <div class="grid-2" style="align-items:start;gap:var(--space-xl);">
+
+        <!-- Columna izquierda: productos -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Productos vendidos</span>
+            </div>
+            <div class="table-wrapper" style="border:none;border-radius:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Precio u.</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="detalle-productos"></tbody>
+              </table>
+            </div>
+            <div style="padding:var(--space-lg);border-top:1px solid var(--border);">
+              <div class="total-row"><span>Subtotal</span><span id="d-subtotal">—</span></div>
+              <div class="total-row"><span>Descuento</span><span id="d-descuento" style="color:var(--success);">—</span></div>
+              <div class="total-row"><span>IVA (16%)</span><span id="d-iva">—</span></div>
+              <div class="total-row main"><span>Total</span><span id="d-total">—</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha: info general -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <!-- Info de la venta -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Información de la venta</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-receipt" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Folio</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-folio">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-calendar" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Fecha y hora</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-fecha">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-user" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Cliente</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-cliente">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-cash" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Método de pago</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-metodo">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-building" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Sede</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-sede">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-user-circle" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Vendedor</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-vendedor">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CFDI -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">CFDI</span>
+              <span id="d-cfdi-badge">—</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div>
+                  <div style="font-size:var(--font-xs);color:var(--text-muted);margin-bottom:2px;">Folio fiscal (UUID)</div>
+                  <div style="font-size:var(--font-sm);font-weight:500;color:var(--text-primary);word-break:break-all;" id="d-uuid">—</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-xs);color:var(--text-muted);margin-bottom:2px;">RFC receptor</div>
+                  <div style="font-size:var(--font-md);font-weight:500;" id="d-rfc">—</div>
+                </div>
+                <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-sm);">
+                  <button class="btn btn-outline btn-sm flex-1" onclick="showToast('Descargando PDF...')">
+                    <i class="ti ti-file-type-pdf"></i> PDF
+                  </button>
+                  <button class="btn btn-outline btn-sm flex-1" onclick="showToast('Descargando XML...')">
+                    <i class="ti ti-code"></i> XML
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const ventas = [
+    { id:1,  folio:'VTA-2026-0312', cliente:'Mario Rodríguez',    fecha:'30 jun 2026 · 10:14', productos:4, metodo:'Efectivo',      total:2340.00, estatus:'timbrado',  uuid:'A1B2C3D4-E5F6-7890-ABCD-EF1234567890', rfc:'ROMAR880512AB1', sede:'Sede Centro',  vendedor:'Sofía Reyes',  descuento:101.65 },
+    { id:2,  folio:'VTA-2026-0311', cliente:'Laura González',     fecha:'30 jun 2026 · 09:38', productos:2, metodo:'Transferencia', total:890.00,  estatus:'pendiente', uuid:'',                                      rfc:'GOLA920304CD2', sede:'Sede Centro',  vendedor:'Sofía Reyes',  descuento:0 },
+    { id:3,  folio:'VTA-2026-0310', cliente:'Público general',    fecha:'30 jun 2026 · 09:02', productos:1, metodo:'Efectivo',      total:450.00,  estatus:'timbrado',  uuid:'B2C3D4E5-F6A7-8901-BCDE-F12345678901', rfc:'XAXX010101000', sede:'Sede Centro',  vendedor:'Juan Méndez',  descuento:0 },
+    { id:4,  folio:'VTA-2026-0309', cliente:'Construrama Tepito', fecha:'29 jun 2026 · 16:45', productos:6, metodo:'Crédito',       total:3200.00, estatus:'timbrado',  uuid:'C3D4E5F6-A7B8-9012-CDEF-123456789012', rfc:'CSA010101XYZ',  sede:'Sede Norte',   vendedor:'Ana López',    descuento:160.00 },
+    { id:5,  folio:'VTA-2026-0308', cliente:'Arq. Pérez Romero',  fecha:'29 jun 2026 · 14:20', productos:3, metodo:'Transferencia', total:1890.00, estatus:'timbrado',  uuid:'D4E5F6A7-B8C9-0123-DEFA-234567890123', rfc:'PERA750610EF3', sede:'Sede Centro',  vendedor:'Sofía Reyes',  descuento:0 },
+    { id:6,  folio:'VTA-2026-0307', cliente:'Ferrehogar SA',      fecha:'28 jun 2026 · 11:30', productos:8, metodo:'Crédito',       total:4500.00, estatus:'timbrado',  uuid:'E5F6A7B8-C9D0-1234-EFAB-345678901234', rfc:'FHO990215GH4',  sede:'Sede Norte',   vendedor:'Ana López',    descuento:225.00 },
+    { id:7,  folio:'VTA-2026-0306', cliente:'Mario Rodríguez',    fecha:'28 jun 2026 · 09:15', productos:2, metodo:'Efectivo',      total:760.00,  estatus:'cancelado', uuid:'F6A7B8C9-D0E1-2345-FABC-456789012345', rfc:'ROMAR880512AB1', sede:'Sede Centro',  vendedor:'Juan Méndez',  descuento:0 },
+    { id:8,  folio:'VTA-2026-0305', cliente:'Público general',    fecha:'27 jun 2026 · 17:55', productos:1, metodo:'Efectivo',      total:320.00,  estatus:'timbrado',  uuid:'A7B8C9D0-E1F2-3456-ABCD-567890123456', rfc:'XAXX010101000', sede:'Sede Centro',  vendedor:'Sofía Reyes',  descuento:0 },
+  ];
+
+  let tabActual = 'todas';
+  let filtroTexto = '';
+
+  // ── Render tabla ──────────────────────────────────────────────────────────
+  function renderVentas() {
+    let lista = ventas.filter(v => {
+      const matchText = !filtroTexto ||
+        v.folio.toLowerCase().includes(filtroTexto) ||
+        v.cliente.toLowerCase().includes(filtroTexto) ||
+        v.total.toString().includes(filtroTexto);
+      const matchTab = tabActual === 'todas' ? true : v.estatus === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('ventas-body');
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-receipt" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin ventas encontradas
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(v => {
+      const badge = v.estatus === 'timbrado'
+        ? `<span class="badge badge-success">Timbrado</span>`
+        : v.estatus === 'pendiente'
+          ? `<span class="badge badge-warning">Pendiente</span>`
+          : `<span class="badge badge-danger">Cancelado</span>`;
+
+      const metodoBadge = v.metodo === 'Efectivo'
+        ? `<span class="badge badge-neutral">Efectivo</span>`
+        : v.metodo === 'Transferencia'
+          ? `<span class="badge badge-info">Transferencia</span>`
+          : `<span class="badge badge-warning">Crédito</span>`;
+
+      return `
+        <tr style="cursor:pointer;" onclick="verDetalle(${v.id})">
+          <td style="font-weight:500;color:var(--accent);font-size:var(--font-md);">${v.folio}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="avatar avatar-md avatar-accent">${v.cliente.slice(0,2).toUpperCase()}</div>
+              <span style="font-weight:500;">${v.cliente}</span>
+            </div>
+          </td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${v.fecha}</td>
+          <td style="color:var(--text-secondary);">${v.productos} producto${v.productos > 1 ? 's' : ''}</td>
+          <td>${metodoBadge}</td>
+          <td style="font-weight:500;">$${v.total.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+          <td>${badge}</td>
+          <td>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();verDetalle(${v.id})" data-tooltip="Ver detalle">
+              <i class="ti ti-eye" style="font-size:15px;"></i>
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  function filterVentas(q) { filtroTexto = q.toLowerCase(); renderVentas(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderVentas();
+  }
+
+  // ── Ver detalle ───────────────────────────────────────────────────────────
+  function verDetalle(id) {
+    const v = ventas.find(x => x.id === id);
+    if (!v) return;
+
+    document.getElementById('vista-lista').style.display = 'none';
+    document.getElementById('topbar-lista').style.display = 'none';
+    document.getElementById('vista-detalle').style.display = '';
+    document.getElementById('topbar-detalle').style.display = '';
+
+    document.getElementById('detalle-folio').textContent = v.folio;
+    document.getElementById('d-folio').textContent = v.folio;
+    document.getElementById('d-fecha').textContent = v.fecha;
+    document.getElementById('d-cliente').textContent = v.cliente;
+    document.getElementById('d-metodo').textContent = v.metodo;
+    document.getElementById('d-sede').textContent = v.sede;
+    document.getElementById('d-vendedor').textContent = v.vendedor;
+    document.getElementById('d-uuid').textContent = v.uuid || 'Sin folio fiscal';
+    document.getElementById('d-rfc').textContent = v.rfc || '—';
+
+    const cfdiHTML = v.estatus === 'timbrado'
+      ? `<span class="badge badge-success">Timbrado</span>`
+      : v.estatus === 'pendiente'
+        ? `<span class="badge badge-warning">Pendiente</span>`
+        : `<span class="badge badge-danger">Cancelado</span>`;
+    document.getElementById('d-cfdi-badge').innerHTML = cfdiHTML;
+
+    // Botón cancelar solo si está timbrado
+    document.getElementById('btn-cancelar').style.display = v.estatus === 'timbrado' ? '' : 'none';
+
+    // Productos ficticios para el detalle
+    const subtotal = v.total / 1.16;
+    const iva = v.total - subtotal;
+    document.getElementById('d-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('d-descuento').textContent = v.descuento > 0 ? `−$${v.descuento.toFixed(2)}` : '—';
+    document.getElementById('d-iva').textContent = `$${iva.toFixed(2)}`;
+    document.getElementById('d-total').textContent = `$${v.total.toFixed(2)}`;
+
+    // Productos de ejemplo
+    document.getElementById('detalle-productos').innerHTML = Array.from({ length: v.productos }, (_, i) => `
+      <tr>
+        <td>
+          <div style="font-weight:500;">Producto ${i + 1}</div>
+          <div style="font-size:var(--font-xs);color:var(--text-muted);">SKU-00${i + 1}</div>
+        </td>
+        <td>${Math.floor(Math.random() * 5) + 1}</td>
+        <td>$${(subtotal / v.productos).toFixed(2)}</td>
+        <td style="font-weight:500;">$${(subtotal / v.productos).toFixed(2)}</td>
+      </tr>`).join('');
+  }
+
+  function volverLista() {
+    document.getElementById('vista-lista').style.display = '';
+    document.getElementById('topbar-lista').style.display = '';
+    document.getElementById('vista-detalle').style.display = 'none';
+    document.getElementById('topbar-detalle').style.display = 'none';
+  }
+
+  function exportar() { showToast('Exportando a XLSX...'); }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById('fecha-desde').value = hace30;
+    document.getElementById('fecha-hasta').value = hoy;
+    renderVentas();
+  });
+</script>
+</body>
+</html>

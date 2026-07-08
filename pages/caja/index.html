@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Caja</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar cerrada -->
+    <header class="topbar" id="topbar-cerrada">
+      <div class="topbar-left">
+        <span class="topbar-title">Caja</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar abierta -->
+    <header class="topbar" id="topbar-abierta" style="display:none;">
+      <div class="topbar-left">
+        <span class="topbar-title">Caja — Turno activo</span>
+        <span class="badge badge-success" style="margin-left:8px;">
+          <i class="ti ti-circle-filled" style="font-size:8px;margin-right:4px;"></i>
+          Abierta
+        </span>
+      </div>
+      <div class="topbar-right">
+        <span id="reloj" style="font-size:var(--font-md);color:var(--text-secondary);font-variant-numeric:tabular-nums;"></span>
+        <button class="btn btn-danger btn-sm" onclick="openModal('modal-corte')">
+          <i class="ti ti-cash"></i> Hacer corte
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Caja cerrada ── -->
+    <main class="content" id="vista-cerrada">
+      <div style="max-width:480px;margin:60px auto;text-align:center;">
+        <div style="width:72px;height:72px;background:var(--surface);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-xl);">
+          <i class="ti ti-cash" style="font-size:36px;color:var(--text-muted);"></i>
+        </div>
+        <h2 style="font-size:var(--font-2xl);font-weight:500;color:var(--text-primary);margin-bottom:var(--space-sm);letter-spacing:-0.4px;">Caja cerrada</h2>
+        <p style="font-size:var(--font-base);color:var(--text-secondary);margin-bottom:var(--space-page);">
+          Abre la caja para comenzar a registrar ventas del turno. Se registrará el monto inicial en efectivo.
+        </p>
+
+        <!-- Historial de cortes -->
+        <div class="card" style="text-align:left;margin-bottom:var(--space-xl);">
+          <div class="card-header">
+            <span class="card-title">Últimos cortes</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">SR</div>
+              <div>
+                <div class="list-item-name">Sofía Reyes</div>
+                <div class="list-item-sub">29 jun 2026 · 08:00 – 18:30</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$18,420</span>
+              <span class="badge badge-success">Cerrado</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">JM</div>
+              <div>
+                <div class="list-item-name">Juan Méndez</div>
+                <div class="list-item-sub">28 jun 2026 · 08:00 – 17:45</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$12,890</span>
+              <span class="badge badge-success">Cerrado</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">SR</div>
+              <div>
+                <div class="list-item-name">Sofía Reyes</div>
+                <div class="list-item-sub">27 jun 2026 · 08:00 – 19:00</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$21,050</span>
+              <span class="badge badge-success">Cerrado</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-dark btn-lg btn-full" onclick="openModal('modal-apertura')">
+          <i class="ti ti-lock-open"></i> Abrir caja
+        </button>
+      </div>
+    </main>
+
+    <!-- ── Vista: Caja abierta / Dashboard ── -->
+    <main class="content" id="vista-abierta" style="display:none;">
+
+      <!-- Info del turno -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-page);">
+        <div>
+          <h1 style="font-size:var(--font-2xl);font-weight:500;color:var(--text-primary);letter-spacing:-0.4px;">Turno activo</h1>
+          <p style="font-size:var(--font-base);color:var(--text-secondary);">
+            Iniciado a las <strong id="hora-inicio">08:00</strong> · Sofía Reyes · Sede Centro
+          </p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:2px;">Fondo inicial</div>
+          <div style="font-size:var(--font-xl);font-weight:500;" id="fondo-display">$500.00</div>
+        </div>
+      </div>
+
+      <!-- Métricas del turno -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Ventas del turno</div>
+          <div class="metric-value" id="metric-ventas">$4,230</div>
+          <div class="metric-delta" id="metric-trans">12 transacciones</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Efectivo</div>
+          <div class="metric-value" id="metric-efectivo">$1,850</div>
+          <div class="metric-delta">6 ventas en efectivo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Transferencias</div>
+          <div class="metric-value" id="metric-transfer">$2,380</div>
+          <div class="metric-delta">6 transferencias</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CFDIs timbrados</div>
+          <div class="metric-value" id="metric-cfdi">8</div>
+          <div class="metric-delta">4 pendientes</div>
+        </div>
+      </div>
+
+      <!-- Ventas del turno + Desglose -->
+      <div class="grid-chart-2 mb-lg">
+
+        <!-- Lista de ventas -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ventas del turno</span>
+            <a href="../../pages/ventas/" class="card-action">Ver todas</a>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">MR</div>
+              <div>
+                <div class="list-item-name">Mario Rodríguez</div>
+                <div class="list-item-sub">Hace 12 min · Efectivo</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$2,340</span>
+              <span class="badge badge-success">Timbrado</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">LG</div>
+              <div>
+                <div class="list-item-name">Laura González</div>
+                <div class="list-item-sub">Hace 38 min · Transferencia</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$890</span>
+              <span class="badge badge-warning">Pendiente</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-neutral">PG</div>
+              <div>
+                <div class="list-item-name">Público general</div>
+                <div class="list-item-sub">Hace 1h · Efectivo</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$450</span>
+              <span class="badge badge-success">Timbrado</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-info">CT</div>
+              <div>
+                <div class="list-item-name">Construrama Tepito</div>
+                <div class="list-item-sub">Hace 2h · Crédito</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$550</span>
+              <span class="badge badge-success">Timbrado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desglose por método de pago -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Desglose del turno</span>
+          </div>
+          <div class="card-body">
+
+            <div style="margin-bottom:var(--space-xl);">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:var(--font-md);color:var(--text-secondary);">Efectivo</span>
+                <span style="font-size:var(--font-md);font-weight:500;">$1,850</span>
+              </div>
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:6px;overflow:hidden;">
+                <div style="height:100%;width:44%;background:var(--accent);border-radius:var(--radius-full);"></div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-xl);">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:var(--font-md);color:var(--text-secondary);">Transferencia</span>
+                <span style="font-size:var(--font-md);font-weight:500;">$2,380</span>
+              </div>
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:6px;overflow:hidden;">
+                <div style="height:100%;width:56%;background:var(--info);border-radius:var(--radius-full);"></div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-xl);">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:var(--font-md);color:var(--text-secondary);">Crédito</span>
+                <span style="font-size:var(--font-md);font-weight:500;">$550</span>
+              </div>
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:6px;overflow:hidden;">
+                <div style="height:100%;width:13%;background:var(--warning);border-radius:var(--radius-full);"></div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border);padding-top:var(--space-lg);">
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:var(--font-base);font-weight:500;color:var(--text-primary);">Total del turno</span>
+                <span style="font-size:var(--font-base);font-weight:500;color:var(--text-primary);">$4,780</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:6px;">
+                <span style="font-size:var(--font-md);color:var(--text-secondary);">Efectivo en caja</span>
+                <span style="font-size:var(--font-md);font-weight:500;color:var(--success);">$2,350</span>
+              </div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);margin-top:4px;">Fondo $500 + Efectivo $1,850</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ── Vista: Resumen de corte ── -->
+    <main class="content" id="vista-corte" style="display:none;">
+      <div style="max-width:560px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:var(--space-page);">
+          <div style="width:64px;height:64px;background:var(--success-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+            <i class="ti ti-check" style="font-size:32px;color:var(--success);"></i>
+          </div>
+          <h2 style="font-size:var(--font-2xl);font-weight:500;color:var(--text-primary);letter-spacing:-0.4px;margin-bottom:var(--space-sm);">Corte realizado</h2>
+          <p style="font-size:var(--font-base);color:var(--text-secondary);">30 jun 2026 · 08:00 – <span id="hora-corte">—</span></p>
+        </div>
+
+        <div class="card mb-lg">
+          <div class="card-header"><span class="card-title">Resumen del turno</span></div>
+          <div class="card-body">
+            <div class="total-row"><span>Fondo inicial</span><span>$500.00</span></div>
+            <div class="total-row"><span>Ventas en efectivo</span><span>$1,850.00</span></div>
+            <div class="total-row"><span>Ventas por transferencia</span><span>$2,380.00</span></div>
+            <div class="total-row"><span>Ventas a crédito</span><span>$550.00</span></div>
+            <div class="total-row"><span>Total de ventas</span><span>$4,780.00</span></div>
+            <div class="total-row main"><span>Efectivo en caja</span><span>$2,350.00</span></div>
+          </div>
+        </div>
+
+        <div class="card mb-lg">
+          <div class="card-header"><span class="card-title">Efectivo contado</span></div>
+          <div class="card-body">
+            <div class="total-row"><span>Efectivo esperado</span><span>$2,350.00</span></div>
+            <div class="total-row"><span>Efectivo contado</span><span id="contado-display">$0.00</span></div>
+            <div class="total-row main" id="diferencia-row">
+              <span>Diferencia</span>
+              <span id="diferencia-display" style="color:var(--text-primary);">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:var(--space-md);">
+          <button class="btn btn-outline btn-lg flex-1" onclick="imprimirCorte()">
+            <i class="ti ti-printer"></i> Imprimir corte
+          </button>
+          <button class="btn btn-dark btn-lg flex-1" onclick="cerrarCaja()">
+            <i class="ti ti-lock"></i> Cerrar caja
+          </button>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ── Modal: Apertura de caja ── -->
+<div class="modal-overlay" id="modal-apertura">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">Abrir caja</span>
+      <button class="modal-close" onclick="closeModal('modal-apertura')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+      <div style="display:flex;align-items:center;gap:var(--space-md);">
+        <div class="avatar avatar-md avatar-accent">SR</div>
+        <div>
+          <div style="font-weight:500;color:var(--text-primary);">Sofía Reyes</div>
+          <div style="font-size:var(--font-sm);color:var(--text-secondary);">Sede Centro · <span id="hora-apertura"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fondo inicial en efectivo *</label>
+      <input type="number" class="form-input" id="fondo-inicial" placeholder="0.00" min="0" step="0.01"
+        style="font-size:var(--font-xl);height:52px;text-align:center;font-weight:500;"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas de apertura</label>
+      <textarea class="form-textarea" id="apertura-notas" placeholder="Opcional..." style="min-height:60px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-apertura')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="abrirCaja()">
+        <i class="ti ti-lock-open"></i> Abrir caja
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Hacer corte ── -->
+<div class="modal-overlay" id="modal-corte">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <span class="modal-title">Hacer corte de caja</span>
+      <button class="modal-close" onclick="closeModal('modal-corte')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+      <div class="total-row"><span>Total de ventas</span><span style="font-weight:500;">$4,780.00</span></div>
+      <div class="total-row"><span>Efectivo esperado en caja</span><span style="font-weight:500;">$2,350.00</span></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Efectivo contado físicamente *</label>
+      <input type="number" class="form-input" id="efectivo-contado" placeholder="0.00" min="0" step="0.01"
+        oninput="calcularDiferencia(this.value)"
+        style="font-size:var(--font-xl);height:52px;text-align:center;font-weight:500;"/>
+    </div>
+
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);" id="diferencia-box" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:var(--font-md);color:var(--text-secondary);">Diferencia</span>
+        <span style="font-size:var(--font-xl);font-weight:500;" id="modal-diferencia">$0.00</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notas del corte</label>
+      <textarea class="form-textarea" id="corte-notas" placeholder="Opcional..." style="min-height:60px;"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-corte')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="hacerCorte()">
+        <i class="ti ti-cash"></i> Confirmar corte
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  let cajaAbierta = false;
+  let fondoInicial = 0;
+  let timerReloj = null;
+  let horaInicio = null;
+
+  // ── Reloj en tiempo real ──────────────────────────────────────────────────
+  function startReloj() {
+    function tick() {
+      const now = new Date();
+      document.getElementById('reloj').textContent = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    tick();
+    timerReloj = setInterval(tick, 1000);
+  }
+
+  // ── Apertura ──────────────────────────────────────────────────────────────
+  function abrirCaja() {
+    const fondo = parseFloat(document.getElementById('fondo-inicial').value) || 0;
+    fondoInicial = fondo;
+    horaInicio = new Date();
+
+    closeModal('modal-apertura');
+    cajaAbierta = true;
+
+    document.getElementById('vista-cerrada').style.display = 'none';
+    document.getElementById('topbar-cerrada').style.display = 'none';
+    document.getElementById('vista-abierta').style.display = '';
+    document.getElementById('topbar-abierta').style.display = '';
+
+    document.getElementById('hora-inicio').textContent = horaInicio.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('fondo-display').textContent = `$${fondo.toFixed(2)}`;
+
+    startReloj();
+    showToast('Caja abierta — ¡Buen turno!');
+  }
+
+  // ── Hora en modal apertura ────────────────────────────────────────────────
+  function updateHoraApertura() {
+    const el = document.getElementById('hora-apertura');
+    if (el) el.textContent = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Calcular diferencia en corte ──────────────────────────────────────────
+  function calcularDiferencia(val) {
+    const contado = parseFloat(val) || 0;
+    const esperado = 2350;
+    const diff = contado - esperado;
+    const el = document.getElementById('modal-diferencia');
+    el.textContent = (diff >= 0 ? '+' : '') + `$${diff.toFixed(2)}`;
+    el.style.color = diff === 0 ? 'var(--success)' : diff > 0 ? 'var(--accent)' : 'var(--danger)';
+  }
+
+  // ── Hacer corte ───────────────────────────────────────────────────────────
+  function hacerCorte() {
+    const contado = parseFloat(document.getElementById('efectivo-contado').value) || 0;
+    const horaCorte = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+    closeModal('modal-corte');
+    clearInterval(timerReloj);
+
+    document.getElementById('vista-abierta').style.display = 'none';
+    document.getElementById('topbar-abierta').style.display = 'none';
+    document.getElementById('vista-corte').style.display = '';
+    document.getElementById('topbar-cerrada').style.display = '';
+
+    document.getElementById('hora-corte').textContent = horaCorte;
+    document.getElementById('contado-display').textContent = `$${contado.toFixed(2)}`;
+
+    const diff = contado - 2350;
+    const diffEl = document.getElementById('diferencia-display');
+    diffEl.textContent = (diff >= 0 ? '+' : '') + `$${diff.toFixed(2)}`;
+    diffEl.style.color = diff === 0 ? 'var(--success)' : diff > 0 ? 'var(--accent)' : 'var(--danger)';
+  }
+
+  // ── Cerrar caja (regresar a vista cerrada) ────────────────────────────────
+  function cerrarCaja() {
+    document.getElementById('vista-corte').style.display = 'none';
+    document.getElementById('vista-cerrada').style.display = '';
+    cajaAbierta = false;
+    showToast('Caja cerrada correctamente');
+  }
+
+  function imprimirCorte() { showToast('Enviando a impresora...'); }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    updateHoraApertura();
+    setInterval(updateHoraApertura, 60000);
+
+    document.getElementById('modal-apertura').addEventListener('click', e => {
+      if (e.target.classList.contains('modal-overlay')) return;
+    });
+  });
+</script>
+</body>
+</html>

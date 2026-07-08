@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Configuración</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .config-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .config-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-md);
+    color: var(--text-secondary);
+    transition: all var(--transition);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-family);
+  }
+
+  .config-nav-item:hover { background: var(--surface); color: var(--text-primary); }
+  .config-nav-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  .config-nav-item i { font-size: 18px; flex-shrink: 0; }
+
+  .config-section { display: none; }
+  .config-section.active { display: block; }
+
+  .config-section-title {
+    font-size: var(--font-2xl);
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+
+  .config-section-desc {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-page);
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) 0;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .setting-row:last-child { border-bottom: none; }
+
+  .setting-info { flex: 1; min-width: 0; padding-right: var(--space-xl); }
+  .setting-label { font-size: var(--font-base); font-weight: 500; color: var(--text-primary); }
+  .setting-desc { font-size: var(--font-sm); color: var(--text-secondary); margin-top: 3px; }
+
+  /* Toggle switch */
+  .toggle {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: var(--radius-full);
+    transition: transform var(--transition);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* Color picker */
+  .color-preview {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* CSD upload area */
+  .upload-area {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+  }
+
+  .upload-area:hover { border-color: var(--accent); background: var(--accent-light); }
+  .upload-area i { font-size: 32px; color: var(--text-muted); margin-bottom: var(--space-md); }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 12px 14px 4px;
+  }
+</style>
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Configuración</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:var(--space-page);align-items:start;">
+
+        <!-- Nav lateral -->
+        <div class="card" style="padding:var(--space-md);position:sticky;top:0;">
+          <nav class="config-nav">
+            <div class="nav-group-label">Empresa</div>
+            <button class="config-nav-item active" onclick="showSection('empresa', this)">
+              <i class="ti ti-building"></i> Datos de la empresa
+            </button>
+            <button class="config-nav-item" onclick="showSection('fiscal', this)">
+              <i class="ti ti-file-invoice"></i> Configuración fiscal
+            </button>
+            <button class="config-nav-item" onclick="showSection('csd', this)">
+              <i class="ti ti-certificate"></i> CSD y PAC
+            </button>
+
+            <div class="nav-group-label">Sistema</div>
+            <button class="config-nav-item" onclick="showSection('apariencia', this)">
+              <i class="ti ti-palette"></i> Apariencia
+            </button>
+            <button class="config-nav-item" onclick="showSection('notificaciones', this)">
+              <i class="ti ti-bell"></i> Notificaciones
+            </button>
+            <button class="config-nav-item" onclick="showSection('pos', this)">
+              <i class="ti ti-shopping-cart"></i> Punto de venta
+            </button>
+            <button class="config-nav-item" onclick="showSection('impresion', this)">
+              <i class="ti ti-printer"></i> Impresión
+            </button>
+
+            <div class="nav-group-label">Cuenta</div>
+            <button class="config-nav-item" onclick="showSection('perfil', this)">
+              <i class="ti ti-user-circle"></i> Mi perfil
+            </button>
+            <button class="config-nav-item" onclick="showSection('seguridad', this)">
+              <i class="ti ti-lock"></i> Seguridad
+            </button>
+            <button class="config-nav-item" onclick="showSection('sesiones', this)">
+              <i class="ti ti-devices"></i> Sesiones activas
+            </button>
+          </nav>
+        </div>
+
+        <!-- Contenido -->
+        <div>
+
+          <!-- ── Empresa ── -->
+          <div class="config-section active" id="sec-empresa">
+            <div class="config-section-title">Datos de la empresa</div>
+            <div class="config-section-desc">Información general de tu negocio que aparecerá en comprobantes y reportes.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Nombre comercial *</label>
+                    <input type="text" class="form-input" value="Todo Cerámicas"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Razón social *</label>
+                    <input type="text" class="form-input" value="Cerámicas y Acabados SA de CV"/>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-input" value="55 1234 5678"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-input" value="ventas@todocera.mx"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Sitio web</label>
+                  <input type="url" class="form-input" value="https://todocera.mx"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Dirección fiscal</label>
+                  <input type="text" class="form-input" value="Av. Insurgentes 420, Col. Centro, CDMX, CP 06000"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Logo de la empresa</label>
+                  <div class="upload-area" onclick="showToast('Selecciona un archivo de imagen')">
+                    <i class="ti ti-photo-up"></i>
+                    <div style="font-size:var(--font-md);font-weight:500;color:var(--text-primary);margin-bottom:4px;">Subir logo</div>
+                    <div style="font-size:var(--font-sm);color:var(--text-secondary);">PNG o SVG recomendado · Máx. 2MB</div>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-dark btn-sm" onclick="showToast('Datos guardados')">
+                    <i class="ti ti-check"></i> Guardar cambios
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Fiscal ── -->
+          <div class="config-section" id="sec-fiscal">
+            <div class="config-section-title">Configuración fiscal</div>
+            <div class="config-section-desc">Datos fiscales utilizados en la generación de CFDIs.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">RFC *</label>
+                    <input type="text" class="form-input" value="CAA010101XYZ" style="text-transform:uppercase;"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Régimen fiscal *</label>
+                    <select class="form-select">
+                      <option>601 - General de Ley Personas Morales</option>
+                      <option>612 - Personas Físicas con Actividades Empresariales</option>
+                      <option>626 - Simplificado de Confianza</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Código postal fiscal *</label>
+                    <input type="text" class="form-input" value="06000"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Uso de CFDI por defecto</label>
+                    <select class="form-select">
+                      <option>G03 - Gastos en general</option>
+                      <option>G01 - Adquisición de mercancias</option>
+                      <option>S01 - Sin efectos fiscales</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Forma de pago por defecto</label>
+                    <select class="form-select">
+                      <option>01 - Efectivo</option>
+                      <option>03 - Transferencia electrónica</option>
+                      <option>99 - Por definir</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Método de pago por defecto</label>
+                    <select class="form-select">
+                      <option>PUE - Pago en una sola exhibición</option>
+                      <option>PPD - Pago en parcialidades o diferido</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-dark btn-sm" onclick="showToast('Configuración fiscal guardada')">
+                    <i class="ti ti-check"></i> Guardar cambios
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CSD ── -->
+          <div class="config-section" id="sec-csd">
+            <div class="config-section-title">CSD y PAC</div>
+            <div class="config-section-desc">Certificado de Sello Digital y configuración del Proveedor Autorizado de Certificación para timbrar CFDIs.</div>
+
+            <div class="card mb-lg">
+              <div class="card-header">
+                <span class="card-title">Certificado de Sello Digital (CSD)</span>
+                <span class="badge badge-success">Activo</span>
+              </div>
+              <div class="card-body">
+                <div style="background:var(--success-bg);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);display:flex;align-items:center;gap:var(--space-md);">
+                  <i class="ti ti-certificate" style="font-size:24px;color:var(--success);flex-shrink:0;"></i>
+                  <div>
+                    <div style="font-weight:500;color:var(--text-primary);">CSD cargado correctamente</div>
+                    <div style="font-size:var(--font-sm);color:var(--text-secondary);">No. de serie: 00001000000504465028 · Vence: 31 dic 2026</div>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div>
+                    <label class="form-label">Archivo .cer</label>
+                    <div class="upload-area" onclick="showToast('Selecciona el archivo .cer')">
+                      <i class="ti ti-file-certificate" style="font-size:24px;"></i>
+                      <div style="font-size:var(--font-sm);font-weight:500;">Reemplazar .cer</div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="form-label">Archivo .key</label>
+                    <div class="upload-area" onclick="showToast('Selecciona el archivo .key')">
+                      <i class="ti ti-key" style="font-size:24px;"></i>
+                      <div style="font-size:var(--font-sm);font-weight:500;">Reemplazar .key</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group mt-lg">
+                  <label class="form-label">Contraseña del certificado</label>
+                  <input type="password" class="form-input" placeholder="Contraseña del CSD"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Proveedor Autorizado de Certificación (PAC)</span>
+              </div>
+              <div class="card-body">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">PAC seleccionado</label>
+                    <select class="form-select">
+                      <option>Facturama</option>
+                      <option>SW Sapien</option>
+                      <option>Ediwin</option>
+                      <option>Diverza</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ambiente</label>
+                    <select class="form-select">
+                      <option>Producción</option>
+                      <option>Pruebas (Sandbox)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">API Key / Usuario</label>
+                    <input type="text" class="form-input" placeholder="Usuario o API Key del PAC"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Contraseña / Token</label>
+                    <input type="password" class="form-input" placeholder="Contraseña del PAC"/>
+                  </div>
+                </div>
+                <div style="background:var(--accent-light);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+                  <div style="font-size:var(--font-md);font-weight:500;color:var(--accent-text);margin-bottom:4px;">Timbres disponibles</div>
+                  <div style="font-size:32px;font-weight:500;color:var(--text-primary);">1,713</div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);">De 2,000 comprados · 287 utilizados</div>
+                  <button class="btn btn-outline btn-sm mt-lg" onclick="showToast('Redirigiendo a compra de timbres...')">
+                    <i class="ti ti-plus"></i> Comprar más timbres
+                  </button>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-dark btn-sm" onclick="showToast('Configuración del PAC guardada')">
+                    <i class="ti ti-check"></i> Guardar configuración
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Apariencia ── -->
+          <div class="config-section" id="sec-apariencia">
+            <div class="config-section-title">Apariencia</div>
+            <div class="config-section-desc">Personaliza los colores y el estilo del sistema.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Color de acento</div>
+                    <div class="setting-desc">Color principal de botones, badges y elementos activos. Usa el color de tu logo.</div>
+                  </div>
+                  <input type="color" value="#48CAE4" style="width:44px;height:36px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;padding:2px;" onchange="changeAccent(this.value)"/>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Modo oscuro</div>
+                    <div class="setting-desc">Cambia el fondo del sistema a tonos oscuros. (Próximamente)</div>
+                  </div>
+                  <label class="toggle">
+                    <input type="checkbox" disabled/>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Compactar tabla</div>
+                    <div class="setting-desc">Reduce el espaciado en las tablas para mostrar más filas a la vez.</div>
+                  </div>
+                  <label class="toggle">
+                    <input type="checkbox"/>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Notificaciones ── -->
+          <div class="config-section" id="sec-notificaciones">
+            <div class="config-section-title">Notificaciones</div>
+            <div class="config-section-desc">Elige qué eventos te notifican en el sistema.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Stock bajo</div>
+                    <div class="setting-desc">Notificar cuando un producto llegue al límite de stock mínimo.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Producto agotado</div>
+                    <div class="setting-desc">Notificar cuando un producto llegue a cero existencias.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">CFDI timbrado</div>
+                    <div class="setting-desc">Notificar cuando un comprobante sea timbrado exitosamente.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Error de timbrado</div>
+                    <div class="setting-desc">Notificar cuando falle el timbrado de un CFDI.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Cuentas por cobrar vencidas</div>
+                    <div class="setting-desc">Notificar cuando una cuenta por cobrar supere su fecha de vencimiento.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Timbres por agotarse</div>
+                    <div class="setting-desc">Notificar cuando queden menos de 200 timbres disponibles.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Nuevo abono registrado</div>
+                    <div class="setting-desc">Notificar cuando se registre un abono a una cuenta por cobrar.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── POS ── -->
+          <div class="config-section" id="sec-pos">
+            <div class="config-section-title">Punto de venta</div>
+            <div class="config-section-desc">Ajusta el comportamiento del módulo de ventas.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Timbrar CFDI automáticamente al cerrar venta</div>
+                    <div class="setting-desc">Si está activo, cada venta genera y timbra el CFDI sin confirmación adicional.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Requerir cliente para cerrar venta</div>
+                    <div class="setting-desc">Si está activo, no se puede cerrar una venta sin seleccionar un cliente.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Permitir ventas con stock en cero</div>
+                    <div class="setting-desc">Permite vender un producto aunque no haya existencias registradas.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Mostrar imágenes de productos en el POS</div>
+                    <div class="setting-desc">Muestra la imagen del producto en la pantalla de venta.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">IVA incluido en precios</div>
+                    <div class="setting-desc">Si está activo, los precios del catálogo ya incluyen IVA y se desglosará al facturar.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Moneda</div>
+                    <div class="setting-desc">Moneda predeterminada para ventas y reportes.</div>
+                  </div>
+                  <select class="form-select" style="width:160px;">
+                    <option>MXN — Peso mexicano</option>
+                    <option>USD — Dólar americano</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Impresión ── -->
+          <div class="config-section" id="sec-impresion">
+            <div class="config-section-title">Impresión</div>
+            <div class="config-section-desc">Configura el formato de tus comprobantes y tickets impresos.</div>
+            <div class="card">
+              <div class="card-body">
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Formato de ticket</div>
+                    <div class="setting-desc">Tamaño del papel para tickets de caja.</div>
+                  </div>
+                  <select class="form-select" style="width:160px;">
+                    <option>80mm (Estándar)</option>
+                    <option>58mm (Compacto)</option>
+                    <option>A4</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Imprimir ticket automáticamente</div>
+                    <div class="setting-desc">Envía automáticamente el ticket a la impresora al cerrar una venta.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Mostrar logo en ticket</div>
+                    <div class="setting-desc">Incluye el logo de la empresa en el encabezado del ticket.</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Mensaje de pie de ticket</div>
+                    <div class="setting-desc">Texto que aparecerá al final de cada ticket impreso.</div>
+                  </div>
+                  <input type="text" class="form-input" style="width:280px;" value="¡Gracias por su compra!"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Perfil ── -->
+          <div class="config-section" id="sec-perfil">
+            <div class="config-section-title">Mi perfil</div>
+            <div class="config-section-desc">Datos de tu cuenta de usuario.</div>
+            <div class="card">
+              <div class="card-body">
+                <div style="display:flex;align-items:center;gap:var(--space-xl);margin-bottom:var(--space-xl);">
+                  <div class="avatar avatar-lg avatar-accent" style="width:64px;height:64px;font-size:24px;">SR</div>
+                  <div>
+                    <div style="font-size:var(--font-xl);font-weight:500;">Sofía Reyes</div>
+                    <div style="font-size:var(--font-md);color:var(--text-secondary);">Administradora · Sede Centro</div>
+                  </div>
+                  <button class="btn btn-outline btn-sm" onclick="showToast('Selecciona una imagen')">
+                    <i class="ti ti-camera"></i> Cambiar foto
+                  </button>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Nombre completo</label>
+                    <input type="text" class="form-input" value="Sofía Reyes"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-input" value="sreyes@empresa.mx"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Teléfono</label>
+                  <input type="tel" class="form-input" value="55 1234 5678" style="max-width:240px;"/>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-dark btn-sm" onclick="showToast('Perfil actualizado')">
+                    <i class="ti ti-check"></i> Guardar cambios
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Seguridad ── -->
+          <div class="config-section" id="sec-seguridad">
+            <div class="config-section-title">Seguridad</div>
+            <div class="config-section-desc">Cambia tu contraseña y configura la verificación en dos pasos.</div>
+            <div class="card mb-lg">
+              <div class="card-header"><span class="card-title">Cambiar contraseña</span></div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="form-label">Contraseña actual</label>
+                  <input type="password" class="form-input" style="max-width:320px;" placeholder="••••••••"/>
+                </div>
+                <div class="grid-2" style="max-width:640px;">
+                  <div class="form-group">
+                    <label class="form-label">Nueva contraseña</label>
+                    <input type="password" class="form-input" placeholder="Mínimo 8 caracteres"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Confirmar nueva contraseña</label>
+                    <input type="password" class="form-input" placeholder="Repite la contraseña"/>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-dark btn-sm" onclick="showToast('Contraseña actualizada')">
+                    <i class="ti ti-check"></i> Actualizar contraseña
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Verificación en dos pasos</div>
+                    <div class="setting-desc">Agrega una capa extra de seguridad con código al iniciar sesión. (Próximamente)</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" disabled/><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-info">
+                    <div class="setting-label">Cerrar sesión automáticamente</div>
+                    <div class="setting-desc">Cierra sesión tras un periodo de inactividad.</div>
+                  </div>
+                  <select class="form-select" style="width:160px;">
+                    <option>30 minutos</option>
+                    <option>1 hora</option>
+                    <option>4 horas</option>
+                    <option>Nunca</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Sesiones ── -->
+          <div class="config-section" id="sec-sesiones">
+            <div class="config-section-title">Sesiones activas</div>
+            <div class="config-section-desc">Dispositivos donde tu cuenta tiene una sesión abierta.</div>
+            <div class="card">
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-accent"><i class="ti ti-device-desktop" style="font-size:14px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Chrome · Windows 11</div>
+                    <div class="list-item-sub">CDMX, México · Sesión actual · Hace 5 min</div>
+                  </div>
+                </div>
+                <span class="badge badge-success">Actual</span>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-neutral"><i class="ti ti-device-mobile" style="font-size:14px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Safari · iPhone 15</div>
+                    <div class="list-item-sub">CDMX, México · Hace 2 horas</div>
+                  </div>
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="showToast('Sesión cerrada en ese dispositivo', 'error')">
+                  <i class="ti ti-logout"></i> Cerrar
+                </button>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-neutral"><i class="ti ti-device-desktop" style="font-size:14px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Chrome · MacBook Pro</div>
+                    <div class="list-item-sub">Monterrey, México · Ayer 18:30</div>
+                  </div>
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="showToast('Sesión cerrada en ese dispositivo', 'error')">
+                  <i class="ti ti-logout"></i> Cerrar
+                </button>
+              </div>
+              <div style="padding:var(--space-lg);border-top:1px solid var(--border);">
+                <button class="btn btn-danger btn-sm" onclick="showToast('Todas las sesiones cerradas', 'error')">
+                  <i class="ti ti-logout"></i> Cerrar todas las sesiones excepto la actual
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.config-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.config-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function changeAccent(color) {
+    document.documentElement.style.setProperty('--accent', color);
+    showToast('Color de acento actualizado — guarda para aplicar permanentemente');
+  }
+</script>
+</body>
+</html>

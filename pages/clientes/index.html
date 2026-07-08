@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Clientes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar lista -->
+    <header class="topbar" id="topbar-lista">
+      <div class="topbar-left">
+        <span class="topbar-title">Clientes</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar cliente, RFC o correo..." oninput="filterClientes(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nuevo cliente
+        </button>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar perfil -->
+    <header class="topbar" id="topbar-perfil" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Clientes
+        </button>
+        <span class="topbar-title" id="perfil-topbar-nombre">—</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="openAbono()">
+          <i class="ti ti-cash"></i> Registrar abono
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="openFormEditar()">
+          <i class="ti ti-pencil"></i> Editar
+        </button>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista ── -->
+    <main class="content" id="vista-lista">
+
+      <!-- Métricas -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total clientes</div>
+          <div class="metric-value">48</div>
+          <div class="metric-delta">3 nuevos este mes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Con crédito activo</div>
+          <div class="metric-value">12</div>
+          <div class="metric-delta">$24,800 en total</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cuentas vencidas</div>
+          <div class="metric-value">3</div>
+          <div class="metric-delta neg">Requieren atención</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Compras este mes</div>
+          <div class="metric-value">$89,420</div>
+          <div class="metric-delta">↑ 14% vs mes anterior</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todos')">Todos</div>
+        <div class="tab-item" onclick="selectTab(this, 'credito')">Con crédito</div>
+        <div class="tab-item" onclick="selectTab(this, 'vencido')">Vencidos</div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>RFC</th>
+              <th>Lista de precios</th>
+              <th>Saldo pendiente</th>
+              <th>Última compra</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clientes-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <!-- ── Vista: Perfil ── -->
+    <main class="content" id="vista-perfil" style="display:none;">
+
+      <div class="grid-2" style="align-items:start;">
+
+        <!-- Columna izquierda -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <!-- Info general -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Información general</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-xl);">
+                <div class="avatar avatar-lg avatar-accent" style="width:56px;height:56px;font-size:20px;" id="perfil-avatar">MR</div>
+                <div>
+                  <div style="font-size:var(--font-xl);font-weight:500;color:var(--text-primary);" id="perfil-nombre">Mario Rodríguez</div>
+                  <div style="font-size:var(--font-md);color:var(--text-secondary);" id="perfil-empresa">Construrama Tepito</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-id-badge" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="perfil-rfc">ROMAR880512AB1</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-mail" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="perfil-email">mario@construrama.mx</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-phone" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="perfil-tel">55 1234 5678</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-currency-dollar" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="perfil-precio">Precio mayorista</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Crédito -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Crédito</span>
+              <button class="btn btn-outline btn-sm" onclick="openAbono()">
+                <i class="ti ti-plus"></i> Registrar abono
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="grid-2 mb-lg">
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Límite de crédito</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="perfil-limite">$15,000.00</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Saldo pendiente</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;color:var(--danger);" id="perfil-saldo">$3,200.00</div>
+                </div>
+              </div>
+              <!-- Barra de crédito -->
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+                <div id="barra-credito" style="height:100%;border-radius:var(--radius-full);background:var(--accent);width:21%;transition:width 0.4s;"></div>
+              </div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);margin-top:6px;">$3,200 de $15,000 utilizados</div>
+            </div>
+            <!-- Historial de abonos -->
+            <div id="abonos-lista">
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-success"><i class="ti ti-arrow-down" style="font-size:13px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Abono recibido</div>
+                    <div class="list-item-sub">15 jun 2026</div>
+                  </div>
+                </div>
+                <span style="font-size:var(--font-md);font-weight:500;color:var(--success);">+$2,000.00</span>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-success"><i class="ti ti-arrow-down" style="font-size:13px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Abono recibido</div>
+                    <div class="list-item-sub">02 jun 2026</div>
+                  </div>
+                </div>
+                <span style="font-size:var(--font-md);font-weight:500;color:var(--success);">+$1,500.00</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <!-- Historial de compras -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Historial de compras</span>
+              <span style="font-size:var(--font-sm);color:var(--text-secondary);">Últimas 5</span>
+            </div>
+            <div class="list-item">
+              <div class="list-item-left">
+                <div class="avatar avatar-md avatar-accent">TC</div>
+                <div>
+                  <div class="list-item-name">4 productos · Efectivo</div>
+                  <div class="list-item-sub">30 jun 2026 · Sede Centro</div>
+                </div>
+              </div>
+              <div class="list-item-right">
+                <span class="list-item-amount">$2,340.00</span>
+                <span class="badge badge-success">Timbrado</span>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-left">
+                <div class="avatar avatar-md avatar-accent">TC</div>
+                <div>
+                  <div class="list-item-name">2 productos · Transferencia</div>
+                  <div class="list-item-sub">22 jun 2026 · Sede Centro</div>
+                </div>
+              </div>
+              <div class="list-item-right">
+                <span class="list-item-amount">$1,890.00</span>
+                <span class="badge badge-success">Timbrado</span>
+              </div>
+            </div>
+            <div class="list-item">
+              <div class="list-item-left">
+                <div class="avatar avatar-md avatar-accent">TC</div>
+                <div>
+                  <div class="list-item-name">6 productos · Crédito</div>
+                  <div class="list-item-sub">10 jun 2026 · Sede Centro</div>
+                </div>
+              </div>
+              <div class="list-item-right">
+                <span class="list-item-amount">$3,200.00</span>
+                <span class="badge badge-warning">Pendiente</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estadísticas rápidas -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Estadísticas</span>
+            </div>
+            <div class="card-body">
+              <div class="grid-2" style="gap:var(--space-lg);">
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Total comprado</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;">$42,300</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Compras este mes</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;">$7,430</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Ticket promedio</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;">$2,115</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Total compras</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;">20</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ── Modal: Crear / Editar cliente ── -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-cliente-title">Nuevo cliente</span>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Nombre completo *</label>
+        <input type="text" class="form-input" id="cli-nombre" placeholder="Nombre del cliente"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Empresa / Negocio</label>
+        <input type="text" class="form-input" id="cli-empresa" placeholder="Nombre de la empresa"/>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">RFC</label>
+        <input type="text" class="form-input" id="cli-rfc" placeholder="Ej. ROMAR880512AB1" style="text-transform:uppercase;"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input type="email" class="form-input" id="cli-email" placeholder="correo@empresa.com"/>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input type="tel" class="form-input" id="cli-tel" placeholder="55 1234 5678"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lista de precios</label>
+        <select class="form-select" id="cli-precio">
+          <option value="estandar">Precio estándar</option>
+          <option value="minorista">Precio minorista</option>
+          <option value="mayorista">Precio mayorista</option>
+          <option value="distribuidor">Precio distribuidor</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Límite de crédito ($)</label>
+        <input type="number" class="form-input" id="cli-limite" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días de crédito</label>
+        <input type="number" class="form-input" id="cli-dias" placeholder="30" min="0"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Dirección</label>
+      <input type="text" class="form-input" id="cli-direccion" placeholder="Calle, número, colonia, ciudad"/>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarCliente()">
+        <i class="ti ti-check"></i> Guardar cliente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Registrar abono ── -->
+<div class="modal-overlay" id="modal-abono">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Registrar abono</span>
+      <button class="modal-close" onclick="closeModal('modal-abono')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+      <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Saldo pendiente</div>
+      <div style="font-size:var(--font-3xl);font-weight:500;color:var(--danger);">$3,200.00</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto del abono *</label>
+      <input type="number" class="form-input" id="abono-monto" placeholder="0.00" min="0" step="0.01"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Método de pago</label>
+      <select class="form-select" id="abono-metodo">
+        <option value="efectivo">Efectivo</option>
+        <option value="transferencia">Transferencia bancaria</option>
+        <option value="cheque">Cheque</option>
+        <option value="tarjeta">Tarjeta</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Referencia / Número de operación</label>
+      <input type="text" class="form-input" id="abono-ref" placeholder="Opcional"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="abono-notas" placeholder="Notas opcionales..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-abono')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="guardarAbono()">
+        <i class="ti ti-check"></i> Registrar abono
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  // ── Datos de ejemplo ──────────────────────────────────────────────────────
+  let clientes = [
+    { id:1, nombre:'Mario Rodríguez',    empresa:'Construrama Tepito', rfc:'ROMAR880512AB1', email:'mario@construrama.mx', tel:'55 1234 5678', precio:'mayorista',   limite:15000, saldo:3200,  ultimaCompra:'30 jun 2026', estatus:'activo' },
+    { id:2, nombre:'Laura González',     empresa:'',                   rfc:'GOLA920304CD2', email:'laura@gmail.com',       tel:'55 9876 5432', precio:'minorista',   limite:0,     saldo:0,     ultimaCompra:'22 jun 2026', estatus:'activo' },
+    { id:3, nombre:'Construrama Tepito', empresa:'Construrama SA',     rfc:'CSA010101XYZ',  email:'compras@construrama.mx',tel:'55 1111 2222', precio:'distribuidor',limite:50000, saldo:8400,  ultimaCompra:'15 jun 2026', estatus:'activo' },
+    { id:4, nombre:'Arq. Pérez Romero',  empresa:'Pérez Arquitectos',  rfc:'PERA750610EF3', email:'arq@perez.mx',          tel:'55 3333 4444', precio:'mayorista',   limite:20000, saldo:1200,  ultimaCompra:'10 jun 2026', estatus:'activo' },
+    { id:5, nombre:'Ferrehogar SA',      empresa:'Ferrehogar',         rfc:'FHO990215GH4', email:'ventas@ferrehogar.mx',  tel:'55 5555 6666', precio:'distribuidor',limite:30000, saldo:800,   ultimaCompra:'05 jun 2026', estatus:'activo' },
+    { id:6, nombre:'Público general',    empresa:'',                   rfc:'',              email:'',                      tel:'',             precio:'estandar',    limite:0,     saldo:0,     ultimaCompra:'30 jun 2026', estatus:'activo' },
+  ];
+
+  let tabActual = 'todos';
+  let filtroTexto = '';
+  let clienteActual = null;
+
+  const precioLabels = {
+    estandar: 'Precio estándar',
+    minorista: 'Precio minorista',
+    mayorista: 'Precio mayorista',
+    distribuidor: 'Precio distribuidor',
+  };
+
+  // ── Render tabla ──────────────────────────────────────────────────────────
+  function renderClientes() {
+    let lista = clientes.filter(c => {
+      const matchText = !filtroTexto ||
+        c.nombre.toLowerCase().includes(filtroTexto) ||
+        c.rfc.toLowerCase().includes(filtroTexto) ||
+        c.email.toLowerCase().includes(filtroTexto);
+      const matchTab = tabActual === 'todos' ? true :
+        tabActual === 'credito' ? c.saldo > 0 :
+        tabActual === 'vencido' ? c.saldo > 0 && c.limite > 0 : true;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('clientes-body');
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-users" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin clientes encontrados
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(c => {
+      const saldoBadge = c.saldo > 0
+        ? `<span style="font-weight:500;color:var(--danger);">$${c.saldo.toLocaleString()}</span>`
+        : `<span style="color:var(--text-muted);">Sin saldo</span>`;
+
+      return `
+        <tr style="cursor:pointer;" onclick="verPerfil(${c.id})">
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar avatar-md avatar-accent">${c.nombre.slice(0,2).toUpperCase()}</div>
+              <div>
+                <div style="font-weight:500;color:var(--text-primary);">${c.nombre}</div>
+                ${c.empresa ? `<div style="font-size:var(--font-xs);color:var(--text-muted);">${c.empresa}</div>` : ''}
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${c.rfc || '—'}</td>
+          <td><span class="badge badge-accent">${precioLabels[c.precio]}</span></td>
+          <td>${saldoBadge}</td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${c.ultimaCompra}</td>
+          <td><span class="badge badge-success">Activo</span></td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();openFormEditar(${c.id})" data-tooltip="Editar">
+                <i class="ti ti-pencil" style="font-size:15px;"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  function filterClientes(q) { filtroTexto = q.toLowerCase(); renderClientes(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderClientes();
+  }
+
+  // ── Ver perfil ────────────────────────────────────────────────────────────
+  function verPerfil(id) {
+    clienteActual = clientes.find(c => c.id === id);
+    if (!clienteActual) return;
+
+    document.getElementById('vista-lista').style.display = 'none';
+    document.getElementById('topbar-lista').style.display = 'none';
+    document.getElementById('vista-perfil').style.display = '';
+    document.getElementById('topbar-perfil').style.display = '';
+
+    const initials = clienteActual.nombre.slice(0, 2).toUpperCase();
+    document.getElementById('perfil-topbar-nombre').textContent = clienteActual.nombre;
+    document.getElementById('perfil-avatar').textContent = initials;
+    document.getElementById('perfil-nombre').textContent = clienteActual.nombre;
+    document.getElementById('perfil-empresa').textContent = clienteActual.empresa || 'Cliente individual';
+    document.getElementById('perfil-rfc').textContent = clienteActual.rfc || 'Sin RFC';
+    document.getElementById('perfil-email').textContent = clienteActual.email || 'Sin correo';
+    document.getElementById('perfil-tel').textContent = clienteActual.tel || 'Sin teléfono';
+    document.getElementById('perfil-precio').textContent = precioLabels[clienteActual.precio];
+    document.getElementById('perfil-limite').textContent = `$${clienteActual.limite.toLocaleString()}.00`;
+    document.getElementById('perfil-saldo').textContent = `$${clienteActual.saldo.toLocaleString()}.00`;
+
+    const pct = clienteActual.limite > 0 ? (clienteActual.saldo / clienteActual.limite * 100) : 0;
+    document.getElementById('barra-credito').style.width = `${Math.min(pct, 100)}%`;
+    document.getElementById('barra-credito').style.background = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warning)' : 'var(--accent)';
+  }
+
+  function volverLista() {
+    document.getElementById('vista-lista').style.display = '';
+    document.getElementById('topbar-lista').style.display = '';
+    document.getElementById('vista-perfil').style.display = 'none';
+    document.getElementById('topbar-perfil').style.display = 'none';
+    clienteActual = null;
+  }
+
+  // ── Formulario ────────────────────────────────────────────────────────────
+  function openForm() {
+    document.getElementById('modal-cliente-title').textContent = 'Nuevo cliente';
+    document.getElementById('modal-cliente').querySelectorAll('input, textarea').forEach(el => el.value = '');
+    document.getElementById('cli-precio').value = 'estandar';
+    openModal('modal-cliente');
+  }
+
+  function openFormEditar(id) {
+    const c = id ? clientes.find(x => x.id === id) : clienteActual;
+    if (!c) return;
+    document.getElementById('modal-cliente-title').textContent = 'Editar cliente';
+    document.getElementById('cli-nombre').value = c.nombre;
+    document.getElementById('cli-empresa').value = c.empresa;
+    document.getElementById('cli-rfc').value = c.rfc;
+    document.getElementById('cli-email').value = c.email;
+    document.getElementById('cli-tel').value = c.tel;
+    document.getElementById('cli-precio').value = c.precio;
+    document.getElementById('cli-limite').value = c.limite;
+    document.getElementById('cli-dias').value = 30;
+    openModal('modal-cliente');
+  }
+
+  function guardarCliente() {
+    const nombre = document.getElementById('cli-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+    showToast('Cliente guardado');
+    closeModal('modal-cliente');
+    renderClientes();
+  }
+
+  // ── Abono ─────────────────────────────────────────────────────────────────
+  function openAbono() { openModal('modal-abono'); }
+
+  function guardarAbono() {
+    const monto = parseFloat(document.getElementById('abono-monto').value) || 0;
+    if (monto <= 0) { showToast('Ingresa un monto válido', 'error'); return; }
+    showToast(`Abono de $${monto.toFixed(2)} registrado`);
+    closeModal('modal-abono');
+    document.getElementById('abono-monto').value = '';
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', renderClientes);
+</script>
+</body>
+</html>

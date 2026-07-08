@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Cuentas por cobrar</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Cuentas por cobrar</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar cliente o folio..." oninput="filterCuentas(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Exportando...')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total por cobrar</div>
+          <div class="metric-value">$24,800</div>
+          <div class="metric-delta">12 clientes con saldo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Vencido</div>
+          <div class="metric-value">$4,200</div>
+          <div class="metric-delta neg">3 cuentas vencidas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Por vencer (7 días)</div>
+          <div class="metric-value">$8,600</div>
+          <div class="metric-delta">4 cuentas próximas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cobrado este mes</div>
+          <div class="metric-value">$31,400</div>
+          <div class="metric-delta">↑ 18% vs mes anterior</div>
+        </div>
+      </div>
+
+      <!-- Alerta vencidos -->
+      <div style="background:var(--danger-bg);border:1px solid var(--danger);border-radius:var(--radius-lg);padding:var(--space-lg);display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-page);">
+        <i class="ti ti-alert-circle" style="font-size:20px;color:var(--danger);flex-shrink:0;"></i>
+        <div style="flex:1;">
+          <div style="font-size:var(--font-md);font-weight:500;color:var(--text-primary);">3 cuentas vencidas</div>
+          <div style="font-size:var(--font-sm);color:var(--text-secondary);">Ferrehogar SA, Construrama Tepito y Arq. Pérez Romero tienen saldos vencidos por un total de $4,200.</div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="border-color:var(--danger);color:var(--danger);" onclick="selectTab(document.querySelector('.tab-item:nth-child(3)'), 'vencido')">
+          Ver vencidos
+        </button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todas')">Todas</div>
+        <div class="tab-item" onclick="selectTab(this, 'vigente')">Vigentes</div>
+        <div class="tab-item" onclick="selectTab(this, 'proximo')">Por vencer</div>
+        <div class="tab-item" onclick="selectTab(this, 'vencido')">Vencidas</div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Venta / Folio</th>
+              <th>Fecha venta</th>
+              <th>Vencimiento</th>
+              <th>Monto original</th>
+              <th>Saldo pendiente</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cuentas-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Registrar abono -->
+<div class="modal-overlay" id="modal-abono">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Registrar abono</span>
+      <button class="modal-close" onclick="closeModal('modal-abono')"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-xl);">
+      <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Cliente</div>
+      <div style="font-size:var(--font-lg);font-weight:500;" id="abono-cliente-nombre">—</div>
+      <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-top:8px;">Saldo pendiente</div>
+      <div style="font-size:var(--font-3xl);font-weight:500;color:var(--danger);" id="abono-saldo">—</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto del abono *</label>
+      <input type="number" class="form-input" id="abono-monto" placeholder="0.00" min="0" step="0.01" style="font-size:var(--font-xl);height:52px;text-align:center;font-weight:500;"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Método de pago</label>
+      <select class="form-select" id="abono-metodo">
+        <option>Efectivo</option>
+        <option>Transferencia bancaria</option>
+        <option>Cheque</option>
+        <option>Tarjeta</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Referencia</label>
+      <input type="text" class="form-input" id="abono-ref" placeholder="Número de operación (opcional)"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-abono')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="guardarAbono()">
+        <i class="ti ti-check"></i> Registrar abono
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const cuentas = [
+    { id:1, cliente:'Construrama Tepito', folio:'VTA-2026-0309', fechaVenta:'10 jun 2026', vencimiento:'10 jul 2026', monto:3200, saldo:3200, estatus:'vigente'  },
+    { id:2, cliente:'Arq. Pérez Romero',  folio:'VTA-2026-0308', fechaVenta:'22 jun 2026', vencimiento:'22 jul 2026', monto:1890, saldo:1200, estatus:'vigente'  },
+    { id:3, cliente:'Ferrehogar SA',      folio:'VTA-2026-0307', fechaVenta:'01 jun 2026', vencimiento:'01 jul 2026', monto:4500, saldo:800,  estatus:'vencido'  },
+    { id:4, cliente:'Mario Rodríguez',    folio:'VTA-2026-0305', fechaVenta:'25 jun 2026', vencimiento:'05 jul 2026', monto:2340, saldo:2340, estatus:'proximo'  },
+    { id:5, cliente:'Construrama Tepito', folio:'VTA-2026-0298', fechaVenta:'15 may 2026', vencimiento:'15 jun 2026', monto:6800, saldo:3400, estatus:'vencido'  },
+    { id:6, cliente:'Laura González',     folio:'VTA-2026-0295', fechaVenta:'28 jun 2026', vencimiento:'28 jul 2026', monto:890,  saldo:890,  estatus:'vigente'  },
+  ];
+
+  let tabActual = 'todas';
+  let filtroTexto = '';
+  let cuentaActual = null;
+
+  function renderCuentas() {
+    let lista = cuentas.filter(c => {
+      const matchText = !filtroTexto ||
+        c.cliente.toLowerCase().includes(filtroTexto) ||
+        c.folio.toLowerCase().includes(filtroTexto);
+      const matchTab = tabActual === 'todas' ? true : c.estatus === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('cuentas-body');
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-credit-card" style="font-size:32px;display:block;margin-bottom:8px;"></i>Sin cuentas encontradas</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(c => {
+      const badge = c.estatus === 'vencido'
+        ? `<span class="badge badge-danger">Vencida</span>`
+        : c.estatus === 'proximo'
+          ? `<span class="badge badge-warning">Por vencer</span>`
+          : `<span class="badge badge-success">Vigente</span>`;
+
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="avatar avatar-md ${c.estatus === 'vencido' ? 'avatar-danger' : 'avatar-accent'}">${c.cliente.slice(0,2).toUpperCase()}</div>
+              <span style="font-weight:500;">${c.cliente}</span>
+            </div>
+          </td>
+          <td style="color:var(--accent);font-weight:500;">${c.folio}</td>
+          <td style="color:var(--text-secondary);">${c.fechaVenta}</td>
+          <td style="color:${c.estatus === 'vencido' ? 'var(--danger)' : 'var(--text-secondary)'};font-weight:${c.estatus === 'vencido' ? '500' : '400'};">${c.vencimiento}</td>
+          <td>$${c.monto.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+          <td style="font-weight:500;color:${c.estatus === 'vencido' ? 'var(--danger)' : 'var(--text-primary)'};">$${c.saldo.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+          <td>${badge}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="openAbono(${c.id})">
+              <i class="ti ti-cash"></i> Abono
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function filterCuentas(q) { filtroTexto = q.toLowerCase(); renderCuentas(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    tabActual = tab;
+    renderCuentas();
+  }
+
+  function openAbono(id) {
+    cuentaActual = cuentas.find(c => c.id === id);
+    document.getElementById('abono-cliente-nombre').textContent = cuentaActual.cliente;
+    document.getElementById('abono-saldo').textContent = `$${cuentaActual.saldo.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
+    document.getElementById('abono-monto').value = '';
+    openModal('modal-abono');
+  }
+
+  function guardarAbono() {
+    const monto = parseFloat(document.getElementById('abono-monto').value) || 0;
+    if (monto <= 0) { showToast('Ingresa un monto válido', 'error'); return; }
+    showToast(`Abono de $${monto.toFixed(2)} registrado`);
+    closeModal('modal-abono');
+  }
+
+  document.addEventListener('DOMContentLoaded', renderCuentas);
+</script>
+</body>
+</html>

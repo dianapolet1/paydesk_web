@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Configuración inicial</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  body { background: var(--surface); }
+
+  .ob-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px var(--space-page);
+  }
+
+  /* Header */
+  .ob-header {
+    width: 100%; max-width: 640px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  /* Steps nav */
+  .ob-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    margin: 0 var(--space-xl);
+  }
+
+  .ob-step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    background: var(--card);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ob-step-dot.done  { border-color: var(--success); background: var(--success); color: #fff; }
+  .ob-step-dot.active{ border-color: var(--accent);  background: var(--accent);  color: #fff; }
+
+  .ob-step-line {
+    flex: 1; height: 2px;
+    background: var(--border);
+    margin: 0 -1px;
+    transition: background 0.3s;
+  }
+
+  .ob-step-line.done { background: var(--success); }
+
+  /* Card principal */
+  .ob-card {
+    width: 100%; max-width: 640px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 40px;
+  }
+
+  .ob-step-label {
+    font-size: var(--font-sm);
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .ob-step-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+    margin-bottom: 6px;
+  }
+
+  .ob-step-desc {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-page);
+  }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .skip-link {
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition);
+    background: none; border: none; font-family: var(--font-family);
+    padding: 0;
+  }
+
+  .skip-link:hover { color: var(--text-secondary); }
+
+  /* Upload area */
+  .upload-area {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .upload-area:hover { border-color: var(--accent); background: var(--accent-light); }
+  .upload-area i { font-size: 36px; color: var(--text-muted); margin-bottom: 12px; display: block; }
+
+  /* Cat item */
+  .cat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .cat-item:last-child { border: none; }
+</style>
+</head>
+<body>
+
+<div class="ob-shell">
+
+  <!-- Header -->
+  <div class="ob-header">
+    <div class="logo">
+      <div class="logo-mark">PD</div>
+      <span class="logo-name" style="font-size:16px;">PayDesk</span>
+    </div>
+
+    <!-- Steps dots -->
+    <div class="ob-steps" id="ob-steps">
+      <div class="ob-step-dot active" id="dot-1">1</div>
+      <div class="ob-step-line" id="line-1"></div>
+      <div class="ob-step-dot" id="dot-2">2</div>
+      <div class="ob-step-line" id="line-2"></div>
+      <div class="ob-step-dot" id="dot-3">3</div>
+      <div class="ob-step-line" id="line-3"></div>
+      <div class="ob-step-dot" id="dot-4">4</div>
+      <div class="ob-step-line" id="line-4"></div>
+      <div class="ob-step-dot" id="dot-5">5</div>
+      <div class="ob-step-line" id="line-5"></div>
+      <div class="ob-step-dot" id="dot-6">6</div>
+    </div>
+
+    <button class="skip-link" onclick="finalizar()">Configurar después →</button>
+  </div>
+
+  <!-- Card -->
+  <div class="ob-card">
+
+    <!-- Paso 1: Datos fiscales -->
+    <div class="step active" id="step-1">
+      <div class="ob-step-label">Paso 1 de 6</div>
+      <div class="ob-step-title">Datos fiscales</div>
+      <div class="ob-step-desc">Necesitamos estos datos para generar correctamente tus CFDIs.</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">RFC *</label>
+          <input type="text" class="form-input" placeholder="Ej. CAA010101XYZ" style="text-transform:uppercase;"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Código postal fiscal *</label>
+          <input type="text" class="form-input" placeholder="00000"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Régimen fiscal *</label>
+        <select class="form-select">
+          <option value="">Seleccionar régimen</option>
+          <option>601 - General de Ley Personas Morales</option>
+          <option>612 - Personas Físicas con Actividades Empresariales</option>
+          <option>626 - Simplificado de Confianza (RESICO)</option>
+          <option>621 - Arrendamiento</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Razón social *</label>
+        <input type="text" class="form-input" placeholder="Nombre o razón social como aparece en el SAT"/>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="skip-link" onclick="irPaso(2)">Omitir este paso</button>
+        <button class="btn btn-dark" onclick="irPaso(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Paso 2: CSD -->
+    <div class="step" id="step-2">
+      <div class="ob-step-label">Paso 2 de 6</div>
+      <div class="ob-step-title">Certificado de Sello Digital</div>
+      <div class="ob-step-desc">Sube tu CSD para habilitar el timbrado de CFDIs. Puedes hacerlo después desde Configuración.</div>
+      <div class="grid-2">
+        <div>
+          <label class="form-label">Archivo .cer</label>
+          <div class="upload-area" onclick="showToast('Selecciona tu archivo .cer')">
+            <i class="ti ti-file-certificate"></i>
+            <div style="font-weight:500;margin-bottom:4px;">Subir .cer</div>
+            <div style="font-size:12px;color:var(--text-muted);">Certificado del SAT</div>
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Archivo .key</label>
+          <div class="upload-area" onclick="showToast('Selecciona tu archivo .key')">
+            <i class="ti ti-key"></i>
+            <div style="font-weight:500;margin-bottom:4px;">Subir .key</div>
+            <div style="font-size:12px;color:var(--text-muted);">Llave privada del SAT</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mt-lg">
+        <label class="form-label">Contraseña del CSD</label>
+        <input type="password" class="form-input" placeholder="Contraseña de tu certificado"/>
+      </div>
+      <div style="background:var(--info-bg);border-radius:var(--radius-md);padding:var(--space-lg);margin-top:var(--space-md);">
+        <div style="display:flex;gap:var(--space-sm);align-items:flex-start;">
+          <i class="ti ti-info-circle" style="color:var(--info);flex-shrink:0;margin-top:2px;"></i>
+          <div style="font-size:var(--font-sm);color:var(--info-text);">
+            Tu CSD lo obtienes desde el portal del SAT. Si no lo tienes listo, puedes omitir este paso y configurarlo después.
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-outline" onclick="irPaso(1)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="skip-link" onclick="irPaso(3)">Omitir</button>
+          <button class="btn btn-dark" onclick="irPaso(3)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 3: Primera sede -->
+    <div class="step" id="step-3">
+      <div class="ob-step-label">Paso 3 de 6</div>
+      <div class="ob-step-title">Crea tu primera sede</div>
+      <div class="ob-step-desc">Una sede es tu punto de venta o sucursal. Puedes agregar más después.</div>
+      <div class="form-group">
+        <label class="form-label">Nombre de la sede *</label>
+        <input type="text" class="form-input" placeholder="Ej. Sede Centro, Sucursal Principal..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dirección</label>
+        <input type="text" class="form-input" placeholder="Calle, número, colonia, ciudad"/>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-input" placeholder="55 1234 5678"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horario</label>
+          <input type="text" class="form-input" placeholder="Lun–Vie 8:00–18:00"/>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-outline" onclick="irPaso(2)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="skip-link" onclick="irPaso(4)">Omitir</button>
+          <button class="btn btn-dark" onclick="irPaso(4)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 4: Primer usuario -->
+    <div class="step" id="step-4">
+      <div class="ob-step-label">Paso 4 de 6</div>
+      <div class="ob-step-title">Agrega un usuario</div>
+      <div class="ob-step-desc">Crea el primer usuario de tu equipo. Puedes agregar más desde Usuarios.</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Nombre completo *</label>
+          <input type="text" class="form-input" placeholder="Nombre del empleado"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico *</label>
+          <input type="email" class="form-input" placeholder="correo@empresa.com"/>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Rol *</label>
+          <select class="form-select">
+            <option>Vendedor</option>
+            <option>Cajero</option>
+            <option>Administrador</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña temporal</label>
+          <input type="password" class="form-input" placeholder="Mínimo 8 caracteres"/>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-outline" onclick="irPaso(3)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="skip-link" onclick="irPaso(5)">Omitir</button>
+          <button class="btn btn-dark" onclick="irPaso(5)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 5: Primera categoría -->
+    <div class="step" id="step-5">
+      <div class="ob-step-label">Paso 5 de 6</div>
+      <div class="ob-step-title">Crea tu primera categoría</div>
+      <div class="ob-step-desc">Las categorías organizan tu catálogo. Puedes crear hasta 3 niveles de jerarquía.</div>
+      <div class="form-group">
+        <label class="form-label">Nombre de la categoría *</label>
+        <input type="text" class="form-input" id="cat-nombre" placeholder="Ej. Pisos y Muros, Bebidas, Medicamentos..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">¿Tiene subcategorías?</label>
+        <select class="form-select" id="cat-niveles">
+          <option value="1">No, solo esta categoría</option>
+          <option value="2">Sí, 1 nivel de subcategorías</option>
+          <option value="3">Sí, 2 niveles de subcategorías</option>
+        </select>
+      </div>
+
+      <!-- Preview categorías agregadas -->
+      <div id="cats-lista" style="margin-top:var(--space-lg);"></div>
+
+      <button class="btn btn-outline btn-sm mt-md" onclick="agregarCat()" style="width:100%;">
+        <i class="ti ti-plus"></i> Agregar esta categoría
+      </button>
+
+      <div style="display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-outline" onclick="irPaso(4)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="skip-link" onclick="irPaso(6)">Omitir</button>
+          <button class="btn btn-dark" onclick="irPaso(6)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 6: Primer producto -->
+    <div class="step" id="step-6">
+      <div class="ob-step-label">Paso 6 de 6</div>
+      <div class="ob-step-title">Crea tu primer producto</div>
+      <div class="ob-step-desc">Agrega tu primer artículo o servicio al catálogo. Puedes agregar más desde Productos.</div>
+      <div class="form-group">
+        <label class="form-label">Nombre del producto *</label>
+        <input type="text" class="form-input" placeholder="Ej. Azulejo blanco 30×30"/>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Precio de venta *</label>
+          <input type="number" class="form-input" placeholder="0.00" min="0" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unidad de medida</label>
+          <select class="form-select">
+            <option>Pieza (pza)</option>
+            <option>Kilogramo (kg)</option>
+            <option>Litro (lt)</option>
+            <option>Metro (mt)</option>
+            <option>Caja</option>
+            <option>Servicio</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Stock inicial</label>
+          <input type="number" class="form-input" placeholder="0" min="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock mínimo</label>
+          <input type="number" class="form-input" placeholder="5" min="0"/>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-xl);">
+        <button class="btn btn-outline" onclick="irPaso(5)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-dark btn-lg" onclick="finalizar()">
+          <i class="ti ti-check"></i> ¡Listo, ir al dashboard!
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="../../assets/js/utils.js"></script>
+<script>
+  let pasoActual = 1;
+  const total = 6;
+  let categorias = [];
+
+  function irPaso(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+
+    for (let i = 1; i <= total; i++) {
+      const dot  = document.getElementById('dot-' + i);
+      const line = document.getElementById('line-' + i);
+      dot.className = 'ob-step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+      dot.textContent = i < n ? '✓' : i;
+      if (line) line.className = 'ob-step-line' + (i < n ? ' done' : '');
+    }
+    pasoActual = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function agregarCat() {
+    const nombre = document.getElementById('cat-nombre').value.trim();
+    if (!nombre) { showToast('Ingresa el nombre de la categoría', 'error'); return; }
+    categorias.push(nombre);
+    document.getElementById('cat-nombre').value = '';
+    renderCats();
+    showToast('Categoría agregada');
+  }
+
+  function renderCats() {
+    const lista = document.getElementById('cats-lista');
+    if (!categorias.length) { lista.innerHTML = ''; return; }
+    lista.innerHTML = `<div style="margin-bottom:var(--space-md);">` +
+      categorias.map((c, i) => `
+        <div class="cat-item">
+          <div class="avatar avatar-md avatar-accent"><i class="ti ti-category" style="font-size:14px;"></i></div>
+          <span style="flex:1;font-size:var(--font-md);font-weight:500;">${c}</span>
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="quitarCat(${i})" style="color:var(--danger);">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>`).join('') + `</div>`;
+  }
+
+  function quitarCat(i) { categorias.splice(i, 1); renderCats(); }
+
+  function finalizar() {
+    window.location.href = '../../pages/dashboard/index.html';
+  }
+</script>
+</body>
+</html>

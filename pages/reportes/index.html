@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Reportes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .chart-bar-container { display:flex; align-items:flex-end; gap:8px; height:160px; padding:0 var(--space-sm); }
+  .chart-bar-wrap { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; height:100%; justify-content:flex-end; }
+  .chart-bar { width:100%; border-radius:var(--radius-sm) var(--radius-sm) 0 0; background:var(--accent); opacity:0.85; transition:opacity var(--transition); cursor:pointer; }
+  .chart-bar:hover { opacity:1; }
+  .chart-bar.secondary { background:var(--border); }
+  .chart-label { font-size:10px; color:var(--text-muted); }
+  .chart-value { font-size:10px; font-weight:500; color:var(--text-secondary); }
+  .reporte-card { cursor:pointer; transition:border-color var(--transition), transform var(--transition); }
+  .reporte-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+</style>
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Reportes</span>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <select class="form-select" id="periodo" onchange="cambiarPeriodo()" style="height:36px;width:160px;">
+            <option value="mes">Este mes</option>
+            <option value="semana">Esta semana</option>
+            <option value="trimestre">Este trimestre</option>
+            <option value="año">Este año</option>
+          </select>
+        </div>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Métricas principales -->
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Ingresos del mes</div>
+          <div class="metric-value">$89,420</div>
+          <div class="metric-delta">↑ 14% vs mes anterior</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Costo de ventas</div>
+          <div class="metric-value">$54,200</div>
+          <div class="metric-delta">60.6% del ingreso</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Utilidad bruta</div>
+          <div class="metric-value">$35,220</div>
+          <div class="metric-delta">↑ Margen 39.4%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ticket promedio</div>
+          <div class="metric-value">$2,865</div>
+          <div class="metric-delta">↑ $120 vs mes anterior</div>
+        </div>
+      </div>
+
+      <!-- Gráfica de ventas + Top productos -->
+      <div class="grid-chart-2 mb-lg">
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ventas por día</span>
+            <button class="btn btn-outline btn-sm" onclick="showToast('Exportando XLSX...')">
+              <i class="ti ti-download"></i> XLSX
+            </button>
+          </div>
+          <div class="card-body-sm">
+            <div class="chart-bar-container" id="grafica-ventas"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Top 5 productos</span>
+            <a class="card-action" onclick="showToast('Exportando...')">Exportar</a>
+          </div>
+          <div id="top-productos"></div>
+        </div>
+
+      </div>
+
+      <!-- Ventas por método + Por sede -->
+      <div class="grid-half mb-lg">
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Por método de pago</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">Efectivo</span>
+                  <span style="font-size:var(--font-md);font-weight:500;">$38,200 · 43%</span>
+                </div>
+                <div style="background:var(--surface);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+                  <div style="height:100%;width:43%;background:var(--accent);border-radius:var(--radius-full);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">Transferencia</span>
+                  <span style="font-size:var(--font-md);font-weight:500;">$32,800 · 37%</span>
+                </div>
+                <div style="background:var(--surface);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+                  <div style="height:100%;width:37%;background:var(--info);border-radius:var(--radius-full);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">Crédito</span>
+                  <span style="font-size:var(--font-md);font-weight:500;">$18,420 · 20%</span>
+                </div>
+                <div style="background:var(--surface);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+                  <div style="height:100%;width:20%;background:var(--warning);border-radius:var(--radius-full);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Por sede</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">SC</div>
+              <div>
+                <div class="list-item-name">Sede Centro</div>
+                <div class="list-item-sub">187 transacciones</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$54,200</span>
+              <span class="badge badge-accent">61%</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">SN</div>
+              <div>
+                <div class="list-item-name">Sede Norte</div>
+                <div class="list-item-sub">125 transacciones</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$35,220</span>
+              <span class="badge badge-neutral">39%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Reportes descargables -->
+      <div class="section-header mb-md">
+        <span class="section-title">Reportes descargables</span>
+      </div>
+      <div class="grid-4">
+        <div class="card reporte-card" onclick="showToast('Generando reporte de ventas...')">
+          <div class="card-body">
+            <div style="width:44px;height:44px;background:var(--success-bg);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-md);">
+              <i class="ti ti-receipt" style="font-size:22px;color:var(--success);"></i>
+            </div>
+            <div style="font-size:var(--font-base);font-weight:500;margin-bottom:4px;">Reporte de ventas</div>
+            <div style="font-size:var(--font-sm);color:var(--text-secondary);">Detalle de todas las ventas del periodo seleccionado</div>
+            <div style="display:flex;gap:6px;margin-top:var(--space-lg);">
+              <span class="badge badge-success">XLSX</span>
+              <span class="badge badge-danger">PDF</span>
+            </div>
+          </div>
+        </div>
+        <div class="card reporte-card" onclick="showToast('Generando reporte de inventario...')">
+          <div class="card-body">
+            <div style="width:44px;height:44px;background:var(--accent-light);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-md);">
+              <i class="ti ti-building-warehouse" style="font-size:22px;color:var(--accent-text);"></i>
+            </div>
+            <div style="font-size:var(--font-base);font-weight:500;margin-bottom:4px;">Reporte de inventario</div>
+            <div style="font-size:var(--font-sm);color:var(--text-secondary);">Existencias actuales, movimientos y valorización</div>
+            <div style="display:flex;gap:6px;margin-top:var(--space-lg);">
+              <span class="badge badge-success">XLSX</span>
+              <span class="badge badge-danger">PDF</span>
+            </div>
+          </div>
+        </div>
+        <div class="card reporte-card" onclick="showToast('Generando reporte de cortes...')">
+          <div class="card-body">
+            <div style="width:44px;height:44px;background:var(--warning-bg);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-md);">
+              <i class="ti ti-cash" style="font-size:22px;color:var(--warning);"></i>
+            </div>
+            <div style="font-size:var(--font-base);font-weight:500;margin-bottom:4px;">Cortes de caja</div>
+            <div style="font-size:var(--font-sm);color:var(--text-secondary);">Historial de cortes por cajero y por sede</div>
+            <div style="display:flex;gap:6px;margin-top:var(--space-lg);">
+              <span class="badge badge-success">XLSX</span>
+              <span class="badge badge-danger">PDF</span>
+            </div>
+          </div>
+        </div>
+        <div class="card reporte-card" onclick="showToast('Generando reporte de clientes...')">
+          <div class="card-body">
+            <div style="width:44px;height:44px;background:var(--info-bg);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-md);">
+              <i class="ti ti-users" style="font-size:22px;color:var(--info);"></i>
+            </div>
+            <div style="font-size:var(--font-base);font-weight:500;margin-bottom:4px;">Reporte de clientes</div>
+            <div style="font-size:var(--font-sm);color:var(--text-secondary);">Compras por cliente, créditos y cuentas por cobrar</div>
+            <div style="display:flex;gap:6px;margin-top:var(--space-lg);">
+              <span class="badge badge-success">XLSX</span>
+              <span class="badge badge-danger">PDF</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const datosVentas = [
+    { dia:'01', valor:2800 }, { dia:'02', valor:1200 }, { dia:'03', valor:3400 },
+    { dia:'04', valor:4100 }, { dia:'05', valor:2200 }, { dia:'06', valor:800  },
+    { dia:'07', valor:900  }, { dia:'08', valor:3800 }, { dia:'09', valor:2900 },
+    { dia:'10', valor:4500 }, { dia:'11', valor:3100 }, { dia:'12', valor:2400 },
+    { dia:'13', valor:1800 }, { dia:'14', valor:1100 }, { dia:'15', valor:5200 },
+    { dia:'16', valor:3700 }, { dia:'17', valor:2600 }, { dia:'18', valor:4200 },
+    { dia:'19', valor:3300 }, { dia:'20', valor:2100 }, { dia:'21', valor:900  },
+    { dia:'22', valor:1000 }, { dia:'23', valor:4800 }, { dia:'24', valor:3500 },
+    { dia:'25', valor:2800 }, { dia:'26', valor:4100 }, { dia:'27', valor:3900 },
+    { dia:'28', valor:2700 }, { dia:'29', valor:1800 }, { dia:'30', valor:4230 },
+  ];
+
+  const topProductos = [
+    { nombre:'Azulejo blanco 30×30', ventas:312, total:14976 },
+    { nombre:'Porcelanato gris 60×60', ventas:142, total:17040 },
+    { nombre:'Pegamento cerámico 25kg', ventas:98, total:18151 },
+    { nombre:'Impermeabilizante 5L', ventas:87, total:27840 },
+    { nombre:'Instalación de piso', ventas:64, total:28800 },
+  ];
+
+  function renderGrafica() {
+    const max = Math.max(...datosVentas.map(d => d.valor));
+    document.getElementById('grafica-ventas').innerHTML = datosVentas.map(d => `
+      <div class="chart-bar-wrap">
+        <div class="chart-value" style="${d.valor === max ? 'color:var(--accent);' : ''}">
+          ${d.valor >= 1000 ? '$' + (d.valor/1000).toFixed(1) + 'k' : '$' + d.valor}
+        </div>
+        <div class="chart-bar ${d.valor < 1500 ? 'secondary' : ''}"
+          style="height:${Math.max((d.valor / max) * 130, 4)}px;"
+          data-tooltip="$${d.valor.toLocaleString()}"></div>
+        <div class="chart-label">${d.dia}</div>
+      </div>`).join('');
+  }
+
+  function renderTopProductos() {
+    const max = Math.max(...topProductos.map(p => p.total));
+    document.getElementById('top-productos').innerHTML = topProductos.map((p, i) => `
+      <div class="list-item">
+        <div class="list-item-left" style="flex:1;min-width:0;">
+          <div style="width:20px;height:20px;border-radius:var(--radius-full);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-secondary);flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="truncate" style="font-size:var(--font-md);font-weight:500;">${p.nombre}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:3px;overflow:hidden;margin-top:4px;">
+                <div style="height:100%;width:${(p.total/max)*100}%;background:var(--accent);border-radius:var(--radius-full);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:var(--space-md);">
+          <div style="font-size:var(--font-md);font-weight:500;">$${p.total.toLocaleString()}</div>
+          <div style="font-size:var(--font-xs);color:var(--text-muted);">${p.ventas} uds</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function cambiarPeriodo() { showToast('Actualizando reporte...'); }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderGrafica();
+    renderTopProductos();
+  });
+</script>
+</body>
+</html>

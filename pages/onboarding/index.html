@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Bienvenido</title>
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: var(--dark);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ob-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Slides */
+  .ob-slides {
+    display: flex;
+    flex: 1;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ob-slide {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .ob-icon {
+    width: 100px; height: 100px;
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    margin-bottom: 8px;
+  }
+
+  .ob-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .ob-title span { color: var(--accent); }
+
+  .ob-desc {
+    font-size: 15px;
+    color: #777;
+    line-height: 1.65;
+    max-width: 340px;
+  }
+
+  .ob-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .ob-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1A1A1A;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+
+  .ob-pill-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .ob-pill span { font-size: 13px; color: #aaa; }
+
+  /* Footer */
+  .ob-footer {
+    padding: 24px 40px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  /* Dots */
+  .ob-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ob-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #333;
+    transition: all 0.3s;
+  }
+
+  .ob-dot.active {
+    background: var(--accent);
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* Buttons */
+  .ob-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .btn-skip {
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; color: #555;
+    font-family: inherit; padding: 10px;
+    transition: color 0.15s;
+  }
+
+  .btn-skip:hover { color: #888; }
+
+  .btn-next {
+    background: var(--accent);
+    border: none; cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    color: #fff; font-family: inherit;
+    padding: 12px 28px;
+    border-radius: 12px;
+    transition: background 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .btn-next:hover { background: #2AAEC8; }
+
+  .btn-start {
+    background: #fff;
+    border: none; cursor: pointer;
+    font-size: 15px; font-weight: 600;
+    color: var(--dark); font-family: inherit;
+    padding: 14px 40px;
+    border-radius: 14px;
+    width: 100%; max-width: 400px;
+    transition: opacity 0.15s;
+  }
+
+  .btn-start:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="ob-wrap">
+  <div class="ob-slides" id="ob-slides">
+
+    <!-- Slide 1 -->
+    <div class="ob-slide">
+      <div class="ob-icon" style="background:rgba(72,202,228,0.12);">🧾</div>
+      <div class="ob-title">Vende y <span>timbra</span><br>en segundos</div>
+      <div class="ob-desc">PayDesk es un sistema POS completo con generación de CFDI 4.0 en tiempo real, directo desde el punto de venta.</div>
+      <div class="ob-pills">
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Timbrado CFDI 4.0 vía PAC certificado</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Descarga de PDF y XML al instante</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Funciona para personas físicas y morales</span></div>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="ob-slide">
+      <div class="ob-icon" style="background:rgba(45,189,126,0.12);">📦</div>
+      <div class="ob-title">Inventario<br><span>en tiempo real</span></div>
+      <div class="ob-desc">Cada venta descuenta automáticamente tu inventario. Recibe alertas de stock bajo y registra compras a proveedores.</div>
+      <div class="ob-pills">
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#2DBD7E;"></div><span>Control de stock por sede y por producto</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#2DBD7E;"></div><span>Alertas automáticas de reposición</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#2DBD7E;"></div><span>Órdenes de compra a proveedores</span></div>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="ob-slide">
+      <div class="ob-icon" style="background:rgba(186,117,23,0.12);">👥</div>
+      <div class="ob-title">Clientes y<br><span>crédito</span> integrados</div>
+      <div class="ob-desc">Asigna listas de precios diferenciadas, otorga crédito y lleva el historial completo de compras por cliente.</div>
+      <div class="ob-pills">
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#BA7517;"></div><span>Listas de precios por tipo de cliente</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#BA7517;"></div><span>Control de crédito y cuentas por cobrar</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot" style="background:#BA7517;"></div><span>Historial detallado por cliente</span></div>
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="ob-slide">
+      <div class="ob-icon" style="background:rgba(72,202,228,0.12);">📊</div>
+      <div class="ob-title">Multi-giro,<br>multi-<span>sede</span></div>
+      <div class="ob-desc">Desde una tlapalería hasta un consultorio médico. Configura tu catálogo, sedes y usuarios a tu medida.</div>
+      <div class="ob-pills">
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Funciona para cualquier giro de negocio</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Múltiples sedes con usuarios y permisos</span></div>
+        <div class="ob-pill"><div class="ob-pill-dot"></div><span>Reportes y cortes de caja por sede</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="ob-footer">
+  <div class="ob-dots" id="ob-dots">
+    <div class="ob-dot active"></div>
+    <div class="ob-dot"></div>
+    <div class="ob-dot"></div>
+    <div class="ob-dot"></div>
+  </div>
+
+  <div class="ob-actions" id="ob-actions">
+    <button class="btn-skip" onclick="finalizar()">Omitir</button>
+    <button class="btn-next" id="btn-next" onclick="siguiente()">
+      Siguiente <span style="font-size:18px;">→</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  let actual = 0;
+  const total = 4;
+
+  function ir(index) {
+    actual = index;
+    document.getElementById('ob-slides').style.transform = `translateX(-${actual * 100}%)`;
+
+    // Dots
+    document.querySelectorAll('.ob-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === actual);
+    });
+
+    // Último slide
+    const actions = document.getElementById('ob-actions');
+    if (actual === total - 1) {
+      actions.innerHTML = `<button class="btn-start" onclick="finalizar()">Comenzar ahora →</button>`;
+    } else {
+      actions.innerHTML = `
+        <button class="btn-skip" onclick="finalizar()">Omitir</button>
+        <button class="btn-next" onclick="siguiente()">Siguiente <span style="font-size:18px;">→</span></button>`;
+    }
+  }
+
+  function siguiente() {
+    if (actual < total - 1) ir(actual + 1);
+  }
+
+  function finalizar() {
+    localStorage.setItem('pd_onboarding_done', '1');
+    window.location.href = '../../index.html';
+  }
+
+  // Swipe táctil
+  let startX = 0;
+  document.getElementById('ob-slides').addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+  document.getElementById('ob-slides').addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (diff > 50 && actual < total - 1) siguiente();
+    if (diff < -50 && actual > 0) ir(actual - 1);
+  });
+</script>
+</body>
+</html>

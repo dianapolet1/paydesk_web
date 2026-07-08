@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Listas de precios</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar lista -->
+    <header class="topbar" id="topbar-lista">
+      <div class="topbar-left">
+        <span class="topbar-title">Listas de precios</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nueva lista
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar detalle lista -->
+    <header class="topbar" id="topbar-detalle" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Listas de precios
+        </button>
+        <span class="topbar-title" id="detalle-nombre">—</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Exportando...')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+        <button class="btn btn-dark btn-sm" onclick="openFormEditar()">
+          <i class="ti ti-pencil"></i> Editar lista
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista de listas ── -->
+    <main class="content" id="vista-lista">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Listas activas</div>
+          <div class="metric-value">4</div>
+          <div class="metric-delta">Para diferentes tipos de cliente</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Clientes con lista asignada</div>
+          <div class="metric-value">38</div>
+          <div class="metric-delta">De 48 clientes totales</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Mayor descuento</div>
+          <div class="metric-value">20%</div>
+          <div class="metric-delta">Lista distribuidores</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Productos con precio diferenciado</div>
+          <div class="metric-value">124</div>
+          <div class="metric-delta">Todos los productos</div>
+        </div>
+      </div>
+
+      <div class="grid-3" id="listas-grid"></div>
+
+    </main>
+
+    <!-- ── Vista: Detalle de lista ── -->
+    <main class="content" id="vista-detalle" style="display:none;">
+
+      <div style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-page);">
+        <div id="lista-icon-big" style="width:56px;height:56px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="ti ti-currency-dollar" style="font-size:28px;"></i>
+        </div>
+        <div>
+          <h1 style="font-size:var(--font-2xl);font-weight:500;letter-spacing:-0.4px;" id="d-nombre">—</h1>
+          <p style="color:var(--text-secondary);" id="d-desc">—</p>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:var(--font-sm);color:var(--text-secondary);">Descuento base</div>
+          <div style="font-size:var(--font-3xl);font-weight:500;color:var(--accent);" id="d-descuento">—</div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio base</th>
+              <th>Descuento</th>
+              <th>Precio en esta lista</th>
+              <th>Ahorro</th>
+            </tr>
+          </thead>
+          <tbody id="precios-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<!-- Modal: Crear / Editar lista -->
+<div class="modal-overlay" id="modal-lista">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-lista-title">Nueva lista de precios</span>
+      <button class="modal-close" onclick="closeModal('modal-lista')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la lista *</label>
+      <input type="text" class="form-input" id="lista-nombre" placeholder="Ej. Precio mayorista, Precio distribuidor..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-textarea" id="lista-desc" placeholder="Para qué tipo de cliente aplica esta lista..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Tipo de precio</label>
+        <select class="form-select" id="lista-tipo">
+          <option value="descuento">Descuento sobre precio base (%)</option>
+          <option value="margen">Margen sobre costo (%)</option>
+          <option value="fijo">Precios fijos por producto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descuento general (%)</label>
+        <input type="number" class="form-input" id="lista-descuento" placeholder="0" min="0" max="100"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color identificador</label>
+      <div style="display:flex;gap:var(--space-sm);">
+        <button class="btn btn-sm" style="background:#48CAE4;color:#fff;border:none;" onclick="selColor(this,'#48CAE4')">Azul</button>
+        <button class="btn btn-sm" style="background:#2DBD7E;color:#fff;border:none;" onclick="selColor(this,'#2DBD7E')">Verde</button>
+        <button class="btn btn-sm" style="background:#BA7517;color:#fff;border:none;" onclick="selColor(this,'#BA7517')">Ámbar</button>
+        <button class="btn btn-sm" style="background:#E24B4A;color:#fff;border:none;" onclick="selColor(this,'#E24B4A')">Rojo</button>
+        <button class="btn btn-sm" style="background:#1565C0;color:#fff;border:none;" onclick="selColor(this,'#1565C0')">Azul marino</button>
+      </div>
+      <input type="hidden" id="lista-color" value="#48CAE4"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-lista')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarLista()">
+        <i class="ti ti-check"></i> Guardar lista
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const listas = [
+    { id:1, nombre:'Precio estándar',    desc:'Para público en general sin contrato',     descuento:0,  color:'#888888', clientes:10, tipo:'descuento' },
+    { id:2, nombre:'Precio minorista',   desc:'Para clientes con compras frecuentes',      descuento:5,  color:'#2DBD7E', clientes:18, tipo:'descuento' },
+    { id:3, nombre:'Precio mayorista',   desc:'Para clientes con volumen medio-alto',      descuento:10, color:'#48CAE4', clientes:8,  tipo:'descuento' },
+    { id:4, nombre:'Precio distribuidor',desc:'Para distribuidores y revendedores',        descuento:20, color:'#1565C0', clientes:2,  tipo:'descuento' },
+  ];
+
+  const productos = [
+    { nombre:'Azulejo blanco 30×30',    sku:'AZ-001', precioBase:48.00  },
+    { nombre:'Porcelanato gris 60×60',  sku:'PO-001', precioBase:120.00 },
+    { nombre:'Mosaico terracota 20×20', sku:'MO-001', precioBase:65.00  },
+    { nombre:'Pegamento cerámico 25kg', sku:'AD-001', precioBase:185.00 },
+    { nombre:'Fragua gris 5kg',         sku:'AD-002', precioBase:95.00  },
+    { nombre:'Llana dentada inox',      sku:'HE-002', precioBase:220.00 },
+    { nombre:'Impermeabilizante 5L',    sku:'AC-001', precioBase:320.00 },
+  ];
+
+  let listaActual = null;
+
+  function renderListas() {
+    document.getElementById('listas-grid').innerHTML = listas.map(l => `
+      <div class="card card-hover" onclick="verDetalle(${l.id})" style="cursor:pointer;">
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-lg);">
+            <div style="width:44px;height:44px;border-radius:var(--radius-md);background:${l.color}22;display:flex;align-items:center;justify-content:center;">
+              <i class="ti ti-currency-dollar" style="font-size:22px;color:${l.color};"></i>
+            </div>
+            <div>
+              <div style="font-size:var(--font-base);font-weight:500;">${l.nombre}</div>
+              <div style="font-size:var(--font-sm);color:var(--text-secondary);">${l.clientes} clientes asignados</div>
+            </div>
+          </div>
+          <p style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:var(--space-lg);">${l.desc}</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Descuento base</div>
+              <div style="font-size:var(--font-2xl);font-weight:500;color:${l.color};">${l.descuento > 0 ? l.descuento + '%' : 'Sin desc.'}</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openFormEditar(${l.id})">
+              <i class="ti ti-pencil"></i>
+            </button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function verDetalle(id) {
+    listaActual = listas.find(l => l.id === id);
+    if (!listaActual) return;
+
+    document.getElementById('vista-lista').style.display = 'none';
+    document.getElementById('topbar-lista').style.display = 'none';
+    document.getElementById('vista-detalle').style.display = '';
+    document.getElementById('topbar-detalle').style.display = '';
+
+    document.getElementById('detalle-nombre').textContent = listaActual.nombre;
+    document.getElementById('d-nombre').textContent = listaActual.nombre;
+    document.getElementById('d-desc').textContent = listaActual.desc;
+    document.getElementById('d-descuento').textContent = listaActual.descuento > 0 ? listaActual.descuento + '%' : 'Sin descuento';
+    document.getElementById('d-descuento').style.color = listaActual.color;
+
+    const icon = document.getElementById('lista-icon-big');
+    icon.style.background = listaActual.color + '22';
+    icon.querySelector('i').style.color = listaActual.color;
+
+    document.getElementById('precios-body').innerHTML = productos.map(p => {
+      const desc = listaActual.descuento / 100;
+      const precioLista = p.precioBase * (1 - desc);
+      const ahorro = p.precioBase - precioLista;
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:500;">${p.nombre}</div>
+            <div style="font-size:var(--font-xs);color:var(--text-muted);">${p.sku}</div>
+          </td>
+          <td>$${p.precioBase.toFixed(2)}</td>
+          <td>${listaActual.descuento > 0 ? `<span class="badge badge-success">${listaActual.descuento}%</span>` : '—'}</td>
+          <td style="font-weight:500;font-size:var(--font-lg);">$${precioLista.toFixed(2)}</td>
+          <td style="color:var(--success);">${ahorro > 0 ? `−$${ahorro.toFixed(2)}` : '—'}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  function volverLista() {
+    document.getElementById('vista-lista').style.display = '';
+    document.getElementById('topbar-lista').style.display = '';
+    document.getElementById('vista-detalle').style.display = 'none';
+    document.getElementById('topbar-detalle').style.display = 'none';
+    listaActual = null;
+  }
+
+  function openForm() {
+    document.getElementById('modal-lista-title').textContent = 'Nueva lista de precios';
+    document.getElementById('modal-lista').querySelectorAll('input, textarea').forEach(el => el.value = '');
+    document.getElementById('lista-color').value = '#48CAE4';
+    openModal('modal-lista');
+  }
+
+  function openFormEditar(id) {
+    const l = id ? listas.find(x => x.id === id) : listaActual;
+    if (!l) return;
+    document.getElementById('modal-lista-title').textContent = 'Editar lista';
+    document.getElementById('lista-nombre').value = l.nombre;
+    document.getElementById('lista-desc').value = l.desc;
+    document.getElementById('lista-descuento').value = l.descuento;
+    document.getElementById('lista-color').value = l.color;
+    openModal('modal-lista');
+  }
+
+  function selColor(btn, color) {
+    document.getElementById('lista-color').value = color;
+  }
+
+  function guardarLista() {
+    const nombre = document.getElementById('lista-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+    showToast('Lista guardada');
+    closeModal('modal-lista');
+    renderListas();
+  }
+
+  document.addEventListener('DOMContentLoaded', renderListas);
+</script>
+</body>
+</html>

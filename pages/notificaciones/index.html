@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Notificaciones</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--divider);
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+
+  .notif-item:hover { background: var(--surface); }
+  .notif-item.unread { background: var(--accent-light); }
+  .notif-item.unread:hover { background: #d8f3f8; }
+
+  .notif-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .notif-body { flex: 1; min-width: 0; }
+
+  .notif-title {
+    font-size: var(--font-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+
+  .notif-desc {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .notif-time {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .notif-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .notif-day-label {
+    padding: 10px var(--space-lg);
+    font-size: var(--font-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--divider);
+  }
+</style>
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Notificaciones</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="marcarTodasLeidas()">
+          <i class="ti ti-checks"></i> Marcar todas como leídas
+        </button>
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot" id="notif-dot-topbar"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Sin leer</div>
+          <div class="metric-value" id="count-unread">5</div>
+          <div class="metric-delta">De hoy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total hoy</div>
+          <div class="metric-value">12</div>
+          <div class="metric-delta">8 leídas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Esta semana</div>
+          <div class="metric-value">38</div>
+          <div class="metric-delta">↑ 6 más que la semana pasada</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Alertas críticas</div>
+          <div class="metric-value">2</div>
+          <div class="metric-delta neg">Requieren atención</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todas')">Todas</div>
+        <div class="tab-item" onclick="selectTab(this, 'ventas')">Ventas</div>
+        <div class="tab-item" onclick="selectTab(this, 'inventario')">Inventario</div>
+        <div class="tab-item" onclick="selectTab(this, 'cfdi')">CFDI</div>
+        <div class="tab-item" onclick="selectTab(this, 'credito')">Crédito</div>
+      </div>
+
+      <div class="card" id="notif-lista"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const notificaciones = [
+    // Hoy
+    { id:1,  grupo:'Hoy', tipo:'inventario', icono:'ti-building-warehouse', iconoBg:'var(--danger-bg)',    iconoColor:'var(--danger)',   titulo:'Producto agotado',             desc:'Fragua gris 5kg llegó a cero existencias. Considera hacer una orden de compra.',         tiempo:'Hace 5 min',   leida:false },
+    { id:2,  grupo:'Hoy', tipo:'cfdi',       icono:'ti-file-invoice',       iconoBg:'var(--success-bg)',   iconoColor:'var(--success)',  titulo:'CFDI timbrado exitosamente',   desc:'La venta VTA-2026-0312 de Mario Rodríguez fue timbrada. Folio fiscal: A1B2C3D4...',    tiempo:'Hace 12 min',  leida:false },
+    { id:3,  grupo:'Hoy', tipo:'credito',    icono:'ti-credit-card',        iconoBg:'var(--danger-bg)',    iconoColor:'var(--danger)',   titulo:'Cuenta vencida',               desc:'Ferrehogar SA tiene una cuenta de $800 vencida desde hace 2 días.',                     tiempo:'Hace 1h',      leida:false },
+    { id:4,  grupo:'Hoy', tipo:'inventario', icono:'ti-alert-triangle',     iconoBg:'var(--warning-bg)',   iconoColor:'var(--warning)',  titulo:'Stock bajo',                   desc:'Azulejo blanco 30×30 tiene solo 3 unidades. El mínimo configurado es 20.',               tiempo:'Hace 2h',      leida:false },
+    { id:5,  grupo:'Hoy', tipo:'ventas',     icono:'ti-shopping-cart',      iconoBg:'var(--accent-light)', iconoColor:'var(--accent)',   titulo:'Nueva venta registrada',       desc:'Juan Méndez cerró una venta de $890 a Laura González en Sede Centro.',                  tiempo:'Hace 38 min',  leida:false },
+    { id:6,  grupo:'Hoy', tipo:'cfdi',       icono:'ti-bolt',               iconoBg:'var(--warning-bg)',   iconoColor:'var(--warning)',  titulo:'Timbres por agotarse',         desc:'Te quedan 1,713 timbres de 2,000. Considera comprar más para no interrumpir la operación.', tiempo:'Hace 3h', leida:true  },
+    { id:7,  grupo:'Hoy', tipo:'ventas',     icono:'ti-receipt',            iconoBg:'var(--success-bg)',   iconoColor:'var(--success)',  titulo:'Venta a crédito registrada',   desc:'Construrama Tepito realizó una compra de $3,200 a crédito. Vence el 10 jul.',          tiempo:'Hace 4h',      leida:true  },
+
+    // Ayer
+    { id:8,  grupo:'Ayer', tipo:'inventario', icono:'ti-shopping-bag',     iconoBg:'var(--info-bg)',      iconoColor:'var(--info)',     titulo:'Compra registrada',            desc:'Se registró una compra a Cerámicas del Norte SA por $24,800. Inventario actualizado.', tiempo:'Ayer 16:45',   leida:true  },
+    { id:9,  grupo:'Ayer', tipo:'cfdi',       icono:'ti-x',                iconoBg:'var(--danger-bg)',    iconoColor:'var(--danger)',   titulo:'CFDI cancelado',               desc:'El CFDI de la venta VTA-2026-0306 fue cancelado exitosamente.',                         tiempo:'Ayer 09:16',   leida:true  },
+    { id:10, grupo:'Ayer', tipo:'credito',    icono:'ti-cash',             iconoBg:'var(--success-bg)',   iconoColor:'var(--success)',  titulo:'Abono registrado',             desc:'Mario Rodríguez realizó un abono de $2,000 a su cuenta por cobrar.',                   tiempo:'Ayer 11:30',   leida:true  },
+  ];
+
+  let tabActual = 'todas';
+
+  function renderNotifs() {
+    const lista = document.getElementById('notif-lista');
+    let filtradas = notificaciones.filter(n =>
+      tabActual === 'todas' ? true : n.tipo === tabActual
+    );
+
+    if (!filtradas.length) {
+      lista.innerHTML = `<div class="empty-state" style="padding:60px;">
+        <i class="ti ti-bell-off" style="font-size:36px;"></i>
+        <h3>Sin notificaciones</h3>
+        <p>No hay notificaciones en esta categoría.</p>
+      </div>`;
+      return;
+    }
+
+    let html = '';
+    let grupoActual = '';
+    filtradas.forEach(n => {
+      if (n.grupo !== grupoActual) {
+        grupoActual = n.grupo;
+        html += `<div class="notif-day-label">${n.grupo}</div>`;
+      }
+      html += `
+        <div class="notif-item ${n.leida ? '' : 'unread'}" onclick="marcarLeida(${n.id})">
+          <div class="notif-icon" style="background:${n.iconoBg};">
+            <i class="ti ${n.icono}" style="color:${n.iconoColor};"></i>
+          </div>
+          <div class="notif-body">
+            <div class="notif-title">${n.titulo}</div>
+            <div class="notif-desc">${n.desc}</div>
+            <div class="notif-time">${n.tiempo}</div>
+          </div>
+          ${!n.leida ? '<div class="notif-dot"></div>' : ''}
+        </div>`;
+    });
+
+    lista.innerHTML = html;
+    actualizarContador();
+  }
+
+  function marcarLeida(id) {
+    const n = notificaciones.find(x => x.id === id);
+    if (n) n.leida = true;
+    renderNotifs();
+  }
+
+  function marcarTodasLeidas() {
+    notificaciones.forEach(n => n.leida = true);
+    renderNotifs();
+    showToast('Todas las notificaciones marcadas como leídas');
+  }
+
+  function actualizarContador() {
+    const unread = notificaciones.filter(n => !n.leida).length;
+    document.getElementById('count-unread').textContent = unread;
+    const dot = document.getElementById('notif-dot-topbar');
+    if (dot) dot.style.display = unread > 0 ? '' : 'none';
+  }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderNotifs();
+  }
+
+  document.addEventListener('DOMContentLoaded', renderNotifs);
+</script>
+</body>
+</html>

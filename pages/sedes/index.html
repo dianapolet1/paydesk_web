@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Sedes</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar lista -->
+    <header class="topbar" id="topbar-lista">
+      <div class="topbar-left">
+        <span class="topbar-title">Sedes</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nueva sede
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar perfil -->
+    <header class="topbar" id="topbar-perfil" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Sedes
+        </button>
+        <span class="topbar-title" id="perfil-nombre-topbar">—</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openFormEditar()">
+          <i class="ti ti-pencil"></i> Editar sede
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista ── -->
+    <main class="content" id="vista-lista">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Total sedes</div>
+          <div class="metric-value">3</div>
+          <div class="metric-delta">2 activas, 1 inactiva</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Usuarios totales</div>
+          <div class="metric-value">12</div>
+          <div class="metric-delta">En todas las sedes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ventas hoy (todas)</div>
+          <div class="metric-value">$18,420</div>
+          <div class="metric-delta">↑ 12% vs ayer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Sede más activa</div>
+          <div class="metric-value" style="font-size:var(--font-lg);">Sede Centro</div>
+          <div class="metric-delta">61% de las ventas</div>
+        </div>
+      </div>
+
+      <div class="grid-3" id="sedes-grid"></div>
+
+    </main>
+
+    <!-- ── Vista: Perfil sede ── -->
+    <main class="content" id="vista-perfil" style="display:none;">
+      <div class="grid-2" style="align-items:start;gap:var(--space-xl);">
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Información de la sede</span></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-xl);">
+                <div class="avatar avatar-lg avatar-accent" style="width:56px;height:56px;font-size:20px;" id="s-avatar">SC</div>
+                <div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="s-nombre">—</div>
+                  <span class="badge badge-success" id="s-estatus-badge">Activa</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-map-pin" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="s-direccion">—</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-phone" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="s-tel">—</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-clock" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="s-horario">—</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-users" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);" id="s-usuarios">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Métricas del mes</span></div>
+            <div class="card-body">
+              <div class="grid-2" style="gap:var(--space-lg);">
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Ventas del mes</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="s-ventas">—</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Transacciones</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="s-trans">—</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Ticket promedio</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="s-ticket">—</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">CFDIs timbrados</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;" id="s-cfdi">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Usuarios asignados</span>
+              <a class="card-action" href="../../pages/usuarios/">Ver todos</a>
+            </div>
+            <div id="sede-usuarios-lista"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- Modal: Crear / Editar sede -->
+<div class="modal-overlay" id="modal-sede">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-sede-title">Nueva sede</span>
+      <button class="modal-close" onclick="closeModal('modal-sede')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la sede *</label>
+      <input type="text" class="form-input" id="sede-nombre" placeholder="Ej. Sede Centro, Sucursal Norte..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dirección *</label>
+      <input type="text" class="form-input" id="sede-direccion" placeholder="Calle, número, colonia, ciudad"/>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input type="tel" class="form-input" id="sede-tel" placeholder="55 1234 5678"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horario</label>
+        <input type="text" class="form-input" id="sede-horario" placeholder="Lun–Vie 8:00–18:00"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estatus</label>
+      <select class="form-select" id="sede-estatus">
+        <option value="activa">Activa</option>
+        <option value="inactiva">Inactiva</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-sede')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarSede()">
+        <i class="ti ti-check"></i> Guardar sede
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const sedes = [
+    { id:1, nombre:'Sede Centro',  direccion:'Av. Insurgentes 420, Col. Centro, CDMX',  tel:'55 1234 5678', horario:'Lun–Sáb 8:00–19:00', usuarios:['Sofía Reyes','Juan Méndez','Ana López'],    ventas:'$54,200', trans:187, ticket:'$2,899', cfdi:162, estatus:'activa'   },
+    { id:2, nombre:'Sede Norte',   direccion:'Blvd. Manuel Ávila Camacho 88, Naucalpan', tel:'55 9876 5432', horario:'Lun–Sáb 8:00–18:00', usuarios:['Carlos Ruiz','María Torres'],               ventas:'$35,220', trans:125, ticket:'$2,818', cfdi:110, estatus:'activa'   },
+    { id:3, nombre:'Sede Poniente',direccion:'Av. Vasco de Quiroga 1500, Santa Fe, CDMX', tel:'55 3333 4444', horario:'Lun–Vie 9:00–18:00', usuarios:[],                                           ventas:'—',       trans:0,   ticket:'—',     cfdi:0,   estatus:'inactiva' },
+  ];
+
+  let sedeActual = null;
+
+  function renderSedes() {
+    document.getElementById('sedes-grid').innerHTML = sedes.map(s => `
+      <div class="card card-hover" onclick="verPerfil(${s.id})" style="cursor:pointer;">
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-md);">
+              <div class="avatar avatar-md ${s.estatus === 'activa' ? 'avatar-accent' : 'avatar-neutral'}">${s.nombre.slice(0,2).toUpperCase()}</div>
+              <div>
+                <div style="font-size:var(--font-base);font-weight:500;">${s.nombre}</div>
+                <span class="badge ${s.estatus === 'activa' ? 'badge-success' : 'badge-neutral'}" style="margin-top:2px;">${s.estatus === 'activa' ? 'Activa' : 'Inactiva'}</span>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();openFormEditar(${s.id})">
+              <i class="ti ti-pencil" style="font-size:15px;"></i>
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:var(--space-lg);">
+            <div class="flex items-center gap-sm" style="font-size:var(--font-sm);color:var(--text-secondary);">
+              <i class="ti ti-map-pin" style="font-size:13px;flex-shrink:0;"></i>
+              <span class="truncate">${s.direccion}</span>
+            </div>
+            <div class="flex items-center gap-sm" style="font-size:var(--font-sm);color:var(--text-secondary);">
+              <i class="ti ti-users" style="font-size:13px;"></i>
+              <span>${s.usuarios.length} usuario${s.usuarios.length !== 1 ? 's' : ''}</span>
+            </div>
+          </div>
+          <div style="padding-top:var(--space-md);border-top:1px solid var(--border);display:flex;justify-content:space-between;">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Ventas del mes</div>
+              <div style="font-size:var(--font-lg);font-weight:500;">${s.ventas}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Transacciones</div>
+              <div style="font-size:var(--font-lg);font-weight:500;">${s.trans}</div>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function verPerfil(id) {
+    sedeActual = sedes.find(s => s.id === id);
+    if (!sedeActual) return;
+
+    document.getElementById('vista-lista').style.display = 'none';
+    document.getElementById('topbar-lista').style.display = 'none';
+    document.getElementById('vista-perfil').style.display = '';
+    document.getElementById('topbar-perfil').style.display = '';
+
+    const s = sedeActual;
+    document.getElementById('perfil-nombre-topbar').textContent = s.nombre;
+    document.getElementById('s-avatar').textContent = s.nombre.slice(0,2).toUpperCase();
+    document.getElementById('s-nombre').textContent = s.nombre;
+    document.getElementById('s-direccion').textContent = s.direccion;
+    document.getElementById('s-tel').textContent = s.tel;
+    document.getElementById('s-horario').textContent = s.horario;
+    document.getElementById('s-usuarios').textContent = `${s.usuarios.length} usuarios asignados`;
+    document.getElementById('s-ventas').textContent = s.ventas;
+    document.getElementById('s-trans').textContent = s.trans;
+    document.getElementById('s-ticket').textContent = s.ticket;
+    document.getElementById('s-cfdi').textContent = s.cfdi;
+
+    const badge = document.getElementById('s-estatus-badge');
+    badge.className = `badge ${s.estatus === 'activa' ? 'badge-success' : 'badge-neutral'}`;
+    badge.textContent = s.estatus === 'activa' ? 'Activa' : 'Inactiva';
+
+    document.getElementById('sede-usuarios-lista').innerHTML = s.usuarios.length > 0
+      ? s.usuarios.map(u => `
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">${u.slice(0,2).toUpperCase()}</div>
+              <div class="list-item-name">${u}</div>
+            </div>
+          </div>`).join('')
+      : `<div class="empty-state" style="padding:40px;">
+          <i class="ti ti-users" style="font-size:28px;"></i>
+          <p style="margin:0;">Sin usuarios asignados</p>
+        </div>`;
+  }
+
+  function volverLista() {
+    document.getElementById('vista-lista').style.display = '';
+    document.getElementById('topbar-lista').style.display = '';
+    document.getElementById('vista-perfil').style.display = 'none';
+    document.getElementById('topbar-perfil').style.display = 'none';
+    sedeActual = null;
+  }
+
+  function openForm() {
+    document.getElementById('modal-sede-title').textContent = 'Nueva sede';
+    document.getElementById('modal-sede').querySelectorAll('input').forEach(el => el.value = '');
+    document.getElementById('sede-estatus').value = 'activa';
+    openModal('modal-sede');
+  }
+
+  function openFormEditar(id) {
+    const s = id ? sedes.find(x => x.id === id) : sedeActual;
+    if (!s) return;
+    document.getElementById('modal-sede-title').textContent = 'Editar sede';
+    document.getElementById('sede-nombre').value = s.nombre;
+    document.getElementById('sede-direccion').value = s.direccion;
+    document.getElementById('sede-tel').value = s.tel;
+    document.getElementById('sede-horario').value = s.horario;
+    document.getElementById('sede-estatus').value = s.estatus;
+    openModal('modal-sede');
+  }
+
+  function guardarSede() {
+    const nombre = document.getElementById('sede-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+    showToast('Sede guardada');
+    closeModal('modal-sede');
+    renderSedes();
+  }
+
+  document.addEventListener('DOMContentLoaded', renderSedes);
+</script>
+</body>
+</html>

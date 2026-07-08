@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Compras</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <!-- Topbar lista -->
+    <header class="topbar" id="topbar-lista">
+      <div class="topbar-left">
+        <span class="topbar-title">Compras</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar por folio, proveedor o monto..." oninput="filterCompras(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <input type="date" class="form-input" id="fecha-desde" style="height:36px;width:140px;"/>
+          <span style="color:var(--text-muted);font-size:var(--font-sm);">a</span>
+          <input type="date" class="form-input" id="fecha-hasta" style="height:36px;width:140px;"/>
+        </div>
+        <button class="btn btn-dark btn-sm" onclick="openModal('modal-compra')">
+          <i class="ti ti-plus"></i> Nueva compra
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar detalle -->
+    <header class="topbar" id="topbar-detalle" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Compras
+        </button>
+        <span class="topbar-title" id="detalle-folio">—</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Descargando PDF...')">
+          <i class="ti ti-file-download"></i> Descargar
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista ── -->
+    <main class="content" id="vista-lista">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Compras del mes</div>
+          <div class="metric-value">$124,800</div>
+          <div class="metric-delta">28 órdenes de compra</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Pagadas</div>
+          <div class="metric-value">24</div>
+          <div class="metric-delta">↑ Todas a tiempo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Pendientes de pago</div>
+          <div class="metric-value">4</div>
+          <div class="metric-delta neg">$38,400 por pagar</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Proveedor principal</div>
+          <div class="metric-value" style="font-size:var(--font-lg);">Cerámicas Norte</div>
+          <div class="metric-delta">$24,800 este mes</div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todas')">Todas</div>
+        <div class="tab-item" onclick="selectTab(this, 'pagada')">Pagadas</div>
+        <div class="tab-item" onclick="selectTab(this, 'pendiente')">Pendientes</div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Productos</th>
+              <th>Subtotal</th>
+              <th>Total (IVA inc.)</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="compras-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <!-- ── Vista: Detalle ── -->
+    <main class="content" id="vista-detalle" style="display:none;">
+      <div class="grid-2" style="align-items:start;gap:var(--space-xl);">
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Productos recibidos</span></div>
+          <div class="table-wrapper" style="border:none;border-radius:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cant.</th>
+                  <th>Costo u.</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-productos"></tbody>
+            </table>
+          </div>
+          <div style="padding:var(--space-lg);border-top:1px solid var(--border);">
+            <div class="total-row"><span>Subtotal</span><span id="d-subtotal">—</span></div>
+            <div class="total-row"><span>IVA (16%)</span><span id="d-iva">—</span></div>
+            <div class="total-row main"><span>Total</span><span id="d-total">—</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Información de la compra</span></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-receipt" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Folio</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-folio">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-calendar" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Fecha</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-fecha">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-truck" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Proveedor</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-proveedor">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-file-invoice" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Factura del proveedor</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-factura">—</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-user-circle" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <div>
+                    <div style="font-size:var(--font-xs);color:var(--text-muted);">Registrado por</div>
+                    <div style="font-size:var(--font-md);font-weight:500;" id="d-usuario">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Pago</span>
+              <span id="d-estatus-badge">—</span>
+            </div>
+            <div class="card-body">
+              <div class="total-row main" style="margin-bottom:var(--space-lg);">
+                <span>Total a pagar</span>
+                <span id="d-total-pago">—</span>
+              </div>
+              <button class="btn btn-primary btn-full" id="btn-pagar" onclick="showToast('Pago registrado')">
+                <i class="ti ti-check"></i> Marcar como pagada
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ── Modal: Nueva compra ── -->
+<div class="modal-overlay" id="modal-compra">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <span class="modal-title">Nueva compra</span>
+      <button class="modal-close" onclick="closeModal('modal-compra')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Proveedor *</label>
+        <select class="form-select" id="compra-proveedor">
+          <option value="">Seleccionar proveedor</option>
+          <option value="1">Cerámicas del Norte SA</option>
+          <option value="2">Distribuidora Adhesivos MX</option>
+          <option value="3">Herramientas Pro</option>
+          <option value="4">Importadora Talavera</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha *</label>
+        <input type="date" class="form-input" id="compra-fecha"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Factura del proveedor</label>
+      <input type="text" class="form-input" id="compra-factura" placeholder="Ej. FAC-2026-001"/>
+    </div>
+
+    <div style="margin-bottom:var(--space-lg);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);">
+        <label class="form-label" style="margin:0;">Productos *</label>
+        <button class="btn btn-outline btn-sm" onclick="agregarRenglon()"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+      <div id="renglones"></div>
+    </div>
+
+    <div style="background:var(--surface);border-radius:var(--radius-md);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+      <div class="total-row"><span>Subtotal</span><span id="c-subtotal">$0.00</span></div>
+      <div class="total-row"><span>IVA (16%)</span><span id="c-iva">$0.00</span></div>
+      <div class="total-row main"><span>Total</span><span id="c-total">$0.00</span></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="compra-notas" placeholder="Opcional..." style="min-height:60px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-compra')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarCompra()">
+        <i class="ti ti-check"></i> Registrar compra
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  const compras = [
+    { id:1, folio:'OC-2026-0045', proveedor:'Cerámicas del Norte SA', fecha:'28 jun 2026', factura:'FAC-CN-2026-089', productos:8,  subtotal:21379.31, total:24800.00, estatus:'pagada',   usuario:'Sofía Reyes'  },
+    { id:2, folio:'OC-2026-0038', proveedor:'Distribuidora Adhesivos MX', fecha:'15 jun 2026', factura:'FAC-DA-2026-045', productos:5, subtotal:15862.07, total:18400.00, estatus:'pendiente', usuario:'Juan Méndez'  },
+    { id:3, folio:'OC-2026-0031', proveedor:'Cerámicas del Norte SA', fecha:'02 jun 2026', factura:'FAC-CN-2026-071', productos:12, subtotal:36724.14, total:42600.00, estatus:'pagada',   usuario:'Sofía Reyes'  },
+    { id:4, folio:'OC-2026-0024', proveedor:'Importadora Talavera',   fecha:'20 may 2026', factura:'FAC-IT-2026-033', productos:6,  subtotal:10344.83, total:12000.00, estatus:'pagada',   usuario:'Ana López'    },
+    { id:5, folio:'OC-2026-0018', proveedor:'Herramientas Pro',       fecha:'10 may 2026', factura:'FAC-HP-2026-021', productos:4,  subtotal:15086.21, total:17500.00, estatus:'pendiente', usuario:'Juan Méndez'  },
+  ];
+
+  let tabActual = 'todas';
+  let filtroTexto = '';
+  let renglones = [{ producto:'', cantidad:1, costo:0 }];
+
+  function renderCompras() {
+    let lista = compras.filter(c => {
+      const matchText = !filtroTexto ||
+        c.folio.toLowerCase().includes(filtroTexto) ||
+        c.proveedor.toLowerCase().includes(filtroTexto) ||
+        c.total.toString().includes(filtroTexto);
+      const matchTab = tabActual === 'todas' ? true : c.estatus === tabActual;
+      return matchText && matchTab;
+    });
+
+    const tbody = document.getElementById('compras-body');
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-shopping-bag" style="font-size:32px;display:block;margin-bottom:8px;"></i>
+        Sin compras encontradas
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(c => `
+      <tr style="cursor:pointer;" onclick="verDetalle(${c.id})">
+        <td style="font-weight:500;color:var(--accent);">${c.folio}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar avatar-md avatar-accent">${c.proveedor.slice(0,2).toUpperCase()}</div>
+            <span style="font-weight:500;">${c.proveedor}</span>
+          </div>
+        </td>
+        <td style="color:var(--text-secondary);">${c.fecha}</td>
+        <td style="color:var(--text-secondary);">${c.productos} productos</td>
+        <td>$${c.subtotal.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+        <td style="font-weight:500;">$${c.total.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+        <td><span class="badge ${c.estatus === 'pagada' ? 'badge-success' : 'badge-warning'}">${c.estatus === 'pagada' ? 'Pagada' : 'Pendiente'}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="event.stopPropagation();verDetalle(${c.id})" data-tooltip="Ver detalle">
+            <i class="ti ti-eye" style="font-size:15px;"></i>
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function filterCompras(q) { filtroTexto = q.toLowerCase(); renderCompras(); }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderCompras();
+  }
+
+  function verDetalle(id) {
+    const c = compras.find(x => x.id === id);
+    if (!c) return;
+
+    document.getElementById('vista-lista').style.display = 'none';
+    document.getElementById('topbar-lista').style.display = 'none';
+    document.getElementById('vista-detalle').style.display = '';
+    document.getElementById('topbar-detalle').style.display = '';
+
+    document.getElementById('detalle-folio').textContent = c.folio;
+    document.getElementById('d-folio').textContent = c.folio;
+    document.getElementById('d-fecha').textContent = c.fecha;
+    document.getElementById('d-proveedor').textContent = c.proveedor;
+    document.getElementById('d-factura').textContent = c.factura;
+    document.getElementById('d-usuario').textContent = c.usuario;
+    document.getElementById('d-subtotal').textContent = `$${c.subtotal.toFixed(2)}`;
+    document.getElementById('d-iva').textContent = `$${(c.total - c.subtotal).toFixed(2)}`;
+    document.getElementById('d-total').textContent = `$${c.total.toFixed(2)}`;
+    document.getElementById('d-total-pago').textContent = `$${c.total.toFixed(2)}`;
+
+    const badge = c.estatus === 'pagada'
+      ? `<span class="badge badge-success">Pagada</span>`
+      : `<span class="badge badge-warning">Pendiente</span>`;
+    document.getElementById('d-estatus-badge').innerHTML = badge;
+    document.getElementById('btn-pagar').style.display = c.estatus === 'pagada' ? 'none' : '';
+
+    document.getElementById('detalle-productos').innerHTML = Array.from({ length: c.productos }, (_, i) => `
+      <tr>
+        <td><div style="font-weight:500;">Producto ${i + 1}</div></td>
+        <td>${Math.floor(Math.random() * 20) + 5}</td>
+        <td>$${(c.subtotal / c.productos).toFixed(2)}</td>
+        <td style="font-weight:500;">$${(c.subtotal / c.productos).toFixed(2)}</td>
+      </tr>`).join('');
+  }
+
+  function volverLista() {
+    document.getElementById('vista-lista').style.display = '';
+    document.getElementById('topbar-lista').style.display = '';
+    document.getElementById('vista-detalle').style.display = 'none';
+    document.getElementById('topbar-detalle').style.display = 'none';
+  }
+
+  // ── Renglones de compra ───────────────────────────────────────────────────
+  const productosOpts = [
+    { id:1, nombre:'Azulejo blanco 30×30' },
+    { id:2, nombre:'Porcelanato gris 60×60' },
+    { id:3, nombre:'Pegamento cerámico 25kg' },
+    { id:4, nombre:'Fragua gris 5kg' },
+    { id:5, nombre:'Llana dentada inox' },
+  ];
+
+  function renderRenglones() {
+    const optsHTML = productosOpts.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+    document.getElementById('renglones').innerHTML = renglones.map((r, i) => `
+      <div style="display:grid;grid-template-columns:1fr 90px 110px 32px;gap:var(--space-sm);align-items:center;margin-bottom:var(--space-sm);">
+        <select class="form-select" style="height:38px;" onchange="updateRenglon(${i},'producto',this.value)">
+          <option value="">Seleccionar producto</option>
+          ${optsHTML}
+        </select>
+        <input type="number" class="form-input" placeholder="Cant." min="1" value="${r.cantidad}" style="height:38px;" onchange="updateRenglon(${i},'cantidad',this.value)"/>
+        <input type="number" class="form-input" placeholder="Costo" min="0" step="0.01" value="${r.costo||''}" style="height:38px;" onchange="updateRenglon(${i},'costo',this.value)"/>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="quitarRenglon(${i})" style="color:var(--danger);">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>`).join('');
+    calcTotal();
+  }
+
+  function updateRenglon(i, campo, val) {
+    renglones[i][campo] = campo === 'producto' ? val : parseFloat(val) || 0;
+    calcTotal();
+  }
+
+  function agregarRenglon() { renglones.push({ producto:'', cantidad:1, costo:0 }); renderRenglones(); }
+  function quitarRenglon(i) { if (renglones.length > 1) { renglones.splice(i, 1); renderRenglones(); } }
+
+  function calcTotal() {
+    const sub = renglones.reduce((s, r) => s + r.cantidad * r.costo, 0);
+    const iva = sub * 0.16;
+    document.getElementById('c-subtotal').textContent = `$${sub.toFixed(2)}`;
+    document.getElementById('c-iva').textContent = `$${iva.toFixed(2)}`;
+    document.getElementById('c-total').textContent = `$${(sub + iva).toFixed(2)}`;
+  }
+
+  function guardarCompra() {
+    if (!document.getElementById('compra-proveedor').value) { showToast('Selecciona un proveedor', 'error'); return; }
+    showToast('Compra registrada — inventario actualizado');
+    closeModal('modal-compra');
+    renderCompras();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    const hace30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById('fecha-desde').value = hace30;
+    document.getElementById('fecha-hasta').value = hoy;
+    document.getElementById('compra-fecha').valueAsDate = new Date();
+    renderCompras();
+    renderRenglones();
+  });
+</script>
+</body>
+</html>

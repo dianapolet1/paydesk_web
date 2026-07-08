@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Estados globales</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  /* ── Full screen states ── */
+  .fullscreen-state {
+    min-height: calc(100vh - var(--topbar-height));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px var(--space-page);
+    text-align: center;
+  }
+
+  .state-icon-wrap {
+    width: 80px; height: 80px;
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto var(--space-xxl);
+    font-size: 40px;
+  }
+
+  .state-title {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.4px;
+    margin-bottom: var(--space-sm);
+  }
+
+  .state-desc {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: var(--space-page);
+  }
+
+  .state-actions { display: flex; gap: var(--space-sm); justify-content: center; }
+
+  /* Demo nav */
+  .demo-nav {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: var(--space-xl);
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+  }
+
+  .demo-btn {
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--card);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    font-family: var(--font-family);
+    transition: all var(--transition);
+    color: var(--text-secondary);
+  }
+
+  .demo-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .demo-btn.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+  .estado { display: none; }
+  .estado.active { display: flex; }
+
+  /* Empty state inline (para tablas vacías) */
+  .empty-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px var(--space-page);
+    text-align: center;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .empty-inline i { font-size: 36px; color: var(--text-muted); margin-bottom: var(--space-md); }
+  .empty-inline h4 { font-size: var(--font-lg); font-weight: 500; color: var(--text-primary); margin-bottom: var(--space-sm); }
+  .empty-inline p { font-size: var(--font-base); color: var(--text-secondary); margin-bottom: var(--space-xl); }
+</style>
+</head>
+<body>
+
+<!-- Demo nav -->
+<div class="demo-nav">
+  <button class="demo-btn active" onclick="mostrar('sin-conexion', this)">Sin conexión</button>
+  <button class="demo-btn" onclick="mostrar('error', this)">Error general</button>
+  <button class="demo-btn" onclick="mostrar('error-404', this)">404 No encontrado</button>
+  <button class="demo-btn" onclick="mostrar('empty-ventas', this)">Sin ventas</button>
+  <button class="demo-btn" onclick="mostrar('empty-productos', this)">Sin productos</button>
+  <button class="demo-btn" onclick="mostrar('empty-clientes', this)">Sin clientes</button>
+  <button class="demo-btn" onclick="mostrar('empty-notifs', this)">Sin notificaciones</button>
+  <button class="demo-btn" onclick="mostrar('empty-busqueda', this)">Sin resultados</button>
+</div>
+
+<!-- ── Sin conexión ── -->
+<div class="estado active fullscreen-state" id="est-sin-conexion">
+  <div class="state-icon-wrap" style="background:var(--surface);">
+    <i class="ti ti-wifi-off" style="font-size:40px;color:var(--text-muted);"></i>
+  </div>
+  <div class="state-title">Sin conexión a internet</div>
+  <div class="state-desc">No se puede conectar al servidor. Verifica tu conexión a internet e intenta de nuevo.</div>
+  <div class="state-actions">
+    <button class="btn btn-dark btn-lg" onclick="showToast('Intentando reconectar...')">
+      <i class="ti ti-refresh"></i> Reintentar
+    </button>
+  </div>
+  <div style="margin-top:var(--space-page);padding:var(--space-lg);background:var(--surface);border-radius:var(--radius-lg);max-width:380px;">
+    <div style="font-size:var(--font-sm);font-weight:500;color:var(--text-primary);margin-bottom:var(--space-sm);">Mientras tanto puedes:</div>
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm);">
+      <div style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-sm);color:var(--text-secondary);">
+        <i class="ti ti-check" style="color:var(--success);"></i>
+        Ver las ventas guardadas en caché
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-sm);color:var(--text-secondary);">
+        <i class="ti ti-check" style="color:var(--success);"></i>
+        Consultar el catálogo de productos
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-sm);font-size:var(--font-sm);color:var(--text-secondary);">
+        <i class="ti ti-x" style="color:var(--danger);"></i>
+        Timbrar CFDIs (requiere conexión)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Error general ── -->
+<div class="estado fullscreen-state" id="est-error">
+  <div class="state-icon-wrap" style="background:var(--danger-bg);">
+    <i class="ti ti-alert-triangle" style="font-size:40px;color:var(--danger);"></i>
+  </div>
+  <div class="state-title">Algo salió mal</div>
+  <div class="state-desc">Ocurrió un error inesperado. El equipo técnico fue notificado. Puedes intentar de nuevo o volver al inicio.</div>
+  <div class="state-actions">
+    <button class="btn btn-outline btn-lg" onclick="window.history.back()">
+      <i class="ti ti-arrow-left"></i> Volver
+    </button>
+    <button class="btn btn-dark btn-lg" onclick="showToast('Reintentando...')">
+      <i class="ti ti-refresh"></i> Reintentar
+    </button>
+  </div>
+  <div style="margin-top:var(--space-page);padding:var(--space-md) var(--space-lg);background:var(--surface);border-radius:var(--radius-md);max-width:380px;">
+    <div style="font-size:var(--font-xs);font-family:monospace;color:var(--text-muted);text-align:left;">
+      Error 500 · Internal Server Error<br>
+      Request ID: req_8f4d2a1b9c3e<br>
+      Timestamp: 2026-06-30T10:14:32Z
+    </div>
+  </div>
+</div>
+
+<!-- ── 404 ── -->
+<div class="estado fullscreen-state" id="est-error-404">
+  <div class="state-icon-wrap" style="background:var(--surface);">
+    <div style="font-size:48px;font-weight:700;color:var(--text-muted);letter-spacing:-2px;">404</div>
+  </div>
+  <div class="state-title">Página no encontrada</div>
+  <div class="state-desc">La página que buscas no existe o fue movida. Verifica la URL o vuelve al inicio.</div>
+  <div class="state-actions">
+    <button class="btn btn-dark btn-lg" onclick="window.location.href='../../pages/dashboard/index.html'">
+      <i class="ti ti-home"></i> Ir al inicio
+    </button>
+  </div>
+</div>
+
+<!-- ── Empty: Sin ventas ── -->
+<div class="estado fullscreen-state" id="est-empty-ventas">
+  <div style="width:100%;max-width:480px;">
+    <div class="empty-inline">
+      <i class="ti ti-receipt"></i>
+      <h4>Sin ventas aún</h4>
+      <p>No se han registrado ventas en el periodo seleccionado. Ajusta los filtros o crea una nueva venta.</p>
+      <div class="state-actions">
+        <button class="btn btn-outline" onclick="showToast('Ajustando filtros...')">
+          <i class="ti ti-adjustments"></i> Ajustar filtros
+        </button>
+        <button class="btn btn-dark" onclick="showToast('Abriendo punto de venta...')">
+          <i class="ti ti-plus"></i> Nueva venta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Empty: Sin productos ── -->
+<div class="estado fullscreen-state" id="est-empty-productos">
+  <div style="width:100%;max-width:480px;">
+    <div class="empty-inline">
+      <i class="ti ti-package"></i>
+      <h4>Sin productos en el catálogo</h4>
+      <p>Todavía no has agregado ningún producto. Crea tu primer producto para comenzar a vender.</p>
+      <div class="state-actions">
+        <button class="btn btn-dark" onclick="showToast('Abriendo formulario...')">
+          <i class="ti ti-plus"></i> Crear primer producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Empty: Sin clientes ── -->
+<div class="estado fullscreen-state" id="est-empty-clientes">
+  <div style="width:100%;max-width:480px;">
+    <div class="empty-inline">
+      <i class="ti ti-users"></i>
+      <h4>Sin clientes registrados</h4>
+      <p>No tienes clientes en tu directorio. Agrega tu primer cliente para asignarle ventas y crédito.</p>
+      <div class="state-actions">
+        <button class="btn btn-dark" onclick="showToast('Abriendo formulario...')">
+          <i class="ti ti-plus"></i> Agregar cliente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Empty: Sin notificaciones ── -->
+<div class="estado fullscreen-state" id="est-empty-notifs">
+  <div class="state-icon-wrap" style="background:var(--surface);">
+    <i class="ti ti-bell-off" style="font-size:40px;color:var(--text-muted);"></i>
+  </div>
+  <div class="state-title">Todo al día</div>
+  <div class="state-desc">No tienes notificaciones pendientes. Te avisaremos cuando haya algo importante.</div>
+</div>
+
+<!-- ── Empty: Sin resultados de búsqueda ── -->
+<div class="estado fullscreen-state" id="est-empty-busqueda">
+  <div style="width:100%;max-width:480px;">
+    <div class="empty-inline">
+      <i class="ti ti-search"></i>
+      <h4>Sin resultados</h4>
+      <p>No encontramos nada que coincida con tu búsqueda. Intenta con otros términos o limpia los filtros.</p>
+      <div class="state-actions">
+        <button class="btn btn-outline" onclick="showToast('Limpiando búsqueda...')">
+          <i class="ti ti-x"></i> Limpiar búsqueda
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/js/utils.js"></script>
+<script>
+  function mostrar(id, btn) {
+    document.querySelectorAll('.estado').forEach(e => e.classList.remove('active'));
+    document.getElementById('est-' + id).classList.add('active');
+    document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

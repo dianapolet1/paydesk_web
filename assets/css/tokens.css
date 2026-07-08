@@ -1,0 +1,117 @@
+/* ============================================================
+   PayDesk — Design Tokens
+   Cambia aquí y se propaga a todo el sistema
+   ============================================================ */
+
+:root {
+
+  /* ── Acento del cliente ─────────────────────────────────── */
+  --accent:        #48CAE4;
+  --accent-hover:  #2EB8D4;
+  --accent-light:  #EBF9FC;
+  --accent-text:   #1A8FA3;
+
+  /* ── Neutros oscuros (sidebar) ──────────────────────────── */
+  --dark:          #141414;
+  --dark-2:        #1E1E1E;
+  --dark-3:        #2A2A2A;
+  --dark-border:   #242424;
+  --dark-text:     #CCCCCC;
+  --dark-muted:    #555555;
+  --dark-label:    #3A3A3A;
+
+  /* ── Superficies claras ─────────────────────────────────── */
+  --surface:       #F5F5F5;
+  --card:          #FFFFFF;
+  --border:        #EBEBEB;
+  --divider:       #F0F0F0;
+
+  /* ── Texto ──────────────────────────────────────────────── */
+  --text-primary:   #141414;
+  --text-secondary: #888888;
+  --text-muted:     #BBBBBB;
+  --text-on-dark:   #FFFFFF;
+  --text-on-accent: #FFFFFF;
+
+  /* ── Semánticos ─────────────────────────────────────────── */
+  --success:       #2DBD7E;
+  --success-bg:    #EDF9F3;
+  --success-text:  #1A7A50;
+
+  --danger:        #E24B4A;
+  --danger-bg:     #FFEBEE;
+  --danger-text:   #C62828;
+
+  --warning:       #BA7517;
+  --warning-bg:    #FAEEDA;
+  --warning-text:  #854F0B;
+
+  --info:          #1565C0;
+  --info-bg:       #E3F2FD;
+  --info-text:     #0D47A1;
+
+  /* ── Radios ─────────────────────────────────────────────── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   10px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* ── Espaciado ──────────────────────────────────────────── */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   12px;
+  --space-lg:   16px;
+  --space-xl:   20px;
+  --space-xxl:  24px;
+  --space-page: 28px;
+
+  /* ── Tipografía ─────────────────────────────────────────── */
+  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+                 'Segoe UI', sans-serif;
+  --font-xs:   11px;
+  --font-sm:   12px;
+  --font-md:   13px;
+  --font-base: 14px;
+  --font-lg:   16px;
+  --font-xl:   18px;
+  --font-2xl:  22px;
+  --font-3xl:  26px;
+
+  /* ── Sombras ────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+
+  /* ── Sidebar ────────────────────────────────────────────── */
+  --sidebar-width: 224px;
+
+  /* ── Topbar ─────────────────────────────────────────────── */
+  --topbar-height: 56px;
+
+  /* ── Transiciones ───────────────────────────────────────── */
+  --transition: 0.15s ease;
+}
+
+/* ── Reset base ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-base);
+  color: var(--text-primary);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font-family); cursor: pointer; }
+input, textarea, select { font-family: var(--font-family); }
+img { display: block; max-width: 100%; }
+ul, ol { list-style: none; }

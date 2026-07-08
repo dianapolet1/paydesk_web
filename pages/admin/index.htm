@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Administrador</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  /* Sidebar admin: fondo diferente para distinguir del rol empresa */
+  .sidebar { background: #0F1923; }
+  .sidebar .nav-item.active { background: rgba(72,202,228,0.12); }
+  .sidebar .dark-border { border-color: #1A2535; }
+
+  .empresa-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: border-color var(--transition), transform var(--transition);
+  }
+
+  .empresa-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+  .empresa-status {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .vista { display: none; }
+  .vista.active { display: block; }
+</style>
+</head>
+<body data-base="../..">
+
+<div class="app">
+
+  <!-- Sidebar admin -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">PD</div>
+        <span class="logo-name">PayDesk</span>
+      </div>
+      <div class="sidebar-company">
+        <div class="company-avatar" style="background:rgba(72,202,228,0.15);color:var(--accent);">AD</div>
+        <div>
+          <div class="company-name">Panel Admin</div>
+          <div class="company-sede" style="color:#3A4A5A;">Contador / Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-label">Panel</span>
+      <a href="#" class="nav-item active" onclick="showVista('empresas', this)"><i class="ti ti-building"></i> Empresas</a>
+      <a href="#" class="nav-item" onclick="showVista('dashboard-empresa', this)"><i class="ti ti-chart-bar"></i> Dashboard empresa</a>
+      <a href="#" class="nav-item" onclick="showVista('ventas-empresa', this)"><i class="ti ti-receipt"></i> Ventas / CFDI</a>
+
+      <span class="nav-label">Tablero</span>
+      <a href="../../pages/kanban/" class="nav-item"><i class="ti ti-layout-kanban"></i> Kanban</a>
+
+      <span class="nav-label">Cuenta</span>
+      <a href="#" class="nav-item"><i class="ti ti-settings"></i> Configuración</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar-sm">JM</div>
+        <div>
+          <div class="user-name-sm">Jorge Martínez</div>
+          <div class="user-role-sm">Contador</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- Topbar lista empresas -->
+    <header class="topbar" id="topbar-empresas">
+      <div class="topbar-left">
+        <span class="topbar-title">Mis empresas</span>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Buscar empresa..." oninput="filtrarEmpresas(this.value)"/>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">JM</div>
+          <span class="user-chip-name">Jorge Martínez</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Topbar empresa seleccionada -->
+    <header class="topbar" id="topbar-empresa" style="display:none;">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-sm" onclick="volverEmpresas()" style="gap:4px;">
+          <i class="ti ti-arrow-left"></i> Empresas
+        </button>
+        <span class="topbar-title" id="empresa-nombre-topbar">—</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">JM</div>
+          <span class="user-chip-name">Jorge Martínez</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Vista: Lista de empresas ── -->
+    <main class="content vista active" id="vista-empresas">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Empresas asignadas</div>
+          <div class="metric-value">4</div>
+          <div class="metric-delta">2 activas hoy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ventas totales hoy</div>
+          <div class="metric-value">$54,840</div>
+          <div class="metric-delta">Todas las empresas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CFDIs pendientes</div>
+          <div class="metric-value">28</div>
+          <div class="metric-delta neg">Por timbrar</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Alertas activas</div>
+          <div class="metric-value">5</div>
+          <div class="metric-delta neg">Entre todas las empresas</div>
+        </div>
+      </div>
+
+      <div class="grid-2" id="empresas-grid">
+        <div class="empresa-card" onclick="verEmpresa('Todo Cerámicas', 'TC')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-md);">
+              <div class="avatar avatar-md avatar-accent">TC</div>
+              <div>
+                <div style="font-weight:500;">Todo Cerámicas</div>
+                <div style="font-size:var(--font-xs);color:var(--text-muted);">CAA010101XYZ · 2 sedes</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="empresa-status" style="background:var(--success);"></div>
+              <span style="font-size:var(--font-xs);color:var(--success);">Activa</span>
+            </div>
+          </div>
+          <div class="grid-2" style="gap:var(--space-md);">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Ventas hoy</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">$18,420</div>
+            </div>
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">CFDIs pendientes</div>
+              <div style="font-size:var(--font-xl);font-weight:500;color:var(--warning);">16</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empresa-card" onclick="verEmpresa('Ferrehogar SA', 'FH')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-md);">
+              <div class="avatar avatar-md avatar-info">FH</div>
+              <div>
+                <div style="font-weight:500;">Ferrehogar SA</div>
+                <div style="font-size:var(--font-xs);color:var(--text-muted);">FHO990215GH4 · 1 sede</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="empresa-status" style="background:var(--success);"></div>
+              <span style="font-size:var(--font-xs);color:var(--success);">Activa</span>
+            </div>
+          </div>
+          <div class="grid-2" style="gap:var(--space-md);">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Ventas hoy</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">$36,420</div>
+            </div>
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">CFDIs pendientes</div>
+              <div style="font-size:var(--font-xl);font-weight:500;color:var(--warning);">12</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empresa-card" onclick="verEmpresa('Construrama Tepito', 'CT')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-md);">
+              <div class="avatar avatar-md avatar-warning">CT</div>
+              <div>
+                <div style="font-weight:500;">Construrama Tepito</div>
+                <div style="font-size:var(--font-xs);color:var(--text-muted);">CSA010101XYZ · 3 sedes</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="empresa-status" style="background:var(--text-muted);"></div>
+              <span style="font-size:var(--font-xs);color:var(--text-muted);">Sin actividad hoy</span>
+            </div>
+          </div>
+          <div class="grid-2" style="gap:var(--space-md);">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Ventas hoy</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">$0</div>
+            </div>
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">CFDIs pendientes</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empresa-card" onclick="verEmpresa('Importadora Talavera', 'IT')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+            <div style="display:flex;align-items:center;gap:var(--space-md);">
+              <div class="avatar avatar-md avatar-neutral">IT</div>
+              <div>
+                <div style="font-weight:500;">Importadora Talavera</div>
+                <div style="font-size:var(--font-xs);color:var(--text-muted);">ITA040404JKL · 1 sede</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="empresa-status" style="background:var(--text-muted);"></div>
+              <span style="font-size:var(--font-xs);color:var(--text-muted);">Sin actividad hoy</span>
+            </div>
+          </div>
+          <div class="grid-2" style="gap:var(--space-md);">
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">Ventas hoy</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">$0</div>
+            </div>
+            <div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);">CFDIs pendientes</div>
+              <div style="font-size:var(--font-xl);font-weight:500;">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── Vista: Dashboard empresa seleccionada ── -->
+    <main class="content vista" id="vista-dashboard-empresa">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 id="empresa-dash-title">Todo Cerámicas</h1>
+          <p>Resumen del día · Sede Centro y Sede Norte</p>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-outline btn-sm" onclick="showToast('Exportando reporte...')">
+            <i class="ti ti-download"></i> Exportar reporte
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Ventas del día</div>
+          <div class="metric-value">$18,420</div>
+          <div class="metric-delta">↑ 12% vs ayer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Transacciones</div>
+          <div class="metric-value">47</div>
+          <div class="metric-delta">↑ 8 más que ayer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CFDIs timbrados</div>
+          <div class="metric-value">31</div>
+          <div class="metric-delta neg">16 pendientes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Por cobrar</div>
+          <div class="metric-value">$5,200</div>
+          <div class="metric-delta neg">3 cuentas vencidas</div>
+        </div>
+      </div>
+
+      <div class="grid-half">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Últimas ventas</span>
+            <a class="card-action" onclick="showVista('ventas-empresa', document.querySelector('.nav-item:nth-child(3)'))">Ver todas</a>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">MR</div>
+              <div><div class="list-item-name">Mario Rodríguez</div><div class="list-item-sub">Hace 12 min · $2,340</div></div>
+            </div>
+            <span class="badge badge-success">Timbrado</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">LG</div>
+              <div><div class="list-item-name">Laura González</div><div class="list-item-sub">Hace 38 min · $890</div></div>
+            </div>
+            <span class="badge badge-warning">Pendiente</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-neutral">PG</div>
+              <div><div class="list-item-name">Público general</div><div class="list-item-sub">Hace 1h · $450</div></div>
+            </div>
+            <span class="badge badge-success">Timbrado</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">CFDIs pendientes de timbrar</span></div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-warning"><i class="ti ti-file-invoice" style="font-size:14px;"></i></div>
+              <div><div class="list-item-name">VTA-2026-0311 · Laura González</div><div class="list-item-sub">$890 · Hace 38 min</div></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('CFDI timbrado')">
+              <i class="ti ti-bolt"></i> Timbrar
+            </button>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-warning"><i class="ti ti-file-invoice" style="font-size:14px;"></i></div>
+              <div><div class="list-item-name">VTA-2026-0305 · Construrama</div><div class="list-item-sub">$3,200 · Hace 4h</div></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('CFDI timbrado')">
+              <i class="ti ti-bolt"></i> Timbrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ── Vista: Ventas / CFDI de la empresa ── -->
+    <main class="content vista" id="vista-ventas-empresa">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Ventas y CFDIs</h1>
+          <p id="empresa-ventas-sub">Todo Cerámicas · Junio 2026</p>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-outline btn-sm" onclick="showToast('Exportando...')">
+            <i class="ti ti-download"></i> Exportar XLSX
+          </button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-item active">Todas</div>
+        <div class="tab-item">Timbradas</div>
+        <div class="tab-item">Pendientes</div>
+        <div class="tab-item">Canceladas</div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>CFDI</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--accent);font-weight:500;">VTA-2026-0312</td>
+              <td>Mario Rodríguez</td>
+              <td style="color:var(--text-secondary);">30 jun 2026 · 10:14</td>
+              <td style="font-weight:500;">$2,340.00</td>
+              <td><span class="badge badge-success">Timbrado</span></td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando PDF...')" data-tooltip="PDF"><i class="ti ti-file-type-pdf" style="color:var(--danger);font-size:15px;"></i></button>
+                  <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando XML...')" data-tooltip="XML"><i class="ti ti-code" style="font-size:15px;"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent);font-weight:500;">VTA-2026-0311</td>
+              <td>Laura González</td>
+              <td style="color:var(--text-secondary);">30 jun 2026 · 09:38</td>
+              <td style="font-weight:500;">$890.00</td>
+              <td><span class="badge badge-warning">Pendiente</span></td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="showToast('CFDI timbrado')"><i class="ti ti-bolt"></i> Timbrar</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent);font-weight:500;">VTA-2026-0310</td>
+              <td>Público general</td>
+              <td style="color:var(--text-secondary);">30 jun 2026 · 09:02</td>
+              <td style="font-weight:500;">$450.00</td>
+              <td><span class="badge badge-success">Timbrado</span></td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando PDF...')" data-tooltip="PDF"><i class="ti ti-file-type-pdf" style="color:var(--danger);font-size:15px;"></i></button>
+                  <button class="btn btn-ghost btn-icon btn-sm" onclick="showToast('Descargando XML...')" data-tooltip="XML"><i class="ti ti-code" style="font-size:15px;"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script src="../../assets/js/utils.js"></script>
+<script>
+  function showVista(id, btn) {
+    // Mostrar topbar correcto
+    const enEmpresa = id !== 'empresas';
+    document.getElementById('topbar-empresas').style.display = enEmpresa ? 'none' : '';
+    document.getElementById('topbar-empresa').style.display  = enEmpresa ? '' : 'none';
+
+    document.querySelectorAll('.vista').forEach(v => v.classList.remove('active'));
+    document.getElementById('vista-' + id).classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  function verEmpresa(nombre, initials) {
+    document.getElementById('empresa-nombre-topbar').textContent = nombre;
+    document.getElementById('empresa-dash-title').textContent = nombre;
+    document.getElementById('empresa-ventas-sub').textContent = nombre + ' · Junio 2026';
+    showVista('dashboard-empresa', null);
+    document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+  }
+
+  function volverEmpresas() {
+    showVista('empresas', document.querySelector('.nav-item'));
+  }
+
+  function filtrarEmpresas(q) {
+    const cards = document.querySelectorAll('.empresa-card');
+    cards.forEach(c => {
+      const nombre = c.querySelector('[style*="font-weight:500"]')?.textContent.toLowerCase() || '';
+      c.style.display = nombre.includes(q.toLowerCase()) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

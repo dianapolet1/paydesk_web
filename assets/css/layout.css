@@ -1,0 +1,265 @@
+/* ============================================================
+   PayDesk — Layout
+   Importa tokens.css y components.css antes de este archivo
+   ============================================================ */
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Main area (derecha del sidebar) ─────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--sidebar-width);
+  height: 100vh;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Content scroll area ─────────────────────────────────────────────────── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-page);
+}
+
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-page);
+}
+
+.page-header-left h1 {
+  font-size: var(--font-2xl);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+}
+
+.page-header-left p {
+  font-size: var(--font-base);
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.page-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* ── Section header ──────────────────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.section-title {
+  font-size: var(--font-base);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── Grids ───────────────────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+
+.grid-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-page); }
+.grid-chart-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-lg); margin-bottom: var(--space-xl); }
+.grid-half { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+
+/* ── POS layout (catálogo + carrito) ─────────────────────────────────────── */
+.pos-layout {
+  display: flex;
+  height: calc(100vh - var(--topbar-height));
+  overflow: hidden;
+}
+
+.pos-catalog {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-xl);
+}
+
+.pos-cart {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── Kanban layout ───────────────────────────────────────────────────────── */
+.kanban-board {
+  display: flex;
+  gap: var(--space-lg);
+  overflow-x: auto;
+  padding-bottom: var(--space-page);
+  height: 100%;
+  align-items: flex-start;
+}
+
+.kanban-board::-webkit-scrollbar { height: 4px; }
+.kanban-board::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.kanban-col {
+  min-width: 280px;
+  max-width: 280px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 100%;
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-xs) var(--space-md);
+}
+
+.kanban-col-title {
+  font-size: var(--font-md);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.kanban-col-count {
+  width: 22px; height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.kanban-cards::-webkit-scrollbar { width: 0; }
+
+.kanban-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: grab;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.kanban-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.kanban-card:active { cursor: grabbing; }
+
+.kanban-add-col {
+  min-width: 240px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  color: var(--text-muted);
+  font-size: var(--font-md);
+  cursor: pointer;
+  padding: var(--space-xl);
+  transition: border-color var(--transition), color var(--transition);
+  align-self: stretch;
+  height: auto;
+}
+
+.kanban-add-col:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Auth layout (login / registro) ─────────────────────────────────────── */
+.auth-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.auth-panel-left {
+  width: 45%;
+  background: var(--dark);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  flex-shrink: 0;
+}
+
+.auth-panel-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: var(--surface);
+}
+
+.auth-form-card { width: 100%; max-width: 380px; }
+
+/* ── Spacing utilities ───────────────────────────────────────────────────── */
+.mb-sm  { margin-bottom: var(--space-sm); }
+.mb-md  { margin-bottom: var(--space-md); }
+.mb-lg  { margin-bottom: var(--space-lg); }
+.mb-xl  { margin-bottom: var(--space-xl); }
+.mb-xxl { margin-bottom: var(--space-xxl); }
+.mb-page { margin-bottom: var(--space-page); }
+
+.mt-sm  { margin-top: var(--space-sm); }
+.mt-md  { margin-top: var(--space-md); }
+.mt-lg  { margin-top: var(--space-lg); }
+.mt-xl  { margin-top: var(--space-xl); }
+
+.gap-sm  { gap: var(--space-sm); }
+.gap-md  { gap: var(--space-md); }
+.gap-lg  { gap: var(--space-lg); }
+
+/* ── Flex utilities ──────────────────────────────────────────────────────── */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+/* ── Text utilities ──────────────────────────────────────────────────────── */
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-accent    { color: var(--accent); }
+.text-danger    { color: var(--danger); }
+.text-success   { color: var(--success); }
+.text-sm   { font-size: var(--font-sm); }
+.text-md   { font-size: var(--font-md); }
+.text-base { font-size: var(--font-base); }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

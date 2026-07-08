@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Inicio</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+<style>
+  .chart-area { height: 130px; }
+  .chart-area svg { width: 100%; height: 100%; }
+</style>
+</head>
+<body data-base="../..">
+<div class="app">
+
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Inicio</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>¡Hola, Sofía!</h1>
+          <p>Lunes 30 de junio de 2026 — Sede Centro</p>
+        </div>
+      </div>
+
+      <div class="section-header mb-md">
+        <span class="section-title">Accesos rápidos</span>
+      </div>
+      <div class="grid-5 mb-page">
+        <div class="quick-card" onclick="window.location.href='/pages/venta/'">
+          <div class="quick-icon"><i class="ti ti-shopping-cart"></i></div>
+          <span>Nueva venta</span>
+        </div>
+        <div class="quick-card" onclick="window.location.href='/pages/compras/'">
+          <div class="quick-icon"><i class="ti ti-shopping-bag"></i></div>
+          <span>Nueva compra</span>
+        </div>
+        <div class="quick-card" onclick="window.location.href='/pages/catalogo/'">
+          <div class="quick-icon"><i class="ti ti-package"></i></div>
+          <span>Crear producto</span>
+        </div>
+        <div class="quick-card" onclick="window.location.href='/pages/cfdi/'">
+          <div class="quick-icon"><i class="ti ti-file-invoice"></i></div>
+          <span>Ver CFDIs</span>
+        </div>
+        <div class="quick-card" onclick="window.location.href='/pages/caja/'">
+          <div class="quick-icon"><i class="ti ti-cash"></i></div>
+          <span>Corte de caja</span>
+        </div>
+      </div>
+
+      <div class="grid-metrics">
+        <div class="metric-card">
+          <div class="metric-label">Ventas hoy</div>
+          <div class="metric-value">$18,420</div>
+          <div class="metric-delta">↑ 12% vs ayer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Transacciones</div>
+          <div class="metric-value">47</div>
+          <div class="metric-delta">↑ 8 más que ayer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">CFDIs timbrados</div>
+          <div class="metric-value">31</div>
+          <div class="metric-delta">16 pendientes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Por cobrar</div>
+          <div class="metric-value">$5,200</div>
+          <div class="metric-delta neg">↑ $800 esta semana</div>
+        </div>
+      </div>
+
+      <div class="grid-chart-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ventas del mes</span>
+            <a href="/pages/reportes/" class="card-action">Ver reporte</a>
+          </div>
+          <div class="card-body-sm">
+            <div class="chart-area">
+              <svg viewBox="0 0 500 130" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#48CAE4" stop-opacity="0.18"/>
+                    <stop offset="100%" stop-color="#48CAE4" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,100 C40,90 60,70 100,62 C140,54 160,80 200,68 C240,56 260,34 300,28 C340,22 360,44 400,34 C440,24 470,16 500,10 L500,130 L0,130 Z" fill="url(#grad)"/>
+                <path d="M0,100 C40,90 60,70 100,62 C140,54 160,80 200,68 C240,56 260,34 300,28 C340,22 360,44 400,34 C440,24 470,16 500,10" fill="none" stroke="#48CAE4" stroke-width="2.5"/>
+                <circle cx="500" cy="10" r="5" fill="#48CAE4"/>
+                <text x="0" y="128" font-size="10" fill="#BBB" font-family="sans-serif">01 Jun</text>
+                <text x="120" y="128" font-size="10" fill="#BBB" font-family="sans-serif">08 Jun</text>
+                <text x="240" y="128" font-size="10" fill="#BBB" font-family="sans-serif">15 Jun</text>
+                <text x="360" y="128" font-size="10" fill="#BBB" font-family="sans-serif">22 Jun</text>
+                <text x="455" y="128" font-size="10" fill="#BBB" font-family="sans-serif">30 Jun</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Stock bajo</span>
+            <a href="/pages/inventario/" class="card-action">Ver inventario</a>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-warning"><i class="ti ti-package" style="font-size:14px;"></i></div>
+              <div>
+                <div class="list-item-name">Azulejo blanco 30×30</div>
+                <div class="list-item-sub">Quedan 3 unidades</div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Bajo</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-warning"><i class="ti ti-package" style="font-size:14px;"></i></div>
+              <div>
+                <div class="list-item-name">Pegamento cerámico</div>
+                <div class="list-item-sub">Queda 1 unidad</div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Bajo</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-danger"><i class="ti ti-package" style="font-size:14px;"></i></div>
+              <div>
+                <div class="list-item-name">Fragua gris 5kg</div>
+                <div class="list-item-sub">Agotado</div>
+              </div>
+            </div>
+            <span class="badge badge-danger">Agotado</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-half">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Últimas ventas</span>
+            <a href="/pages/ventas/" class="card-action">Ver todas</a>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">MR</div>
+              <div>
+                <div class="list-item-name">Mario Rodríguez</div>
+                <div class="list-item-sub">Hace 12 min · 4 productos</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$2,340</span>
+              <span class="badge badge-success">Timbrado</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-accent">LG</div>
+              <div>
+                <div class="list-item-name">Laura González</div>
+                <div class="list-item-sub">Hace 38 min · 2 productos</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$890</span>
+              <span class="badge badge-warning">Pendiente</span>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-neutral">PG</div>
+              <div>
+                <div class="list-item-name">Público general</div>
+                <div class="list-item-sub">Hace 1h · 1 producto</div>
+              </div>
+            </div>
+            <div class="list-item-right">
+              <span class="list-item-amount">$450</span>
+              <span class="badge badge-success">Timbrado</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Cuentas por cobrar</span>
+            <a href="/pages/cuentas-cobrar/" class="card-action">Ver todas</a>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-info">CT</div>
+              <div>
+                <div class="list-item-name">Construrama Tepito</div>
+                <div class="list-item-sub">Vence en 3 días</div>
+              </div>
+            </div>
+            <span class="list-item-amount">$3,200</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-info">AR</div>
+              <div>
+                <div class="list-item-name">Arq. Pérez Romero</div>
+                <div class="list-item-sub">Vence en 8 días</div>
+              </div>
+            </div>
+            <span class="list-item-amount">$1,200</span>
+          </div>
+          <div class="list-item">
+            <div class="list-item-left">
+              <div class="avatar avatar-md avatar-danger">FH</div>
+              <div>
+                <div class="list-item-name">Ferrehogar SA</div>
+                <div class="list-item-sub">Vencido hace 2 días</div>
+              </div>
+            </div>
+            <span class="list-item-amount text-danger">$800</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+</body>
+</html>

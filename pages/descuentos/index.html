@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Descuentos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Descuentos</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-dark btn-sm" onclick="openForm()">
+          <i class="ti ti-plus"></i> Nuevo descuento
+        </button>
+        <div class="notif-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">SR</div>
+          <span class="user-chip-name">Sofía Reyes</span>
+          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text-muted);"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-4 mb-page">
+        <div class="metric-card">
+          <div class="metric-label">Descuentos activos</div>
+          <div class="metric-value">6</div>
+          <div class="metric-delta">2 por día específico</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Aplicados este mes</div>
+          <div class="metric-value">84</div>
+          <div class="metric-delta">↑ 12 más que el mes pasado</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ahorro total clientes</div>
+          <div class="metric-value">$8,420</div>
+          <div class="metric-delta">9.4% del total de ventas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Descuento más usado</div>
+          <div class="metric-value" style="font-size:var(--font-lg);">Mayoreo 10%</div>
+          <div class="metric-delta">42 aplicaciones</div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab-item active" onclick="selectTab(this, 'todos')">Todos</div>
+        <div class="tab-item" onclick="selectTab(this, 'porcentaje')">Por porcentaje</div>
+        <div class="tab-item" onclick="selectTab(this, 'monto')">Por monto fijo</div>
+        <div class="tab-item" onclick="selectTab(this, 'dia')">Por día</div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th>Aplica a</th>
+              <th>Vigencia</th>
+              <th>Usos</th>
+              <th>Estatus</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="descuentos-body"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Crear / Editar descuento -->
+<div class="modal-overlay" id="modal-descuento">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-desc-title">Nuevo descuento</span>
+      <button class="modal-close" onclick="closeModal('modal-descuento')"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre del descuento *</label>
+      <input type="text" class="form-input" id="desc-nombre" placeholder="Ej. Descuento mayoreo, Viernes especial..."/>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Tipo *</label>
+        <select class="form-select" id="desc-tipo" onchange="toggleTipo()">
+          <option value="porcentaje">Porcentaje (%)</option>
+          <option value="monto">Monto fijo ($)</option>
+          <option value="dia">Por día de la semana</option>
+        </select>
+      </div>
+      <div class="form-group" id="campo-valor">
+        <label class="form-label" id="label-valor">Porcentaje *</label>
+        <input type="number" class="form-input" id="desc-valor" placeholder="0" min="0"/>
+      </div>
+    </div>
+
+    <!-- Solo para descuento por día -->
+    <div class="form-group" id="campo-dia" style="display:none;">
+      <label class="form-label">Días de la semana</label>
+      <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="lunes" style="accent-color:var(--accent);"> Lunes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="martes" style="accent-color:var(--accent);"> Martes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="miercoles" style="accent-color:var(--accent);"> Miércoles</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="jueves" style="accent-color:var(--accent);"> Jueves</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="viernes" style="accent-color:var(--accent);"> Viernes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="sabado" style="accent-color:var(--accent);"> Sábado</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-sm);cursor:pointer;"><input type="checkbox" value="domingo" style="accent-color:var(--accent);"> Domingo</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Aplica a</label>
+      <select class="form-select" id="desc-aplica">
+        <option value="todo">Toda la venta</option>
+        <option value="categoria">Categoría específica</option>
+        <option value="producto">Producto específico</option>
+        <option value="cliente">Tipo de cliente</option>
+      </select>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Fecha inicio</label>
+        <input type="date" class="form-input" id="desc-inicio"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha fin (opcional)</label>
+        <input type="date" class="form-input" id="desc-fin"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Límite de usos (0 = ilimitado)</label>
+      <input type="number" class="form-input" id="desc-limite" placeholder="0" min="0"/>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-descuento')">Cancelar</button>
+      <button class="btn btn-dark btn-sm" onclick="guardarDescuento()">
+        <i class="ti ti-check"></i> Guardar descuento
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar eliminación -->
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="width:52px;height:52px;background:var(--danger-bg);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-lg);">
+      <i class="ti ti-trash" style="font-size:24px;color:var(--danger);"></i>
+    </div>
+    <h3 style="font-size:var(--font-xl);font-weight:500;margin-bottom:var(--space-sm);">¿Eliminar descuento?</h3>
+    <p style="color:var(--text-secondary);font-size:var(--font-md);margin-bottom:var(--space-page);">Esta acción no se puede deshacer.</p>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-eliminar')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarEliminar()"><i class="ti ti-trash"></i> Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i> Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  let descuentos = [
+    { id:1, nombre:'Mayoreo 10%',       tipo:'porcentaje', valor:10, aplica:'Tipo de cliente: Mayorista',   vigencia:'Sin vencimiento', usos:42, estatus:'activo'   },
+    { id:2, nombre:'Distribuidores 15%',tipo:'porcentaje', valor:15, aplica:'Tipo de cliente: Distribuidor',vigencia:'Sin vencimiento', usos:18, estatus:'activo'   },
+    { id:3, nombre:'Viernes especial',  tipo:'dia',        valor:8,  aplica:'Toda la venta',               vigencia:'Viernes',         usos:12, estatus:'activo'   },
+    { id:4, nombre:'Descuento $50 fijo',tipo:'monto',      valor:50, aplica:'Toda la venta',               vigencia:'30 jun – 31 jul', usos:6,  estatus:'activo'   },
+    { id:5, nombre:'Lunes de cerámica', tipo:'dia',        valor:12, aplica:'Categoría: Pisos y Muros',    vigencia:'Lunes',           usos:4,  estatus:'activo'   },
+    { id:6, nombre:'Promo mayo',        tipo:'porcentaje', valor:20, aplica:'Toda la venta',               vigencia:'01–31 may 2026',  usos:2,  estatus:'inactivo' },
+  ];
+
+  let tabActual = 'todos';
+  let eliminandoId = null;
+
+  function renderDescuentos() {
+    let lista = descuentos.filter(d =>
+      tabActual === 'todos' ? true : d.tipo === tabActual
+    );
+
+    const tbody = document.getElementById('descuentos-body');
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">
+        <i class="ti ti-tag" style="font-size:32px;display:block;margin-bottom:8px;"></i>Sin descuentos</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(d => {
+      const tipoBadge = d.tipo === 'porcentaje'
+        ? `<span class="badge badge-accent">Porcentaje</span>`
+        : d.tipo === 'monto'
+          ? `<span class="badge badge-info">Monto fijo</span>`
+          : `<span class="badge badge-warning">Por día</span>`;
+
+      const valorDisplay = d.tipo === 'monto' ? `$${d.valor}` : `${d.valor}%`;
+
+      return `
+        <tr>
+          <td style="font-weight:500;">${d.nombre}</td>
+          <td>${tipoBadge}</td>
+          <td style="font-size:var(--font-xl);font-weight:500;">${valorDisplay}</td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${d.aplica}</td>
+          <td style="color:var(--text-secondary);font-size:var(--font-md);">${d.vigencia}</td>
+          <td style="color:var(--text-secondary);">${d.usos} usos</td>
+          <td><span class="badge ${d.estatus === 'activo' ? 'badge-success' : 'badge-neutral'}">${d.estatus === 'activo' ? 'Activo' : 'Inactivo'}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="editarDescuento(${d.id})" data-tooltip="Editar">
+                <i class="ti ti-pencil" style="font-size:15px;"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon btn-sm" onclick="eliminarDescuento(${d.id})" data-tooltip="Eliminar" style="color:var(--danger);">
+                <i class="ti ti-trash" style="font-size:15px;"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function selectTab(el, tab) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    tabActual = tab;
+    renderDescuentos();
+  }
+
+  function openForm() {
+    document.getElementById('modal-desc-title').textContent = 'Nuevo descuento';
+    document.getElementById('modal-descuento').querySelectorAll('input').forEach(el => el.value = '');
+    document.getElementById('desc-tipo').value = 'porcentaje';
+    document.getElementById('desc-aplica').value = 'todo';
+    document.getElementById('desc-inicio').valueAsDate = new Date();
+    toggleTipo();
+    openModal('modal-descuento');
+  }
+
+  function editarDescuento(id) {
+    const d = descuentos.find(x => x.id === id);
+    document.getElementById('modal-desc-title').textContent = 'Editar descuento';
+    document.getElementById('desc-nombre').value = d.nombre;
+    document.getElementById('desc-tipo').value = d.tipo;
+    document.getElementById('desc-valor').value = d.valor;
+    toggleTipo();
+    openModal('modal-descuento');
+  }
+
+  function toggleTipo() {
+    const tipo = document.getElementById('desc-tipo').value;
+    const labelEl = document.getElementById('label-valor');
+    const campoValor = document.getElementById('campo-valor');
+    const campoDia = document.getElementById('campo-dia');
+
+    if (tipo === 'dia') {
+      campoValor.style.display = 'none';
+      campoDia.style.display = '';
+    } else {
+      campoValor.style.display = '';
+      campoDia.style.display = 'none';
+      labelEl.textContent = tipo === 'porcentaje' ? 'Porcentaje *' : 'Monto fijo ($) *';
+      document.getElementById('desc-valor').placeholder = tipo === 'porcentaje' ? '0' : '0.00';
+    }
+  }
+
+  function guardarDescuento() {
+    const nombre = document.getElementById('desc-nombre').value.trim();
+    if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+    showToast('Descuento guardado');
+    closeModal('modal-descuento');
+    renderDescuentos();
+  }
+
+  function eliminarDescuento(id) { eliminandoId = id; openModal('modal-eliminar'); }
+  function confirmarEliminar() {
+    descuentos = descuentos.filter(d => d.id !== eliminandoId);
+    closeModal('modal-eliminar');
+    renderDescuentos();
+    showToast('Descuento eliminado');
+  }
+
+  document.addEventListener('DOMContentLoaded', renderDescuentos);
+</script>
+</body>
+</html>
