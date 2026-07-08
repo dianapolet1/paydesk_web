@@ -95,6 +95,13 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
+// ── Cerrar sesión ─────────────────────────────────────────────────────────
+function logout() {
+  sessionStorage.clear();
+  const base = document.body.getAttribute('data-base');
+  window.location.href = base ? `${base}/index.html` : './index.html';
+}
+
 // ── Init global ───────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initOfflineDetector();

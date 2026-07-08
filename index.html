@@ -252,7 +252,7 @@
   const roleRedirects = {
     empresa: './pages/dashboard/',
     admin: './pages/admin/',
-    cliente: './pages/clientes/',
+    cliente: './pages/mi-cuenta/',
   };
 
   function handleLogin(e) {
@@ -260,6 +260,7 @@
     // TODO: conectar con API
     const activeBtn = document.querySelector('.role-btn.active');
     const role = activeBtn ? activeBtn.getAttribute('data-role') : 'empresa';
+    sessionStorage.setItem('pd_role', role);
     window.location.href = roleRedirects[role] || roleRedirects.empresa;
   }
 </script>

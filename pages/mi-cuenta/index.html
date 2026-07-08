@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayDesk — Mi cuenta</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/layout.css">
+</head>
+<body data-base="../..">
+
+<div class="app">
+  <aside id="sidebar"></aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Mi cuenta</span>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">MR</div>
+          <span class="user-chip-name">Mario Rodríguez</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <div class="grid-2" style="align-items:start;">
+
+        <!-- Columna izquierda -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <!-- Info general -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Información general</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:var(--space-lg);margin-bottom:var(--space-xl);">
+                <div class="avatar avatar-lg avatar-accent" style="width:56px;height:56px;font-size:20px;">MR</div>
+                <div>
+                  <div style="font-size:var(--font-xl);font-weight:500;color:var(--text-primary);">Mario Rodríguez</div>
+                  <div style="font-size:var(--font-md);color:var(--text-secondary);">Construrama Tepito</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:var(--space-md);">
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-id-badge" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">ROMAR880512AB1</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-mail" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">mario@construrama.mx</span>
+                </div>
+                <div class="flex items-center gap-md">
+                  <i class="ti ti-currency-dollar" style="color:var(--text-muted);font-size:16px;width:20px;"></i>
+                  <span style="font-size:var(--font-md);color:var(--text-secondary);">Precio mayorista</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Crédito (solo lectura) -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Mi crédito</span>
+            </div>
+            <div class="card-body">
+              <div class="grid-2 mb-lg">
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Límite de crédito</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;">$15,000.00</div>
+                </div>
+                <div>
+                  <div style="font-size:var(--font-sm);color:var(--text-secondary);margin-bottom:4px;">Saldo pendiente</div>
+                  <div style="font-size:var(--font-xl);font-weight:500;color:var(--danger);">$3,200.00</div>
+                </div>
+              </div>
+              <div style="background:var(--surface);border-radius:var(--radius-full);height:8px;overflow:hidden;">
+                <div style="height:100%;border-radius:var(--radius-full);background:var(--accent);width:21%;"></div>
+              </div>
+              <div style="font-size:var(--font-xs);color:var(--text-muted);margin-top:6px;">$3,200 de $15,000 utilizados</div>
+            </div>
+
+            <!-- Historial de abonos (solo lectura) -->
+            <div class="card-header" style="border-top:1px solid var(--border);">
+              <span class="card-title" style="font-size:var(--font-md);">Historial de abonos</span>
+            </div>
+            <div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-success"><i class="ti ti-arrow-down" style="font-size:13px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Abono recibido</div>
+                    <div class="list-item-sub">15 jun 2026</div>
+                  </div>
+                </div>
+                <span style="font-size:var(--font-md);font-weight:500;color:var(--success);">+$2,000.00</span>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-success"><i class="ti ti-arrow-down" style="font-size:13px;"></i></div>
+                  <div>
+                    <div class="list-item-name">Abono recibido</div>
+                    <div class="list-item-sub">02 jun 2026</div>
+                  </div>
+                </div>
+                <span style="font-size:var(--font-md);font-weight:500;color:var(--success);">+$1,500.00</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-lg);">
+
+          <!-- Resumen -->
+          <div class="grid-2" style="gap:var(--space-lg);">
+            <div class="metric-card">
+              <div class="metric-label">Total comprado</div>
+              <div class="metric-value">$42,300</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Compras este mes</div>
+              <div class="metric-value">$7,430</div>
+            </div>
+          </div>
+
+          <!-- Historial de compras + descarga de CFDI -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Mis compras</span>
+              <span style="font-size:var(--font-sm);color:var(--text-secondary);">Últimas 5</span>
+            </div>
+            <div id="mis-compras-lista">
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-accent">TC</div>
+                  <div>
+                    <div class="list-item-name">4 productos · Efectivo</div>
+                    <div class="list-item-sub">30 jun 2026 · Sede Centro · Folio A-1042</div>
+                  </div>
+                </div>
+                <div class="list-item-right" style="display:flex;align-items:center;gap:10px;">
+                  <span class="list-item-amount">$2,340.00</span>
+                  <span class="badge badge-success">Timbrado</span>
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tooltip="Descargar CFDI" onclick="descargarCFDI('A-1042')">
+                    <i class="ti ti-download" style="font-size:15px;"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-accent">TC</div>
+                  <div>
+                    <div class="list-item-name">2 productos · Transferencia</div>
+                    <div class="list-item-sub">22 jun 2026 · Sede Centro · Folio A-1035</div>
+                  </div>
+                </div>
+                <div class="list-item-right" style="display:flex;align-items:center;gap:10px;">
+                  <span class="list-item-amount">$1,890.00</span>
+                  <span class="badge badge-success">Timbrado</span>
+                  <button class="btn btn-ghost btn-icon btn-sm" data-tooltip="Descargar CFDI" onclick="descargarCFDI('A-1035')">
+                    <i class="ti ti-download" style="font-size:15px;"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="list-item">
+                <div class="list-item-left">
+                  <div class="avatar avatar-md avatar-accent">TC</div>
+                  <div>
+                    <div class="list-item-name">6 productos · Crédito</div>
+                    <div class="list-item-sub">10 jun 2026 · Sede Centro · Folio A-1021</div>
+                  </div>
+                </div>
+                <div class="list-item-right" style="display:flex;align-items:center;gap:10px;">
+                  <span class="list-item-amount">$3,200.00</span>
+                  <span class="badge badge-warning">Pendiente</span>
+                  <button class="btn btn-ghost btn-icon btn-sm" disabled data-tooltip="El CFDI se genera al timbrar">
+                    <i class="ti ti-download" style="font-size:15px;color:var(--text-muted);"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Offline banner -->
+<div class="offline-banner" id="offline-banner">
+  <i class="ti ti-wifi-off"></i>
+  Sin conexión a internet
+</div>
+
+<script src="../../assets/js/sidebar.js"></script>
+<script src="../../assets/js/utils.js"></script>
+<script>
+  function descargarCFDI(folio) {
+    // TODO: conectar con el backend / PAC para traer el PDF/XML real
+    showToast(`Descargando CFDI ${folio}... (simulado)`);
+  }
+</script>
+</body>
+</html>

@@ -12,6 +12,17 @@ function initSidebar() {
   el.classList.add('sidebar');
 
   const base = document.body.getAttribute('data-base') || '';
+  const role = sessionStorage.getItem('pd_role') || 'empresa';
+
+  if (role === 'admin') {
+    initSidebarAdmin(el, base);
+    return;
+  }
+
+  if (role === 'cliente') {
+    initSidebarCliente(el, base);
+    return;
+  }
 
   const nav = [
     { label: 'Principal', type: 'section' },
@@ -90,6 +101,9 @@ function initSidebar() {
           <div class="user-role-sm">Administradora</div>
         </div>
       </div>
+      <button class="nav-item" style="width:100%;border:none;background:none;cursor:pointer;text-align:left;color:var(--danger);" onclick="logout()">
+        <i class="ti ti-logout"></i> Cerrar sesión
+      </button>
     </div>
   `;
 
@@ -104,6 +118,102 @@ function initSidebar() {
   window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('pd_sidebar_scroll', navEl.scrollTop);
   });
+}
+
+/* ── Sidebar del rol Administrador (contador) ──────────────────────────────
+   Se usa en cualquier página compartida (ej. Kanban) a la que el admin
+   navegue, para que no se le muestre el menú de Empresa.
+   ============================================================ */
+function initSidebarAdmin(el, base) {
+  const adminHome = base ? `${base}/pages/admin/` : 'pages/admin/';
+  const kanbanHref = base ? `${base}/pages/kanban/` : 'pages/kanban/';
+  const path = window.location.pathname;
+  const isKanban = path.includes('/kanban/');
+
+  el.innerHTML = `
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">PD</div>
+        <span class="logo-name">PayDesk</span>
+      </div>
+      <div class="sidebar-company">
+        <div class="company-avatar" style="background:rgba(72,202,228,0.15);color:var(--accent);">AD</div>
+        <div>
+          <div class="company-name">Panel Admin</div>
+          <div class="company-sede" style="color:#3A4A5A;">Contador / Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <span class="nav-label">Panel</span>
+      <a href="${adminHome}" class="nav-item" data-vista="empresas"><i class="ti ti-building"></i> Empresas</a>
+      <a href="${adminHome}" class="nav-item" data-vista="dashboard-empresa"><i class="ti ti-chart-bar"></i> Dashboard empresa</a>
+      <a href="${adminHome}" class="nav-item" data-vista="ventas-empresa"><i class="ti ti-receipt"></i> Ventas / CFDI</a>
+
+      <span class="nav-label">Tablero</span>
+      <a href="${kanbanHref}" class="nav-item ${isKanban ? 'active' : ''}"><i class="ti ti-layout-kanban"></i> Kanban</a>
+
+      <span class="nav-label">Cuenta</span>
+      <a href="${adminHome}" class="nav-item"><i class="ti ti-settings"></i> Configuración</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar-sm">JM</div>
+        <div>
+          <div class="user-name-sm">Jorge Martínez</div>
+          <div class="user-role-sm">Contador</div>
+        </div>
+      </div>
+      <button class="nav-item" style="width:100%;border:none;background:none;cursor:pointer;text-align:left;color:var(--danger);" onclick="logout()">
+        <i class="ti ti-logout"></i> Cerrar sesión
+      </button>
+    </div>
+  `;
+}
+
+/* ── Sidebar del rol Cliente ────────────────────────────────────────────────
+   Vista muy reducida: el cliente solo ve su propia cuenta, no el catálogo
+   ni la operación de la empresa.
+   ============================================================ */
+function initSidebarCliente(el, base) {
+  const miCuentaHref = base ? `${base}/pages/mi-cuenta/` : 'pages/mi-cuenta/';
+  const path = window.location.pathname;
+  const isMiCuenta = path.includes('/mi-cuenta/');
+
+  el.innerHTML = `
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">PD</div>
+        <span class="logo-name">PayDesk</span>
+      </div>
+      <div class="sidebar-company">
+        <div class="company-avatar">TC</div>
+        <div>
+          <div class="company-name">Todo Cerámicas</div>
+          <div class="company-sede">Cliente</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <a href="${miCuentaHref}" class="nav-item ${isMiCuenta ? 'active' : ''}"><i class="ti ti-user"></i> Mi cuenta</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar-sm">MR</div>
+        <div>
+          <div class="user-name-sm">Mario Rodríguez</div>
+          <div class="user-role-sm">Cliente</div>
+        </div>
+      </div>
+      <button class="nav-item" style="width:100%;border:none;background:none;cursor:pointer;text-align:left;color:var(--danger);" onclick="logout()">
+        <i class="ti ti-logout"></i> Cerrar sesión
+      </button>
+    </div>
+  `;
 }
 
 document.addEventListener('DOMContentLoaded', initSidebar);
